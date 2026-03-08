@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { email, host } = await request.json();
+    const { email, host, port = 993 } = await request.json();
 
     // Testes de conectividade básica
     const dnsResult = await testDNS(host);
-    const connectivityResult = await testConnectivity(host);
+    const connectivityResult = await testConnectivity(host, port);
     
     const results = {
       dns: dnsResult,
       connectivity: connectivityResult,
+      port: port,
       suggestions: [] as string[]
     };
 
@@ -20,12 +21,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     
     if (!results.connectivity.success) {
-      results.suggestions.push('Servidor não responde. Tente outro servidor ou verifique firewall.');
+      results.suggestions.push(`Servidor não responde na porta ${port}. Verifique firewall ou tente outra porta.`);
     }
 
-    // Sugestões específicas para Outlook
+    // Sugestões específicas para cada provedor
+    if (host.includes('gmail')) {
+      results.suggestions.push('Gmail: use senha de app, não a senha normal.');
+      results.suggestions.push('Verifique se "Acesso a apps menos seguros" está habilitado ou use 2FA.');
+    }
+    
     if (host.includes('outlook') || host.includes('office365')) {
-      results.suggestions.push('Para Outlook: verifique se IMAP está habilitado nas configurações.');
+      results.suggestions.push('Outlook: verifique se IMAP está habilitado nas configurações.');
       results.suggestions.push('Use senha de aplicativo, não a senha normal.');
       results.suggestions.push('Tente porta 143 sem TLS como alternativa.');
     }
@@ -59,11 +65,11 @@ async function testDNS(host: string): Promise<{ success: boolean; time?: string;
   }
 }
 
-async function testConnectivity(host: string): Promise<{ success: boolean; time?: string; error?: string }> {
+async function testConnectivity(host: string, port: number = 993): Promise<{ success: boolean; time?: string; error?: string }> {
   try {
     const start = Date.now();
     
-    // Testar porta 993 (IMAP SSL)
+    // Testar porta específica
     const net = require('net');
     const socket = new net.Socket();
     
@@ -84,7 +90,7 @@ async function testConnectivity(host: string): Promise<{ success: boolean; time?
         reject(err);
       });
       
-      socket.connect(993, host);
+      socket.connect(port, host);
     });
     
     return { success: true, time: `${Date.now() - start}ms` };

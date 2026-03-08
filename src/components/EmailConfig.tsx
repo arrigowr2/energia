@@ -76,24 +76,51 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     setSuccess('');
 
     try {
-      // Primeiro testa diagnóstico básico
+      // 1. Teste simples de conectividade
+      const simpleResponse = await fetch('/api/simple-test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: config.email, 
+          host: config.host,
+          port: config.port
+        }),
+      });
+
+      const simpleData = await simpleResponse.json();
+
+      if (!simpleResponse.ok) {
+        setError(`Falha na conectividade: ${simpleData.error}`);
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('Conectividade OK:', simpleData.message);
+
+      // 2. Teste diagnóstico completo
       const debugResponse = await fetch('/api/debug-imap', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: config.email, host: config.host }),
+        body: JSON.stringify({ 
+          email: config.email, 
+          host: config.host,
+          port: config.port
+        }),
       });
 
       const debugData = await debugResponse.json();
 
       if (!debugData.dns.success || !debugData.connectivity.success) {
-        setError(`Problema de conectividade: ${debugData.suggestions.join(' ')}`);
+        setError(`Problema detectado: ${debugData.suggestions.join(' ')}`);
         setIsLoading(false);
         return;
       }
 
-      // Se conectividade OK, testa conexão IMAP
+      // 3. Teste de autenticação IMAP
       const testResponse = await fetch('/api/test-connection', {
         method: 'POST',
         headers: {
@@ -105,12 +132,12 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
       const testData = await testResponse.json();
 
       if (!testResponse.ok) {
-        setError(testData.error || 'Erro ao testar conexão');
+        setError(`Falha na autenticação: ${testData.error}`);
         setIsLoading(false);
         return;
       }
 
-      // Se a conexão funcionar, busca os dados
+      // 4. Se tudo OK, busca os dados
       const response = await fetch('/api/email', {
         method: 'POST',
         headers: {
@@ -122,7 +149,7 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess(`Conexão estabelecida em ${testData.connectionTime}! ${data.message}`);
+        setSuccess(`✅ Sucesso! Conexão em ${testData.connectionTime}. ${data.message}`);
         if (data.data && data.data.length > 0) {
           onConfigured(data.data);
           localStorage.setItem('energyData', JSON.stringify(data.data));
@@ -132,7 +159,7 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
         setError(data.error || 'Erro ao buscar e-mails');
       }
     } catch (err) {
-      setError('Erro de conexão. Verifique suas credenciais.');
+      setError('Erro inesperado. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
