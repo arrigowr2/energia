@@ -55,17 +55,7 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     }
   };
 
-  const handleProviderSelect = (provider: EmailProvider) => {
-    setSelectedProvider(provider);
-    setConfig(prev => ({
-      ...prev,
-      host: provider.host,
-      port: provider.port,
-      tls: provider.tls
-    }));
-  };
-
-  const handleTestConnection = async () => {
+  const handleAdvancedDebug = async () => {
     if (!config.email || !config.password || !config.host) {
       setError('Preencha todos os campos obrigatórios');
       return;
@@ -76,6 +66,36 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     setSuccess('');
 
     try {
+      const response = await fetch('/api/imap-debug', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Erro no debug');
+        return;
+      }
+
+      // Mostrar resultados detalhados
+      const resultsText = data.results.map((r: any) => 
+        `${r.config}: ${r.success ? '✅ ' + r.message + ' (' + r.time + ')' : '❌ ' + r.error}`
+      ).join('\n');
+
+      setSuccess(`Debug ${data.provider}:\n${resultsText}\n\nSugestões:\n${data.suggestions.join('\n')}`);
+
+    } catch (err) {
+      setError('Erro no debug avançado');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
       // 1. Teste simples de conectividade
       const simpleResponse = await fetch('/api/simple-test', {
         method: 'POST',
@@ -165,6 +185,16 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     }
   };
 
+  const handleProviderSelect = (provider: any) => {
+    setSelectedProvider(provider);
+    setConfig((prev: any) => ({
+      ...prev,
+      host: provider.host,
+      port: provider.port,
+      tls: provider.tls
+    }));
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6 bg-neutral-800 rounded-lg shadow-xl">
       <div className="flex items-center gap-3 mb-6">
@@ -193,7 +223,7 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
             Selecione seu provedor de e-mail
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {providers.map((provider) => (
+            {providers.map((provider: any) => (
               <button
                 key={provider.name}
                 onClick={() => handleProviderSelect(provider)}
@@ -303,23 +333,35 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
         </div>
 
         {/* Botão de Ação */}
-        <button
-          onClick={handleTestConnection}
-          disabled={isLoading || !config.email || !config.password}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Conectando...
-            </>
-          ) : (
-            <>
-              <Mail className="w-5 h-5" />
-              Conectar e Buscar Dados
-            </>
-          )}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleTestConnection}
+            disabled={isLoading || !config.email || !config.password}
+            className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Conectando...
+              </>
+            ) : (
+              <>
+                <Mail className="w-5 h-5" />
+                Conectar e Buscar Dados
+              </>
+            )}
+          </button>
+          
+          <button
+            onClick={handleAdvancedDebug}
+            disabled={isLoading || !config.email || !config.password}
+            className="px-4 py-3 bg-orange-600 hover:bg-orange-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            title="Debug avançado - testa múltiplas configurações"
+          >
+            <Settings className="w-5 h-5" />
+            Debug
+          </button>
+        </div>
       </div>
     </div>
   );
