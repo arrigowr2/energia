@@ -30,7 +30,8 @@ const handler = NextAuth({
     error: '/'
   },
   secret: process.env.NEXTAUTH_SECRET,
-  useSecureCookies: false
+  useSecureCookies: false,
+  debug: process.env.NODE_ENV === 'development'
 })
 
 export { handler as GET, handler as POST }

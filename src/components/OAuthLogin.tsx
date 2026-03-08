@@ -23,10 +23,15 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    if (session?.accessToken) {
-      // Já está logado, buscar e-mails automaticamente
-      fetchEmails();
-    }
+    // Adicionar delay pequeno para evitar redirecionamento rápido
+    const timer = setTimeout(() => {
+      if (session?.accessToken) {
+        // Já está logado, buscar e-mails automaticamente
+        fetchEmails();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [session]);
 
   const fetchEmails = async () => {
