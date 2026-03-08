@@ -195,6 +195,44 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     }
   };
 
+  const handleOutlookAlternative = async () => {
+    if (!config.email || !config.password) {
+      setError('Preencha e-mail e senha');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/outlook-alternative', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          email: config.email, 
+          password: config.password 
+        }),
+      });
+
+      const data = await response.json();
+      
+      const message = `
+${data.issue}
+
+${data.suggestions.join('\n')}
+
+Testes manuais:
+${data.manualTests.join('\n')}
+
+${data.alternative}
+      `.trim();
+
+      setSuccess(message);
+
+    } catch (err) {
+      setError('Erro ao analisar Outlook');
+    }
+  };
+
   const handleProviderSelect = (provider: any) => {
     setSelectedProvider(provider);
     setConfig((prev: any) => ({

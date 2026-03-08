@@ -109,7 +109,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             ['SUBJECT', 'fatura']
           ];
 
-          imap.search(['OR', ...searchCriteria], (err, results) => {
+          // Limitar busca para últimos 30 e-mails para evitar timeout
+          imap.search(['OR', ...searchCriteria], (err: any, results: any) => {
             if (err) {
               resolve(NextResponse.json(
                 { error: 'Erro ao buscar e-mails' },
@@ -130,7 +131,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             const emailsData: EnergyData[] = [];
             let processed = 0;
 
-            const fetch = imap.fetch(results, { bodies: '' });
+            // Limitar busca para últimos 10 e-mails para evitar timeout
+            const fetch = imap.fetch(results.slice(0, 10), { bodies: '' });
             
             fetch.on('message', (msg, seqno) => {
               msg.on('body', (stream, info) => {
