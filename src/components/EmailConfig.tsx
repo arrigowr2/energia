@@ -76,7 +76,24 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     setSuccess('');
 
     try {
-      // Primeiro testa apenas a conexão
+      // Primeiro testa diagnóstico básico
+      const debugResponse = await fetch('/api/debug-imap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: config.email, host: config.host }),
+      });
+
+      const debugData = await debugResponse.json();
+
+      if (!debugData.dns.success || !debugData.connectivity.success) {
+        setError(`Problema de conectividade: ${debugData.suggestions.join(' ')}`);
+        setIsLoading(false);
+        return;
+      }
+
+      // Se conectividade OK, testa conexão IMAP
       const testResponse = await fetch('/api/test-connection', {
         method: 'POST',
         headers: {
