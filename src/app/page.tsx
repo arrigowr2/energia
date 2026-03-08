@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import EmailConfig from '@/components/EmailConfig';
+import OAuthLogin from '@/components/OAuthLogin';
 import EnergyDashboard from '@/components/EnergyDashboard';
-import { Battery, Settings, BarChart3 } from 'lucide-react';
+import { BarChart3, Mail, Shield } from 'lucide-react';
 
 interface EnergyData {
   date: string;
@@ -15,108 +16,129 @@ interface EnergyData {
 
 export default function Home() {
   const [energyData, setEnergyData] = useState<EnergyData[]>([]);
-  const [isConfigured, setIsConfigured] = useState(false);
+  const [configMode, setConfigMode] = useState<'oauth' | 'imap' | 'demo'>('oauth');
 
-  // Verificar se já existe configuração salva
   useEffect(() => {
-    const savedConfig = localStorage.getItem('emailConfig');
+    // Verificar se já existe dados salvos
     const savedData = localStorage.getItem('energyData');
-    if (savedConfig && savedData) {
+    const oauthMode = localStorage.getItem('oauthMode');
+    
+    if (savedData) {
       setEnergyData(JSON.parse(savedData));
-      setIsConfigured(true);
+      if (oauthMode) {
+        setConfigMode('oauth');
+      }
     }
   }, []);
 
   const handleConfigured = (data: EnergyData[]) => {
     setEnergyData(data);
-    setIsConfigured(true);
   };
 
-  const handleReconfigure = () => {
-    setIsConfigured(false);
-    localStorage.removeItem('emailConfig');
-  };
+  if (energyData.length > 0) {
+    return <EnergyDashboard data={energyData} />;
+  }
 
   return (
-    <main className="min-h-screen bg-neutral-900 text-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-blue-600 rounded-lg">
-                <Battery className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">Monitor de Energia</h1>
-                <p className="text-neutral-400">Sistema inteligente para acompanhamento de dados energéticos</p>
-              </div>
-            </div>
-            {isConfigured && (
-              <button
-                onClick={handleReconfigure}
-                className="flex items-center gap-2 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                Reconfigurar
-              </button>
-            )}
-          </div>
-        </header>
-
-        {/* Conteúdo Principal */}
-        <div className="space-y-8">
-          {!isConfigured ? (
-            <div className="space-y-6">
-              {/* Hero Section */}
-              <div className="text-center py-8">
-                <BarChart3 className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Bem-vindo ao Monitor de Energia</h2>
-                <p className="text-neutral-400 max-w-2xl mx-auto">
-                  Configure seu e-mail para começar a monitorar automaticamente os dados de energia 
-                  enviados pela sua companhia elétrica. O sistema irá processar os e-mails diários 
-                  e apresentar as informações em um dashboard interativo.
-                </p>
-              </div>
-
-              {/* Formulário de Configuração */}
-              <EmailConfig onConfigured={handleConfigured} />
-            </div>
-          ) : (
-            <div>
-              {energyData.length > 0 ? (
-                <EnergyDashboard data={energyData} />
-              ) : (
-                <div className="text-center py-12">
-                  <Battery className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-neutral-300 mb-2">
-                    Configuração Concluída
-                  </h3>
-                  <p className="text-neutral-400 mb-6">
-                    Seu e-mail foi configurado com sucesso, mas nenhum dado de energia foi encontrado 
-                    nos e-mails recentes. Verifique se os e-mails da companhia elétrica estão chegando 
-                    corretamente.
-                  </p>
-                  <button
-                    onClick={handleReconfigure}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                  >
-                    Verificar Configuração
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+    <div className="min-h-screen bg-neutral-900 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Dashboard de Energia
+          </h1>
+          <p className="text-neutral-300 text-lg">
+            Sistema automático para monitoramento de dados energéticos
+          </p>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-16 pt-8 border-t border-neutral-800">
-          <div className="text-center text-neutral-400 text-sm">
-            <p>Monitor de Energia - Sistema automatizado de acompanhamento energético</p>
-            <p className="mt-2">Dados processados localmente com segurança</p>
+        {/* Selector de Modo */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-neutral-800 rounded-lg p-1 flex gap-1">
+            <button
+              onClick={() => setConfigMode('oauth')}
+              className={`px-6 py-2 rounded-md transition-all ${
+                configMode === 'oauth'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-700'
+              }`}
+            >
+              <Shield className="w-4 h-4 inline mr-2" />
+              OAuth2
+            </button>
+            <button
+              onClick={() => setConfigMode('imap')}
+              className={`px-6 py-2 rounded-md transition-all ${
+                configMode === 'imap'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-700'
+              }`}
+            >
+              <Mail className="w-4 h-4 inline mr-2" />
+              IMAP
+            </button>
+            <button
+              onClick={() => setConfigMode('demo')}
+              className={`px-6 py-2 rounded-md transition-all ${
+                configMode === 'demo'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-700'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 inline mr-2" />
+              Demo
+            </button>
           </div>
-        </footer>
+        </div>
+
+        {/* Componente baseado no modo selecionado */}
+        {configMode === 'oauth' && (
+          <div className="mb-6 text-center">
+            <div className="bg-blue-900/30 border border-blue-600 rounded-lg p-4 mb-6">
+              <h3 className="text-blue-300 font-semibold mb-2">
+                🔐 Login Automático com OAuth2
+              </h3>
+              <p className="text-blue-400 text-sm">
+                • Login seguro via Google<br/>
+                • Busca automática de kp-net@kp-net.com<br/>
+                • Sem necessidade de configurações manuais
+              </p>
+            </div>
+            <OAuthLogin onConfigured={handleConfigured} />
+          </div>
+        )}
+
+        {configMode === 'imap' && (
+          <div className="mb-6 text-center">
+            <div className="bg-orange-900/30 border border-orange-600 rounded-lg p-4 mb-6">
+              <h3 className="text-orange-300 font-semibold mb-2">
+                📧 Configuração IMAP Manual
+              </h3>
+              <p className="text-orange-400 text-sm">
+                • Requer senha de aplicativo<br/>
+                • Configuração manual necessária<br/>
+                • Pode ter restrições de segurança
+              </p>
+            </div>
+            <EmailConfig onConfigured={handleConfigured} />
+          </div>
+        )}
+
+        {configMode === 'demo' && (
+          <div className="mb-6 text-center">
+            <div className="bg-green-900/30 border border-green-600 rounded-lg p-4 mb-6">
+              <h3 className="text-green-300 font-semibold mb-2">
+                📊 Modo Demonstração
+              </h3>
+              <p className="text-green-400 text-sm">
+                • Dados de exemplo realísticos<br/>
+                • Teste todas as funcionalidades<br/>
+                • Sem necessidade de configuração
+              </p>
+            </div>
+            <EmailConfig onConfigured={handleConfigured} />
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }
