@@ -73,7 +73,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       host: config.host,
       port: config.port || 993,
       tls: config.tls !== false,
-      tlsOptions: { rejectUnauthorized: false }
+      tlsOptions: { 
+        rejectUnauthorized: false,
+        servername: config.host
+      },
+      authTimeout: 30000,
+      connTimeout: 30000
     });
 
     return new Promise((resolve) => {
@@ -158,8 +163,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       imap.once('error', (err) => {
+        console.error('IMAP Error Details:', {
+          message: err.message,
+          code: err.code,
+          source: err.source,
+          stack: err.stack
+        });
+        
+        let errorMessage = 'Erro de conexão IMAP';
+        
+        if (err.message.includes('LOGIN failed')) {
+          errorMessage = 'Falha no login. Tente: 1) Verificar se a senha de app está correta, 2) Usar "Office 365" como provedor, 3) Desabilitar TLS temporariamente.';
+        } else if (err.message.includes('timeout')) {
+          errorMessage = 'Timeout. Verifique conexão ou tente servidor alternativo.';
+        } else if (err.message.includes('certificate')) {
+          errorMessage = 'Erro de certificado. Tente desabilitar TLS.';
+        } else if (err.message.includes('authentication')) {
+          errorMessage = 'Erro de autenticação. Verifique se IMAP está habilitado.';
+        }
+        
         resolve(NextResponse.json(
-          { error: 'Erro de conexão IMAP: ' + err.message },
+          { 
+            error: errorMessage,
+            details: err.message,
+            troubleshooting: 'Para Outlook: use senha de app, verifique IMAP habilitado, ou tente Office 365'
+          },
           { status: 500 }
         ));
       });

@@ -25,6 +25,27 @@ export async function GET() {
       icon: '🔷'
     },
     {
+      name: 'Office 365',
+      host: 'outlook.office365.com',
+      port: 993,
+      tls: true,
+      icon: '🏢'
+    },
+    {
+      name: 'Outlook (Alt)',
+      host: 'imap-mail.outlook.com',
+      port: 993,
+      tls: true,
+      icon: '📪'
+    },
+    {
+      name: 'Live.com',
+      host: 'imap-mail.outlook.com',
+      port: 993,
+      tls: true,
+      icon: '🌐'
+    },
+    {
       name: 'Yahoo',
       host: 'imap.mail.yahoo.com',
       port: 993,
