@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Lock, Server, Shield, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, Lock, Server, Shield, CheckCircle, AlertCircle, Loader2, Settings } from 'lucide-react';
 
 interface EmailProvider {
   name: string;
@@ -96,6 +96,16 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
   };
 
   const handleTestConnection = async () => {
+    if (!config.email || !config.password || !config.host) {
+      setError('Preencha todos os campos obrigatórios');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
       // 1. Teste simples de conectividade
       const simpleResponse = await fetch('/api/simple-test', {
         method: 'POST',
