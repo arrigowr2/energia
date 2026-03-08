@@ -76,6 +76,24 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     setSuccess('');
 
     try {
+      // Primeiro testa apenas a conexão
+      const testResponse = await fetch('/api/test-connection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config),
+      });
+
+      const testData = await testResponse.json();
+
+      if (!testResponse.ok) {
+        setError(testData.error || 'Erro ao testar conexão');
+        setIsLoading(false);
+        return;
+      }
+
+      // Se a conexão funcionar, busca os dados
       const response = await fetch('/api/email', {
         method: 'POST',
         headers: {
@@ -87,16 +105,14 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess('Conexão estabelecida com sucesso!');
+        setSuccess(`Conexão estabelecida em ${testData.connectionTime}! ${data.message}`);
         if (data.data && data.data.length > 0) {
           onConfigured(data.data);
           localStorage.setItem('energyData', JSON.stringify(data.data));
           localStorage.setItem('emailConfig', JSON.stringify(config));
-        } else {
-          setSuccess('Conexão estabelecida, mas nenhum dado de energia encontrado nos e-mails recentes.');
         }
       } else {
-        setError(data.error || 'Erro ao conectar com o e-mail');
+        setError(data.error || 'Erro ao buscar e-mails');
       }
     } catch (err) {
       setError('Erro de conexão. Verifique suas credenciais.');

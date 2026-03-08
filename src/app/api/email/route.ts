@@ -77,8 +77,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         rejectUnauthorized: false,
         servername: config.host
       },
-      authTimeout: 30000,
-      connTimeout: 30000
+      authTimeout: 60000,  // Aumentado para 60 segundos
+      connTimeout: 60000,  // Aumentado para 60 segundos
+      keepalive: {
+        interval: 10000,
+        idleInterval: 300000,
+        forceNoop: true
+      }
     });
 
     return new Promise((resolve) => {
