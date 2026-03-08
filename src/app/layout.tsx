@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Dashboard de Energia',
-  description: 'Sistema para monitoramento de energia',
+  description: 'Sistema automático para monitoramento de dados energéticos via e-mail',
 }
 
 export default function RootLayout({
