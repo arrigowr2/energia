@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import { JWT } from 'next-auth/jwt'
 
 const handler = NextAuth({
   providers: [
@@ -29,7 +28,9 @@ const handler = NextAuth({
   pages: {
     signIn: '/',
     error: '/'
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: false
 })
 
 export { handler as GET, handler as POST }
