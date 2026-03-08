@@ -227,9 +227,9 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     }
   };
 
-  const handleShowAlternatives = async () => {
+  const handleEmailSolutions = async () => {
     try {
-      const response = await fetch('/api/alternatives', {
+      const response = await fetch('/api/email-solutions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -239,25 +239,65 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
       const data = await response.json();
       
       const message = `
-🔧 ${data.title}
+🎯 ${data.title}
+
+📋 Problema: ${data.problem}
 
 ${data.solutions.map((sol: any, i: number) => `
-${i+1}. ${sol.name}
+${i+1}. ${sol.name} ${sol.status}
 ${sol.description}
 ✅ Vantagens: ${sol.advantages.join(', ')}
 🔧 Como: ${sol.how}
-📋 Exemplos: ${sol.examples.join(', ')}
 `).join('\n')}
 
 🚀 ${data.immediate.title}
-${data.immediate.description}
 ${data.immediate.steps.join('\n')}
+✅ ${data.immediate.advantages.join(', ')}
+
+💡 Essa solução funciona HOJE!
       `.trim();
 
       setSuccess(message);
 
     } catch (err) {
-      setError('Erro ao carregar alternativas');
+      setError('Erro ao carregar soluções de e-mail');
+    }
+  };
+
+  const handleOAuthSetup = async () => {
+    try {
+      const response = await fetch('/api/oauth-setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      
+      const message = `
+🔐 ${data.title}
+
+${data.description}
+
+📧 Gmail OAuth2:
+${data.gmail.steps.join('\n')}
+✅ ${data.gmail.advantages.join(', ')}
+
+🔷 Outlook OAuth2:
+${data.outlook.steps.join('\n')}
+✅ ${data.outlook.advantages.join(', ')}
+
+🛠️ ${data.implementation.title}
+${data.implementation.overview}
+⏱️ ${data.implementation.time}
+✅ ${data.implementation.benefits.join(', ')}
+      `.trim();
+
+      setSuccess(message);
+
+    } catch (err) {
+      setError('Erro ao carregar configuração OAuth');
     }
   };
 
@@ -439,13 +479,23 @@ ${data.immediate.steps.join('\n')}
           </button>
           
           <button
-            onClick={handleShowAlternatives}
+            onClick={handleEmailSolutions}
             disabled={isLoading}
             className="px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-            title="Ver alternativas de integração"
+            title="Soluções para e-mail coletivo"
           >
             <Settings className="w-5 h-5" />
-            Alternativas
+            Soluções
+          </button>
+          
+          <button
+            onClick={handleOAuthSetup}
+            disabled={isLoading}
+            className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            title="Configurar OAuth2"
+          >
+            <Shield className="w-5 h-5" />
+            OAuth2
           </button>
         </div>
       </div>
