@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mail, Lock, Server, Shield, CheckCircle, AlertCircle, Loader2, Settings } from 'lucide-react';
+import { Mail, Lock, Server, Shield, CheckCircle, AlertCircle, Loader2, Settings, BarChart3 } from 'lucide-react';
 
 interface EmailProvider {
   name: string;
@@ -195,41 +195,69 @@ export default function EmailConfig({ onConfigured }: { onConfigured: (data: Ene
     }
   };
 
-  const handleOutlookAlternative = async () => {
-    if (!config.email || !config.password) {
-      setError('Preencha e-mail e senha');
-      return;
-    }
+  const handleDemoMode = async () => {
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
 
     try {
-      const response = await fetch('/api/outlook-alternative', {
+      const response = await fetch('/api/demo-data', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          email: config.email, 
-          password: config.password 
-        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(`✅ ${data.message}`);
+        if (data.data && data.data.length > 0) {
+          onConfigured(data.data);
+          localStorage.setItem('energyData', JSON.stringify(data.data));
+          localStorage.setItem('demoMode', 'true');
+        }
+      } else {
+        setError('Erro ao carregar dados de demonstração');
+      }
+    } catch (err) {
+      setError('Erro no modo demonstração');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShowAlternatives = async () => {
+    try {
+      const response = await fetch('/api/alternatives', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await response.json();
       
       const message = `
-${data.issue}
+🔧 ${data.title}
 
-${data.suggestions.join('\n')}
+${data.solutions.map((sol: any, i: number) => `
+${i+1}. ${sol.name}
+${sol.description}
+✅ Vantagens: ${sol.advantages.join(', ')}
+🔧 Como: ${sol.how}
+📋 Exemplos: ${sol.examples.join(', ')}
+`).join('\n')}
 
-Testes manuais:
-${data.manualTests.join('\n')}
-
-${data.alternative}
+🚀 ${data.immediate.title}
+${data.immediate.description}
+${data.immediate.steps.join('\n')}
       `.trim();
 
       setSuccess(message);
 
     } catch (err) {
-      setError('Erro ao analisar Outlook');
+      setError('Erro ao carregar alternativas');
     }
   };
 
@@ -401,13 +429,23 @@ ${data.alternative}
           </button>
           
           <button
-            onClick={handleAdvancedDebug}
-            disabled={isLoading || !config.email || !config.password}
-            className="px-4 py-3 bg-orange-600 hover:bg-orange-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-            title="Debug avançado - testa múltiplas configurações"
+            onClick={handleDemoMode}
+            disabled={isLoading}
+            className="px-4 py-3 bg-green-600 hover:bg-green-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            title="Modo demonstração - usa dados de exemplo"
+          >
+            <BarChart3 className="w-5 h-5" />
+            Demo
+          </button>
+          
+          <button
+            onClick={handleShowAlternatives}
+            disabled={isLoading}
+            className="px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+            title="Ver alternativas de integração"
           >
             <Settings className="w-5 h-5" />
-            Debug
+            Alternativas
           </button>
         </div>
       </div>
