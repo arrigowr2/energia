@@ -56,14 +56,28 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
 
       if (response.ok) {
         setSuccess(`✅ ${data.message}`);
+        console.log('📧 Resposta da API completa:', data);
+        console.log('📊 Dados.data:', data.data);
+        console.log('🔢 Tamanho de data.data:', data.data?.length);
+        
         if (data.data && data.data.length > 0) {
           console.log('📊 Dados da API:', data.data);
+          console.log('💾 Salvando no localStorage...');
+          
           // Usar dados diretamente da API (já com campos corretos)
           onConfigured(data.data);
           localStorage.setItem('energyData', JSON.stringify(data.data));
           localStorage.setItem('oauthMode', 'true');
+          
+          console.log('✅ Dados salvos no localStorage');
+          console.log('📊 onConfigured chamado com:', data.data);
+        } else {
+          console.log('❌ Nenhum dado recebido da API');
+          console.log('📄 data.data:', data.data);
+          console.log('📄 data:', data);
         }
       } else {
+        console.log('❌ Erro na resposta da API:', data);
         setError(data.error || 'Erro ao buscar e-mails');
       }
     } catch (err) {
