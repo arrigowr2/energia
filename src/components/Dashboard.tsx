@@ -11,7 +11,9 @@ import {
   ArrowDownRight,
   Calendar,
   Moon,
-  Lightbulb
+  Lightbulb,
+  LogIn,
+  X
 } from 'lucide-react';
 import OAuthLogin from './OAuthLogin';
 
@@ -27,30 +29,29 @@ interface DashboardProps {
   initialData?: EnergyData[];
 }
 
-export default function Dashboard({ initialData = [] }: DashboardProps) {
+export default function Dashboard() {
   const { data: session, status } = useSession();
-  const [data, setData] = useState<EnergyData[]>(initialData);
-  const [filteredData, setFilteredData] = useState<EnergyData[]>(initialData);
+  const [data, setData] = useState<EnergyData[]>([]);
+  const [filteredData, setFilteredData] = useState<EnergyData[]>([]);
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year' | 'custom'>('today');
   const [customDate, setCustomDate] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   // Carregar dados do localStorage ao montar
   useEffect(() => {
-    if (status === 'authenticated' && initialData.length === 0) {
-      const savedData = localStorage.getItem('energyData');
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          setData(parsedData);
-          setFilteredData(parsedData);
-        } catch (error) {
-          console.error('Erro ao carregar dados salvos:', error);
-        }
+    const savedData = localStorage.getItem('energyData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setData(parsedData);
+        setFilteredData(parsedData);
+      } catch (error) {
+        console.error('Erro ao carregar dados salvos:', error);
       }
     }
-  }, [status, initialData]);
+  }, [status]);
 
   // Salvar dados no localStorage quando mudar
   useEffect(() => {
@@ -183,29 +184,73 @@ export default function Dashboard({ initialData = [] }: DashboardProps) {
     </div>
   );
 
-  // Se não estiver autenticado, mostrar login integrado
+  // Se não estiver autenticado, mostrar dashboard com login suspenso
   if (status === 'unauthenticated') {
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center p-8`}>
-        <div className="max-w-md w-full">
-          <div className={`p-8 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-xl`}>
-            <div className="flex justify-between items-center mb-8">
-              <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} p-8`}>
+        {/* Header */}
+        <div className="max-w-7xl mx-auto mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Dashboard Energético
               </h1>
+              <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
+                Monitoramento de energia em tempo real
+              </p>
+            </div>
+            <div className="flex gap-4 items-center">
+              {/* Botão de login */}
+              <button
+                onClick={() => setShowLogin(!showLogin)}
+                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
+                title="Fazer login"
+              >
+                <LogIn className="w-5 h-5" />
+              </button>
+              
+              {/* Botão dark mode */}
               <button
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}
+                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-gray-600'} shadow-lg`}
               >
                 {isDarkMode ? <Moon className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
               </button>
             </div>
-            <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-              <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
-              <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
+          </div>
+        </div>
+
+        {/* Modal de login */}
+        {showLogin && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className={`max-w-md w-full mx-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8`}>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Faça Login
+                </h2>
+                <button
+                  onClick={() => setShowLogin(false)}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
+                <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
+                <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
+              </div>
+              <OAuthLogin onConfigured={() => setShowLogin(false)} />
             </div>
-            <OAuthLogin onConfigured={() => {}} />
+          </div>
+        )}
+
+        {/* Dashboard sem dados */}
+        <div className="max-w-7xl mx-auto">
+          <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <p className="text-lg mb-2">Faça login para visualizar seus dados energéticos</p>
+            <p className="text-sm opacity-75">Clique no ícone de login no canto superior direito</p>
           </div>
         </div>
       </div>
