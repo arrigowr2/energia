@@ -26,9 +26,11 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
     console.log('🔐 OAuthLogin useEffect executado');
     console.log('👤 Session:', session);
     console.log('🔑 AccessToken:', session?.accessToken);
+    console.log('🔢 Session mudou? - dependência disparou');
     
     // Adicionar delay pequeno para evitar redirecionamento rápido
     const timer = setTimeout(() => {
+      console.log('⏰ Timer executado - verificando accessToken');
       if (session?.accessToken) {
         console.log('✅ Tem accessToken - buscando e-mails');
         // Já está logado, buscar e-mails automaticamente
