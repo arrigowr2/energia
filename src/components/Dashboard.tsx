@@ -391,7 +391,7 @@ export default function Dashboard() {
                   onClick={async () => {
                     console.log('📧 Botão buscar emails clicado');
                     
-                    if (status !== 'authenticated') {
+                    if ((status as string) !== 'authenticated') {
                       alert('❌ Faça login primeiro! Clique no ícone de cadeado 🔐');
                       return;
                     }
