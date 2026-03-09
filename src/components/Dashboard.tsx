@@ -35,7 +35,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
-  // Carregar dados do localStorage ao montar
+  // Adicionar log para status do session
+  useEffect(() => {
+    console.log('🔍 Status da sessão mudou:', status);
+    console.log('👤 Dados da sessão:', session);
+  }, [status, session]);
   useEffect(() => {
     console.log('🔄 Carregando dados do localStorage...');
     const savedData = localStorage.getItem('energyData');
@@ -215,10 +219,16 @@ export default function Dashboard() {
   );
 
   const renderLoginButton = () => {
+    console.log('🔐 renderLoginButton chamado, status:', status);
+    
     if (status === 'authenticated') {
+      console.log('✅ Usuário autenticado - mostrando botão logout');
       return (
         <button
-          onClick={() => signOut()}
+          onClick={() => {
+            console.log('🚪 Botão logout clicado');
+            signOut();
+          }}
           className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
           title="Sair"
         >
@@ -228,9 +238,13 @@ export default function Dashboard() {
     }
     
     if (status === 'unauthenticated') {
+      console.log('❌ Usuário não autenticado - mostrando botão login');
       return (
         <button
-          onClick={() => setShowLogin(!showLogin)}
+          onClick={() => {
+            console.log('🔑 Botão login clicado');
+            setShowLogin(!showLogin);
+          }}
           className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
           title="Fazer login"
         >
@@ -239,6 +253,7 @@ export default function Dashboard() {
       );
     }
     
+    console.log('⏳ Status loading - nenhum botão');
     return null;
   };
 
