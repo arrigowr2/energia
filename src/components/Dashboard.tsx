@@ -15,6 +15,16 @@ import {
   LogIn,
   X
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 import OAuthLogin from './OAuthLogin';
 
 interface EnergyData {
@@ -561,65 +571,55 @@ export default function Dashboard() {
                 {dateRange === 'latest' && 'Evolução da Energia'}
                 {dateRange === 'custom' && 'Evolução da Energia'}
               </h3>
-              <div className="relative" style={{ width: '100%', height: 320 }}>
-                {/* Área do gráfico */}
-                <div className="absolute inset-0">
-                  {/* Grid lines */}
-                  <div className="absolute inset-0 flex flex-col justify-between">
-                    {[0, 1, 2, 3, 4].map(i => (
-                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b-2' : ''}`}></div>
-                    ))}
-                  </div>
-                  {/* Barras */}
-                  <div className="absolute inset-0 flex items-end justify-around px-8 pb-8">
-                    {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
-                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaGerada, d.energiaConsumida)), 1);
-                      const h1 = (item.energiaGerada / maxVal) * 240;
-                      const h2 = (item.energiaConsumida / maxVal) * 240;
-                      const label = dateRange === 'year'
-                        ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-                        : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                      return (
-                        <div key={index} className="flex flex-col items-center gap-2">
-                          <div className="flex items-end gap-1" style={{ height: '240px' }}>
-                            <div 
-                              className="bg-green-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-green-600" 
-                              style={{ height: `${h1}px` }}
-                              title={`Produzido: ${item.energiaGerada.toFixed(1)} kWh`}
-                            ></div>
-                            <div 
-                              className="bg-blue-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-blue-600" 
-                              style={{ height: `${h2}px` }}
-                              title={`Consumido: ${item.energiaConsumida.toFixed(1)} kWh`}
-                            ></div>
-                          </div>
-                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center whitespace-nowrap`}>{label}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Escala Y */}
-                  <div className="absolute right-2 top-0 bottom-8 w-16 flex flex-col justify-between text-xs text-gray-500">
-                    {(() => {
-                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaGerada, d.energiaConsumida)), 1);
-                      const steps = [1, 0.75, 0.5, 0.25, 0];
-                      return steps.map(step => (
-                        <span key={step} className="text-right">{(maxVal * step).toFixed(0)}</span>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center gap-6 sm:gap-8 mt-4 text-xs sm:text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded"></div>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Produzida</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-blue-500 rounded"></div>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Consumida</span>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  data={filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item) => ({
+                    name: dateRange === 'year'
+                      ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                    energiaGerada: item.energiaGerada,
+                    energiaConsumida: item.energiaConsumida
+                  }))}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
+                  />
+                  <YAxis 
+                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
+                    label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                      border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                      borderRadius: '8px',
+                      color: isDarkMode ? '#F3F4F6' : '#111827'
+                    }}
+                    formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
+                  />
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '20px' }}
+                    iconType="rect"
+                  />
+                  <Bar 
+                    dataKey="energiaGerada" 
+                    fill="#10B981" 
+                    name="Produzida"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="energiaConsumida" 
+                    fill="#3B82F6" 
+                    name="Consumida"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
 
             {/* Gráfico 2: Comprado vs Vendido */}
@@ -631,65 +631,55 @@ export default function Dashboard() {
                 {dateRange === 'latest' && 'Energia Comprada vs Vendida'}
                 {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
               </h3>
-              <div className="relative" style={{ width: '100%', height: 320 }}>
-                {/* Área do gráfico */}
-                <div className="absolute inset-0">
-                  {/* Grid lines */}
-                  <div className="absolute inset-0 flex flex-col justify-between">
-                    {[0, 1, 2, 3, 4].map(i => (
-                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b-2' : ''}`}></div>
-                    ))}
-                  </div>
-                  {/* Barras */}
-                  <div className="absolute inset-0 flex items-end justify-around px-8 pb-8">
-                    {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
-                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaComprada, d.energiaVendida)), 1);
-                      const h1 = (item.energiaComprada / maxVal) * 240;
-                      const h2 = (item.energiaVendida / maxVal) * 240;
-                      const label = dateRange === 'year'
-                        ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-                        : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                      return (
-                        <div key={index} className="flex flex-col items-center gap-2">
-                          <div className="flex items-end gap-1" style={{ height: '240px' }}>
-                            <div 
-                              className="bg-red-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-red-600" 
-                              style={{ height: `${h1}px` }}
-                              title={`Comprado: ${item.energiaComprada.toFixed(1)} kWh`}
-                            ></div>
-                            <div 
-                              className="bg-yellow-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-yellow-600" 
-                              style={{ height: `${h2}px` }}
-                              title={`Vendido: ${item.energiaVendida.toFixed(1)} kWh`}
-                            ></div>
-                          </div>
-                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center whitespace-nowrap`}>{label}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* Escala Y */}
-                  <div className="absolute right-2 top-0 bottom-8 w-16 flex flex-col justify-between text-xs text-gray-500">
-                    {(() => {
-                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaComprada, d.energiaVendida)), 1);
-                      const steps = [1, 0.75, 0.5, 0.25, 0];
-                      return steps.map(step => (
-                        <span key={step} className="text-right">{(maxVal * step).toFixed(0)}</span>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center gap-6 sm:gap-8 mt-4 text-xs sm:text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-red-500 rounded"></div>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Comprada</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-yellow-500 rounded"></div>
-                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Vendida</span>
-                </div>
-              </div>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  data={filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item) => ({
+                    name: dateRange === 'year'
+                      ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                    energiaComprada: item.energiaComprada,
+                    energiaVendida: item.energiaVendida
+                  }))}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                  <XAxis 
+                    dataKey="name" 
+                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
+                  />
+                  <YAxis 
+                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
+                    label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                      border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                      borderRadius: '8px',
+                      color: isDarkMode ? '#F3F4F6' : '#111827'
+                    }}
+                    formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
+                  />
+                  <Legend 
+                    wrapperStyle={{ paddingTop: '20px' }}
+                    iconType="rect"
+                  />
+                  <Bar 
+                    dataKey="energiaComprada" 
+                    fill="#EF4444" 
+                    name="Comprada"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="energiaVendida" 
+                    fill="#EAB308" 
+                    name="Vendida"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
