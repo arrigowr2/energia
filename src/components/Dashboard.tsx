@@ -518,6 +518,33 @@ export default function Dashboard() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>Carregando...</p>
+          
+          {/* Botões de teste - disponíveis mesmo durante loading */}
+          <div className="flex gap-2 justify-center mt-8">
+            <button
+              onClick={() => {
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const twoDaysAgo = new Date(today);
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                const formatDate = (d: Date) => d.toISOString().split('T')[0];
+                const testData = [
+                  { date: formatDate(today), energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
+                  { date: formatDate(yesterday), energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
+                  { date: formatDate(twoDaysAgo), energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
+                ];
+                localStorage.setItem('energyData', JSON.stringify(testData));
+                setData(testData);
+                setFilteredData(testData);
+                alert('✅ Dados de teste aplicados! Recarregue a página.');
+              }}
+              className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg font-bold`}
+              title="Testar dados"
+            >
+              🧪
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -612,6 +639,67 @@ export default function Dashboard() {
                   <LogIn className="w-5 h-5" />
                 </button>
               ) : null}
+              
+              {/* Botão de teste - TEMPORÁRIO */}
+              <button
+                onClick={() => {
+                  console.log('🧪 TESTE SIMPLES INICIADO');
+                  const today = new Date();
+                  const yesterday = new Date(today);
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  const twoDaysAgo = new Date(today);
+                  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                  const formatDate = (d: Date) => d.toISOString().split('T')[0];
+                  const testData = [
+                    { date: formatDate(today), energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
+                    { date: formatDate(yesterday), energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
+                    { date: formatDate(twoDaysAgo), energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
+                  ];
+                  localStorage.setItem('energyData', JSON.stringify(testData));
+                  setData(testData);
+                  setFilteredData(testData);
+                  alert('✅ Dados de teste aplicados!');
+                }}
+                className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg font-bold`}
+                title="Testar dados"
+              >
+                🧪
+              </button>
+              
+              {/* Botão de buscar emails */}
+              <button
+                onClick={async () => {
+                  if ((status as string) !== 'authenticated') {
+                    alert('❌ Faça login primeiro!');
+                    return;
+                  }
+                  const accessToken = (session as any)?.accessToken;
+                  if (!accessToken) {
+                    alert('❌ Token não disponível');
+                    return;
+                  }
+                  try {
+                    const response = await fetch('/api/gmail', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ accessToken })
+                    });
+                    const data = await response.json();
+                    if (response.ok && data.data?.length > 0) {
+                      handleDataUpdate(data.data);
+                      alert('✅ ' + data.data.length + ' registros carregados!');
+                    } else {
+                      alert('❌ ' + (data.error || 'Nenhum dado encontrado'));
+                    }
+                  } catch (err: any) {
+                    alert('❌ Erro: ' + err.message);
+                  }
+                }}
+                className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-800 text-blue-400' : 'bg-blue-100 text-blue-600'} shadow-lg font-bold`}
+                title="Buscar emails"
+              >
+                📧
+              </button>
               
               {/* Botão dark mode */}
               <button
