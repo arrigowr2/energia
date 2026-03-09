@@ -287,15 +287,73 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-4 items-center">
-              {renderLoginButton()}
+              {/* Filtros de data */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDateRange('today')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    dateRange === 'today' 
+                      ? 'bg-blue-600 text-white' 
+                      : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+                  }`}
+                >
+                  Hoje
+                </button>
+                <button
+                  onClick={() => setDateRange('week')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    dateRange === 'week' 
+                      ? 'bg-blue-600 text-white' 
+                      : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+                  }`}
+                >
+                  Semana
+                </button>
+                <button
+                  onClick={() => setDateRange('month')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    dateRange === 'month' 
+                      ? 'bg-blue-600 text-white' 
+                      : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+                  }`}
+                >
+                  Mês
+                </button>
+                <button
+                  onClick={() => setDateRange('year')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    dateRange === 'year' 
+                      ? 'bg-blue-600 text-white' 
+                      : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+                  }`}
+                >
+                  Ano
+                </button>
+                <input
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => {
+                    setCustomDate(e.target.value);
+                    setDateRange('custom');
+                  }}
+                  className={`px-4 py-2 rounded-lg font-medium ${
+                    isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
+                  }`}
+                />
+              </div>
               
-              {/* Botão dark mode */}
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-gray-600'} shadow-lg`}
-              >
-                {isDarkMode ? <Moon className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
-              </button>
+              {/* Botões de ação */}
+              <div className="flex gap-2 items-center">
+                {renderLoginButton()}
+                
+                {/* Botão dark mode */}
+                <button
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-gray-600'} shadow-lg`}
+                >
+                  {isDarkMode ? <Moon className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -331,7 +389,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Dashboard sem dados */}
+        {/* Dashboard sem dados - mensagem para fazer login */}
         <div className="max-w-7xl mx-auto">
           <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
