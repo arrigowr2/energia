@@ -386,6 +386,56 @@ export default function Dashboard() {
                   🧪
                 </button>
                 
+                {/* Botão de buscar emails - REQUER LOGIN */}
+                <button
+                  onClick={async () => {
+                    console.log('📧 Botão buscar emails clicado');
+                    
+                    if (status !== 'authenticated') {
+                      alert('❌ Faça login primeiro! Clique no ícone de cadeado 🔐');
+                      return;
+                    }
+                    
+                    const accessToken = (session as any)?.accessToken;
+                    
+                    if (!accessToken) {
+                      alert('❌ Token de acesso não disponível');
+                      return;
+                    }
+                    
+                    console.log('📧 Iniciando busca de emails...');
+                    console.log('🔑 Token:', accessToken.substring(0, 20) + '...');
+                    
+                    try {
+                      const response = await fetch('/api/gmail', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ accessToken })
+                      });
+                      
+                      console.log('📡 Status da resposta:', response.status);
+                      const data = await response.json();
+                      console.log('📊 Dados recebidos:', data);
+                      
+                      if (response.ok && data.data && data.data.length > 0) {
+                        console.log('✅', data.data.length, 'emails processados');
+                        handleDataUpdate(data.data);
+                        alert('✅ ' + data.data.length + ' registros de energia carregados!');
+                      } else {
+                        console.log('❌ Nenhum dado encontrado:', data.error || data.message);
+                        alert('❌ ' + (data.error || 'Nenhum dado encontrado nos emails'));
+                      }
+                    } catch (err: any) {
+                      console.log('❌ Erro:', err);
+                      alert('❌ Erro ao buscar: ' + err.message);
+                    }
+                  }}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-800 text-blue-400' : 'bg-blue-100 text-blue-600'} shadow-lg font-bold`}
+                  title="Buscar emails do Gmail (requer login)"
+                >
+                  📧
+                </button>
+                
                 {/* Botão dark mode */}
                 <button
                   onClick={() => setIsDarkMode(!isDarkMode)}
