@@ -19,45 +19,34 @@ export async function POST(request: NextRequest) {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-    // Buscar e-mails específicos do kp-net@kp-net.com e também recebidos de takayama.sp@gmail.com para testes
-    // Tenta busca mais ampla primeiro, depois específica
+    // Buscar e-mails específicos do kp-net@kp-net.com
     let response;
     let searchType = '';
     
     try {
-      // Busca ampla - qualquer e-mail de takayama.sp@gmail.com
+      // Busca apenas e-mails de kp-net@kp-net.com
       response = await gmail.users.messages.list({
         userId: 'me',
-        q: 'from:takayama.sp@gmail.com',
+        q: 'from:kp-net@kp-net.com',
         maxResults: 30
       });
-      searchType = 'takayama.sp@gmail.com';
-      
-      if (!response.data.messages || response.data.messages.length === 0) {
-        // Se não encontrar, busca de kp-net@kp-net.com
-        response = await gmail.users.messages.list({
-          userId: 'me',
-          q: 'from:kp-net@kp-net.com',
-          maxResults: 30
-        });
-        searchType = 'kp-net@kp-net.com';
-      }
+      searchType = 'kp-net@kp-net.com';
     } catch (error) {
-      // Se tudo falhar, busca genérica
+      // Se falhar, tenta busca genérica apenas de kp-net
       response = await gmail.users.messages.list({
         userId: 'me',
-        q: '(from:kp-net@kp-net.com OR from:takayama.sp@gmail.com)',
+        q: 'from:kp-net@kp-net.com',
         maxResults: 30
       });
-      searchType = 'generic';
+      searchType = 'fallback';
     }
 
     if (!response.data.messages || response.data.messages.length === 0) {
       return NextResponse.json({
-        message: 'Nenhum e-mail encontrado. Verifique se os e-mails existem na caixa de entrada.',
+        message: 'Nenhum e-mail de kp-net@kp-net.com encontrado. Verifique se os e-mails existem na caixa de entrada.',
         debug: {
-          searchedFor: ['takayama.sp@gmail.com', 'kp-net@kp-net.com'],
-          suggestion: 'Verifique se os e-mails estão na caixa de entrada principal (não em spam/pasta)'
+          searchedFor: ['kp-net@kp-net.com'],
+          suggestion: 'Verifique se os e-mails de kp-net@kp-net.com estão na caixa de entrada principal (não em spam/pasta)'
         },
         data: []
       });
