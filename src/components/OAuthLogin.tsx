@@ -56,6 +56,7 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
     setSuccess('');
 
     try {
+      console.log('🚀 Iniciando fetch para /api/gmail');
       const response = await fetch('/api/gmail', {
         method: 'POST',
         headers: {
@@ -65,6 +66,9 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
           accessToken: session.accessToken
         }),
       });
+
+      console.log('📡 Resposta recebida:', response.status, response.statusText);
+      console.log('📋 Headers da resposta:', response.headers);
 
       const data = await response.json();
 
@@ -94,9 +98,12 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
         console.log('❌ Erro na resposta da API:', data);
         setError(data.error || 'Erro ao buscar e-mails');
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.log('❌ Erro no fetch:', err);
+      console.log('❌ Detalhes do erro:', err?.message || err);
       setError('Erro de conexão com Gmail');
     } finally {
+      console.log('🏁 Finally do fetchEmails');
       setIsLoading(false);
     }
   };
