@@ -102,20 +102,28 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
 
       if (response.ok) {
         const debugMessage = `
-🔍 DEBUG - E-mails recentes:
-${data.message}
+🔍 DEBUG - Análise completa de e-mails:
 
-📊 Resumo:
+📊 Resultados das buscas:
+- Todos os e-mails: ${data.searchResults.allEmails}
+- Busca "from:takayama.sp@gmail.com": ${data.searchResults.takayamaEmails}
+- Busca "from:kp-net@kp-net.com": ${data.searchResults.kpnetEmails}
+- Busca "takayama" (conteúdo): ${data.searchResults.takayamaContent}
+
+� Resumo dos e-mails recentes:
 - Total: ${data.summary.total} e-mails
-- De takayama.sp@gmail.com: ${data.summary.fromTakayama}
-- De kp-net@kp-net.com: ${data.summary.fromKpNet}
+- Com "takayama": ${data.summary.fromTakayama}
+- Da KP-Net: ${data.summary.fromKpNet}
 
-📧 E-mails encontrados:
+� E-mails encontrados:
 ${data.emails.map((email: any, i: number) => 
-  `${i+1}. ${email.isTarget ? '🎯' : '📧'} ${email.from}
+  `${i+1}. ${email.isTakayama ? '🎯' : email.isKpNet ? '⚡' : '📧'} ${email.from}
    Assunto: ${email.subject}
    Data: ${email.date}`
 ).join('\n')}
+
+💡 Dicas se não encontrar takayama.sp@gmail.com:
+${data.recommendations.ifZeroTakayama.map((tip: string) => `   • ${tip}`).join('\n')}
         `.trim();
 
         setSuccess(debugMessage);
