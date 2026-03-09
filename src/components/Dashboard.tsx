@@ -210,15 +210,17 @@ export default function Dashboard() {
     value, 
     change, 
     icon: Icon, 
-    color 
+    color,
+    borderColor 
   }: { 
     title: string; 
     value: number; 
     change: number; 
     icon: any; 
     color: string;
+    borderColor: string;
   }) => (
-    <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+    <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border-2 ${borderColor}`}>
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-lg ${color}`}>
           <Icon className="w-6 h-6 text-white" />
@@ -235,7 +237,7 @@ export default function Dashboard() {
         </div>
       </div>
       <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-        {value.toFixed(2)}
+        {value.toFixed(1)} kWh
       </div>
       <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
         {title}
@@ -728,33 +730,38 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto">
         {stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {/* Ordem: Produzido → Consumido → Vendida → Comprada */}
             <StatCard
-              title="Consumo (kWh)"
+              title="Produzido Hoje"
+              value={stats.gerado.current}
+              change={stats.gerado.change}
+              icon={Sun}
+              color="bg-green-600"
+              borderColor="border-green-500/30"
+            />
+            <StatCard
+              title="Consumido Hoje"
               value={stats.consumo.current}
               change={stats.consumo.change}
               icon={Zap}
               color="bg-blue-600"
+              borderColor="border-blue-500/30"
             />
             <StatCard
-              title="Comprado (kWh)"
-              value={stats.comprado.current}
-              change={stats.comprado.change}
-              icon={ArrowUpRight}
-              color="bg-green-600"
-            />
-            <StatCard
-              title="Vendido (kWh)"
+              title="Energia Vendida"
               value={stats.vendido.current}
               change={stats.vendido.change}
-              icon={ArrowDownRight}
-              color="bg-purple-600"
+              icon={ArrowUpRight}
+              color="bg-yellow-600"
+              borderColor="border-yellow-500/30"
             />
             <StatCard
-              title="Gerado (kWh)"
-              value={stats.gerado.current}
-              change={stats.gerado.change}
-              icon={Sun}
-              color="bg-yellow-600"
+              title="Energia Comprada"
+              value={stats.comprado.current}
+              change={stats.comprado.change}
+              icon={ArrowDownRight}
+              color="bg-red-600"
+              borderColor="border-red-500/30"
             />
           </div>
         ) : (
