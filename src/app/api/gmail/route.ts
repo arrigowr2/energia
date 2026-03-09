@@ -2,10 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 
 export async function POST(request: NextRequest) {
+  console.log('🚀 API /api/gmail chamada');
+  
   try {
     const { accessToken } = await request.json();
+    console.log('🔑 AccessToken recebido:', accessToken ? 'SIM' : 'NÃO');
 
     if (!accessToken) {
+      console.log('❌ Token não fornecido');
       return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
     }
 
@@ -136,12 +140,16 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error) {
-    console.error('Erro Gmail OAuth2:', error);
-    return NextResponse.json(
-      { error: 'Erro ao buscar e-mails via Gmail: ' + (error as Error).message },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.log('❌ Erro geral na API:', error);
+    console.log('❌ Detalhes do erro:', error?.message);
+    console.log('❌ Stack do erro:', error?.stack);
+    
+    return NextResponse.json({ 
+      error: 'Erro ao buscar e-mails',
+      details: error?.message,
+      stack: error?.stack
+    }, { status: 500 });
   }
 }
 
