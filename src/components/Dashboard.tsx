@@ -561,54 +561,62 @@ export default function Dashboard() {
                 {dateRange === 'latest' && 'Evolução da Energia'}
                 {dateRange === 'custom' && 'Evolução da Energia'}
               </h3>
-              <div className="relative" style={{ width: '100%', height: 280 }}>
-                {/* Escala Y */}
-                <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-gray-500">
-                  {(() => {
-                    const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaGerada, d.energiaConsumida)), 1);
-                    const steps = [1, 0.75, 0.5, 0.25, 0];
-                    return steps.map(step => (
-                      <span key={step}>{(maxVal * step).toFixed(0)} kWh</span>
-                    ));
-                  })()}
-                </div>
+              <div className="relative" style={{ width: '100%', height: 320 }}>
                 {/* Área do gráfico */}
-                <div className="absolute left-14 right-4 top-0 bottom-8">
+                <div className="absolute inset-0">
                   {/* Grid lines */}
                   <div className="absolute inset-0 flex flex-col justify-between">
                     {[0, 1, 2, 3, 4].map(i => (
-                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b' : ''}`}></div>
+                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b-2' : ''}`}></div>
                     ))}
                   </div>
                   {/* Barras */}
-                  <div className="absolute inset-0 flex items-end justify-around px-2">
+                  <div className="absolute inset-0 flex items-end justify-around px-8 pb-8">
                     {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
                       const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaGerada, d.energiaConsumida)), 1);
-                      const h1 = (item.energiaGerada / maxVal) * 100;
-                      const h2 = (item.energiaConsumida / maxVal) * 100;
+                      const h1 = (item.energiaGerada / maxVal) * 240;
+                      const h2 = (item.energiaConsumida / maxVal) * 240;
                       const label = dateRange === 'year'
                         ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
                         : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                       return (
-                        <div key={index} className="flex flex-col items-center flex-1 px-0.5">
-                          <div className="flex items-end gap-0.5 sm:gap-1 h-[200px]">
-                            <div className="bg-green-500 w-3 sm:w-4 md:w-6 rounded-t-sm transition-all" style={{ height: `${h1}%` }} title={`Produzido: ${item.energiaGerada.toFixed(1)} kWh`}></div>
-                            <div className="bg-blue-500 w-3 sm:w-4 md:w-6 rounded-t-sm transition-all" style={{ height: `${h2}%` }} title={`Consumido: ${item.energiaConsumida.toFixed(1)} kWh`}></div>
+                        <div key={index} className="flex flex-col items-center gap-2">
+                          <div className="flex items-end gap-1" style={{ height: '240px' }}>
+                            <div 
+                              className="bg-green-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-green-600" 
+                              style={{ height: `${h1}px` }}
+                              title={`Produzido: ${item.energiaGerada.toFixed(1)} kWh`}
+                            ></div>
+                            <div 
+                              className="bg-blue-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-blue-600" 
+                              style={{ height: `${h2}px` }}
+                              title={`Consumido: ${item.energiaConsumida.toFixed(1)} kWh`}
+                            ></div>
                           </div>
-                          <p className={`text-[10px] sm:text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center`}>{label}</p>
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center whitespace-nowrap`}>{label}</p>
                         </div>
                       );
                     })}
                   </div>
+                  {/* Escala Y */}
+                  <div className="absolute right-2 top-0 bottom-8 w-16 flex flex-col justify-between text-xs text-gray-500">
+                    {(() => {
+                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaGerada, d.energiaConsumida)), 1);
+                      const steps = [1, 0.75, 0.5, 0.25, 0];
+                      return steps.map(step => (
+                        <span key={step} className="text-right">{(maxVal * step).toFixed(0)}</span>
+                      ));
+                    })()}
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-center gap-4 sm:gap-6 mt-2 text-xs sm:text-sm">
+              <div className="flex justify-center gap-6 sm:gap-8 mt-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded"></div>
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded"></div>
                   <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Produzida</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded"></div>
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-blue-500 rounded"></div>
                   <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Consumida</span>
                 </div>
               </div>
@@ -623,54 +631,62 @@ export default function Dashboard() {
                 {dateRange === 'latest' && 'Energia Comprada vs Vendida'}
                 {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
               </h3>
-              <div className="relative" style={{ width: '100%', height: 280 }}>
-                {/* Escala Y */}
-                <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-gray-500">
-                  {(() => {
-                    const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaComprada, d.energiaVendida)), 1);
-                    const steps = [1, 0.75, 0.5, 0.25, 0];
-                    return steps.map(step => (
-                      <span key={step}>{(maxVal * step).toFixed(0)} kWh</span>
-                    ));
-                  })()}
-                </div>
+              <div className="relative" style={{ width: '100%', height: 320 }}>
                 {/* Área do gráfico */}
-                <div className="absolute left-14 right-4 top-0 bottom-8">
+                <div className="absolute inset-0">
                   {/* Grid lines */}
                   <div className="absolute inset-0 flex flex-col justify-between">
                     {[0, 1, 2, 3, 4].map(i => (
-                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b' : ''}`}></div>
+                      <div key={i} className={`border-t ${isDarkMode ? 'border-gray-600' : 'border-gray-200'} ${i === 4 ? 'border-b-2' : ''}`}></div>
                     ))}
                   </div>
                   {/* Barras */}
-                  <div className="absolute inset-0 flex items-end justify-around px-2">
+                  <div className="absolute inset-0 flex items-end justify-around px-8 pb-8">
                     {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
                       const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaComprada, d.energiaVendida)), 1);
-                      const h1 = (item.energiaComprada / maxVal) * 100;
-                      const h2 = (item.energiaVendida / maxVal) * 100;
+                      const h1 = (item.energiaComprada / maxVal) * 240;
+                      const h2 = (item.energiaVendida / maxVal) * 240;
                       const label = dateRange === 'year'
                         ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
                         : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                       return (
-                        <div key={index} className="flex flex-col items-center flex-1 px-0.5">
-                          <div className="flex items-end gap-0.5 sm:gap-1 h-[200px]">
-                            <div className="bg-red-500 w-3 sm:w-4 md:w-6 rounded-t-sm transition-all" style={{ height: `${h1}%` }} title={`Comprado: ${item.energiaComprada.toFixed(1)} kWh`}></div>
-                            <div className="bg-yellow-500 w-3 sm:w-4 md:w-6 rounded-t-sm transition-all" style={{ height: `${h2}%` }} title={`Vendido: ${item.energiaVendida.toFixed(1)} kWh`}></div>
+                        <div key={index} className="flex flex-col items-center gap-2">
+                          <div className="flex items-end gap-1" style={{ height: '240px' }}>
+                            <div 
+                              className="bg-red-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-red-600" 
+                              style={{ height: `${h1}px` }}
+                              title={`Comprado: ${item.energiaComprada.toFixed(1)} kWh`}
+                            ></div>
+                            <div 
+                              className="bg-yellow-500 w-8 sm:w-10 md:w-12 rounded-t transition-all hover:bg-yellow-600" 
+                              style={{ height: `${h2}px` }}
+                              title={`Vendido: ${item.energiaVendida.toFixed(1)} kWh`}
+                            ></div>
                           </div>
-                          <p className={`text-[10px] sm:text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center`}>{label}</p>
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} text-center whitespace-nowrap`}>{label}</p>
                         </div>
                       );
                     })}
                   </div>
+                  {/* Escala Y */}
+                  <div className="absolute right-2 top-0 bottom-8 w-16 flex flex-col justify-between text-xs text-gray-500">
+                    {(() => {
+                      const maxVal = Math.max(...filteredData.map(d => Math.max(d.energiaComprada, d.energiaVendida)), 1);
+                      const steps = [1, 0.75, 0.5, 0.25, 0];
+                      return steps.map(step => (
+                        <span key={step} className="text-right">{(maxVal * step).toFixed(0)}</span>
+                      ));
+                    })()}
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-center gap-4 sm:gap-6 mt-2 text-xs sm:text-sm">
+              <div className="flex justify-center gap-6 sm:gap-8 mt-4 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded"></div>
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-red-500 rounded"></div>
                   <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Comprada</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-500 rounded"></div>
+                  <div className="w-4 h-4 sm:w-6 sm:h-6 bg-yellow-500 rounded"></div>
                   <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Vendida</span>
                 </div>
               </div>
@@ -746,11 +762,9 @@ export default function Dashboard() {
             </div>
             <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-              <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
-              <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
+              <p className="mb-4">Faça login com Gmail para visualizar seus dados</p>
             </div>
             <div className="text-center">
-              <p className="text-sm text-blue-600 mb-2">🔐 Clique abaixo para fazer login</p>
               <OAuthLogin onConfigured={handleDataUpdate} />
             </div>
           </div>
