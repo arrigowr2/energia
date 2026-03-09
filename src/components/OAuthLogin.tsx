@@ -23,11 +23,18 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
+    console.log('🔐 OAuthLogin useEffect executado');
+    console.log('👤 Session:', session);
+    console.log('🔑 AccessToken:', session?.accessToken);
+    
     // Adicionar delay pequeno para evitar redirecionamento rápido
     const timer = setTimeout(() => {
       if (session?.accessToken) {
+        console.log('✅ Tem accessToken - buscando e-mails');
         // Já está logado, buscar e-mails automaticamente
         fetchEmails();
+      } else {
+        console.log('❌ Sem accessToken - mostrando botão de login');
       }
     }, 1000);
 
@@ -35,8 +42,15 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
   }, [session]);
 
   const fetchEmails = async () => {
-    if (!session?.accessToken) return;
+    console.log('📧 fetchEmails chamado');
+    console.log('🔑 AccessToken disponível:', !!session?.accessToken);
+    
+    if (!session?.accessToken) {
+      console.log('❌ Sem accessToken - abortando');
+      return;
+    }
 
+    console.log('🚀 Iniciando busca de e-mails...');
     setIsLoading(true);
     setError('');
     setSuccess('');
