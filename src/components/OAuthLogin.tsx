@@ -57,6 +57,7 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
 
     try {
       console.log('🚀 Iniciando fetch para /api/gmail');
+      alert('🚀 Buscando e-mails... Verifique o console F12');
       const response = await fetch('/api/gmail', {
         method: 'POST',
         headers: {
