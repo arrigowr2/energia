@@ -19,29 +19,50 @@ export async function POST(request: NextRequest) {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-    // Buscar e-mails específicos do kp-net@kp-net.com
-    let response;
-    let searchType = '';
+    // Buscar e-mails específicos do kp-net@kp-net.com com paginação para grandes volumes
+    let allMessages: any[] = [];
+    let pageToken: string | undefined = undefined;
+    let totalEmails = 0;
+    let searchType = 'kp-net@kp-net.com';
     
     try {
-      // Busca apenas e-mails de kp-net@kp-net.com com limite alto para grandes volumes
-      response = await gmail.users.messages.list({
-        userId: 'me',
-        q: 'from:kp-net@kp-net.com',
-        maxResults: 2000
-      });
-      searchType = 'kp-net@kp-net.com';
-    } catch (error) {
-      // Se falhar, tenta busca genérica apenas de kp-net
-      response = await gmail.users.messages.list({
-        userId: 'me',
-        q: 'from:kp-net@kp-net.com',
-        maxResults: 2000
-      });
-      searchType = 'fallback';
+      do {
+        console.log(`📧 Buscando página... ${pageToken ? 'com token' : 'primeira página'}`);
+        
+        const listResponse: any = await gmail.users.messages.list({
+          userId: 'me',
+          q: 'from:kp-net@kp-net.com',
+          maxResults: 500, // Limite por página
+          pageToken: pageToken
+        });
+        
+        if (listResponse.data.messages) {
+          allMessages = [...allMessages, ...listResponse.data.messages];
+          totalEmails = listResponse.data.resultSizeEstimate || allMessages.length;
+          console.log(`📊 Encontrados ${listResponse.data.messages.length} e-mails nesta página. Total: ${allMessages.length}`);
+        }
+        
+        pageToken = listResponse.data.nextPageToken;
+        
+        // Parar se já tivermos muitos e-mails para não sobrecarregar
+        if (allMessages.length >= 2000) {
+          console.log(`⚠️ Limite de 2000 e-mails atingido para evitar timeout`);
+          break;
+        }
+        
+      } while (pageToken && allMessages.length < 2000);
+      
+      console.log(`✅ Busca concluída: ${allMessages.length} e-mails encontrados (estimado: ${totalEmails})`);
+      
+    } catch (error: any) {
+      console.error('❌ Erro na busca paginada:', error);
+      return NextResponse.json({ 
+        error: 'Erro ao buscar e-mails',
+        details: error?.message
+      }, { status: 500 });
     }
 
-    if (!response.data.messages || response.data.messages.length === 0) {
+    if (!allMessages || allMessages.length === 0) {
       return NextResponse.json({
         message: 'Nenhum e-mail de kp-net@kp-net.com encontrado. Verifique se os e-mails existem na caixa de entrada.',
         debug: {
@@ -57,7 +78,7 @@ export async function POST(request: NextRequest) {
     let successCount = 0;
 
     // Processar cada e-mail
-    for (const message of response.data.messages) {
+    for (const message of allMessages) {
       try {
         const fullMessage = await gmail.users.messages.get({
           userId: 'me',
@@ -140,13 +161,13 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: `Encontrados ${response.data.messages?.length || 0} e-mails. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
+      message: `Encontrados ${allMessages.length} e-mails. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
       data: emailsData,
       debug: {
         searchType,
         processedCount,
         successCount,
-        emailsFound: response.data.messages?.length || 0
+        emailsFound: allMessages.length
       }
     });
 
