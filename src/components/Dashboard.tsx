@@ -610,13 +610,15 @@ export default function Dashboard() {
                     dataKey="energiaGerada" 
                     fill="#10B981" 
                     name="Produzida"
-                    radius={[4, 4, 0, 0]}
+                    radius={[2, 2, 0, 0]}
+                    maxBarSize={20}
                   />
                   <Bar 
                     dataKey="energiaConsumida" 
                     fill="#3B82F6" 
                     name="Consumida"
-                    radius={[4, 4, 0, 0]}
+                    radius={[2, 2, 0, 0]}
+                    maxBarSize={20}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -670,13 +672,15 @@ export default function Dashboard() {
                     dataKey="energiaComprada" 
                     fill="#EF4444" 
                     name="Comprada"
-                    radius={[4, 4, 0, 0]}
+                    radius={[2, 2, 0, 0]}
+                    maxBarSize={20}
                   />
                   <Bar 
                     dataKey="energiaVendida" 
                     fill="#EAB308" 
                     name="Vendida"
-                    radius={[4, 4, 0, 0]}
+                    radius={[2, 2, 0, 0]}
+                    maxBarSize={20}
                   />
                 </BarChart>
               </ResponsiveContainer>
