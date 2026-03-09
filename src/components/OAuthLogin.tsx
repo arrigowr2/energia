@@ -137,6 +137,51 @@ ${data.recommendations.ifZeroTakayama.map((tip: string) => `   • ${tip}`).join
     }
   };
 
+  const handleEmailContent = async () => {
+    if (!session?.accessToken) return;
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      // Primeiro buscar conteúdo do e-mail
+      const contentResponse = await fetch('/api/email-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accessToken: session.accessToken
+        }),
+      });
+
+      const contentData = await contentResponse.json();
+
+      if (contentResponse.ok) {
+        const contentMessage = `
+📧 CONTEÚDO COMPLETO DO E-MAIL:
+
+De: ${contentData.email.from}
+Assunto: ${contentData.email.subject}
+
+📄 CONTEÚDO:
+${contentData.email.content}
+
+📏 Tamanho: ${contentData.email.contentLength} caracteres
+        `.trim();
+
+        setSuccess(contentMessage);
+      } else {
+        setError(contentData.error || 'Erro ao buscar conteúdo');
+      }
+    } catch (err) {
+      setError('Erro ao buscar conteúdo do e-mail');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     setIsLoading(true);
     try {
@@ -227,13 +272,13 @@ ${data.recommendations.ifZeroTakayama.map((tip: string) => `   • ${tip}`).join
               </button>
 
               <button
-                onClick={handleDebugEmails}
+                onClick={handleEmailContent}
                 disabled={isLoading}
                 className="px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                title="Debug e-mails - ver todos os e-mails recentes"
+                title="Ver conteúdo completo do e-mail"
               >
                 <Settings className="w-5 h-5" />
-                Debug
+                Ver E-mail
               </button>
             </div>
           </div>
