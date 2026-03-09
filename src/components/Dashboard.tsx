@@ -188,6 +188,34 @@ export default function Dashboard() {
     </div>
   );
 
+  const renderLoginButton = () => {
+    if (status === 'authenticated') {
+      return (
+        <button
+          onClick={() => signOut()}
+          className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
+          title="Sair"
+        >
+          <LogIn className="w-5 h-5" />
+        </button>
+      );
+    }
+    
+    if (status === 'unauthenticated') {
+      return (
+        <button
+          onClick={() => setShowLogin(!showLogin)}
+          className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
+          title="Fazer login"
+        >
+          <LogIn className="w-5 h-5" />
+        </button>
+      );
+    }
+    
+    return null;
+  };
+
   // Se não estiver autenticado, mostrar dashboard com login suspenso
   if (status === 'unauthenticated') {
     return (
@@ -204,24 +232,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-4 items-center">
-              {/* Botão de login/logout (sempre visível) */}
-              {status === 'authenticated' ? (
-                <button
-                  onClick={() => signOut()}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
-                  title="Sair"
-                >
-                  <LogIn className="w-5 h-5" />
-                </button>
-              ) : status === 'unauthenticated' ? (
-                <button
-                  onClick={() => setShowLogin(!showLogin)}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
-                  title="Fazer login"
-                >
-                  <LogIn className="w-5 h-5" />
-                </button>
-              ) : null}
+              {renderLoginButton()}
               
               {/* Botão dark mode */}
               <button
