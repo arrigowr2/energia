@@ -183,11 +183,11 @@ export default function Dashboard({ initialData = [] }: DashboardProps) {
     </div>
   );
 
-  // Se não estiver autenticado, mostrar login
+  // Se não estiver autenticado, mostrar login integrado
   if (status === 'unauthenticated') {
     return (
-      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} p-8`}>
-        <div className="max-w-md mx-auto">
+      <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center p-8`}>
+        <div className="max-w-md w-full">
           <div className={`p-8 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-xl`}>
             <div className="flex justify-between items-center mb-8">
               <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -202,7 +202,8 @@ export default function Dashboard({ initialData = [] }: DashboardProps) {
             </div>
             <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-              <p>Faça login para visualizar seus dados energéticos</p>
+              <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
+              <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
             </div>
             <OAuthLogin onConfigured={() => {}} />
           </div>
