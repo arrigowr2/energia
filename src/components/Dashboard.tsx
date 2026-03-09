@@ -405,6 +405,26 @@ export default function Dashboard() {
   if (status === 'loading') {
     return (
       <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
+        {/* Modal de login - disponível mesmo durante loading */}
+        {showLogin && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className={`max-w-md w-full mx-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8`}>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Faça Login</h2>
+                <button onClick={() => setShowLogin(false)} className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}><X className="w-5 h-5" /></button>
+              </div>
+              <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
+                <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
+                <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-blue-600 mb-2">🔐 Clique abaixo para fazer login</p>
+                <OAuthLogin onConfigured={handleDataUpdate} />
+              </div>
+            </div>
+          </div>
+        )}
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className={isDarkMode ? 'text-white' : 'text-gray-900'}>Carregando...</p>
@@ -598,6 +618,27 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+      
+      {/* Modal de login - disponível em todos os estados */}
+      {showLogin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className={`max-w-md w-full mx-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8`}>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Faça Login</h2>
+              <button onClick={() => setShowLogin(false)} className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}><X className="w-5 h-5" /></button>
+            </div>
+            <div className={`text-center mb-8 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              <Sun className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
+              <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
+              <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-blue-600 mb-2">🔐 Clique abaixo para fazer login</p>
+              <OAuthLogin onConfigured={handleDataUpdate} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
