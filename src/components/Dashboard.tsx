@@ -351,23 +351,34 @@ export default function Dashboard() {
                   onClick={() => {
                     console.log('🧪 TESTE SIMPLES INICIADO');
                     
-                    // Dados de teste hardcoded
+                    // Criar datas de hoje, ontem e anteontem
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const twoDaysAgo = new Date(today);
+                    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                    
+                    const formatDate = (d: Date) => d.toISOString().split('T')[0];
+                    
+                    // Dados de teste com datas ATUAIS
                     const testData = [
-                      { date: '2024-03-08', energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
-                      { date: '2024-03-07', energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
-                      { date: '2024-03-06', energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
+                      { date: formatDate(today), energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
+                      { date: formatDate(yesterday), energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
+                      { date: formatDate(twoDaysAgo), energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
                     ];
+                    
+                    console.log('📅 Datas geradas:', testData.map(d => d.date));
                     
                     // Salvar direto no localStorage
                     localStorage.setItem('energyData', JSON.stringify(testData));
-                    console.log('💾 localStorage salvo:', localStorage.getItem('energyData'));
+                    console.log('💾 localStorage salvo');
                     
                     // Atualizar estado diretamente
                     setData(testData);
                     setFilteredData(testData);
                     console.log('📊 Estado atualizado - data:', testData.length, 'itens');
                     
-                    alert('✅ Dados de teste aplicados! Recarregue a página (F5) para ver se persistem.');
+                    alert('✅ Dados de teste aplicados com datas de HOJE!\n\nDatas: ' + testData.map(d => d.date).join(', '));
                   }}
                   className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg font-bold`}
                   title="Testar dados (VERSÃO SIMPLES)"
