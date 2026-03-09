@@ -13,6 +13,7 @@ import {
   Moon,
   Lightbulb,
   LogIn,
+  TestTube,
   X
 } from 'lucide-react';
 import {
@@ -252,6 +253,103 @@ export default function Dashboard() {
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate]);
+
+  // Função para carregar dados de teste
+  const loadTestData = () => {
+    console.log('🧪 Carregando dados de teste...');
+    
+    const testData: EnergyData[] = [];
+    
+    // Dados de 2024 (meses selecionados)
+    const months2024 = ['mar', 'abr', 'mai', 'jun', 'set', 'out', 'nov'];
+    months2024.forEach(month => {
+      const monthNum = new Date(Date.parse(`${month} 1, 2024`)).getMonth() + 1;
+      const daysInMonth = new Date(2024, monthNum, 0).getDate();
+      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
+      
+      for (let i = 0; i < dataCount; i++) {
+        const day = Math.floor(Math.random() * daysInMonth) + 1;
+        const date = `2024-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        testData.push({
+          date,
+          energiaGerada: Math.floor(Math.random() * 50) + 10,
+          energiaConsumida: Math.floor(Math.random() * 40) + 5,
+          energiaComprada: Math.floor(Math.random() * 30) + 2,
+          energiaVendida: Math.floor(Math.random() * 25) + 1
+        });
+      }
+    });
+    
+    // Dados de 2025 (meses selecionados)
+    const months2025 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out'];
+    months2025.forEach(month => {
+      const monthNum = new Date(Date.parse(`${month} 1, 2025`)).getMonth() + 1;
+      const daysInMonth = new Date(2025, monthNum, 0).getDate();
+      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
+      
+      for (let i = 0; i < dataCount; i++) {
+        const day = Math.floor(Math.random() * daysInMonth) + 1;
+        const date = `2025-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        testData.push({
+          date,
+          energiaGerada: Math.floor(Math.random() * 60) + 15,
+          energiaConsumida: Math.floor(Math.random() * 45) + 8,
+          energiaComprada: Math.floor(Math.random() * 35) + 3,
+          energiaVendida: Math.floor(Math.random() * 30) + 2
+        });
+      }
+    });
+    
+    // Dados de 2026 (meses selecionados)
+    const months2026 = ['jan', 'fev'];
+    months2026.forEach(month => {
+      const monthNum = new Date(Date.parse(`${month} 1, 2026`)).getMonth() + 1;
+      const daysInMonth = new Date(2026, monthNum, 0).getDate();
+      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
+      
+      for (let i = 0; i < dataCount; i++) {
+        const day = Math.floor(Math.random() * daysInMonth) + 1;
+        const date = `2026-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        testData.push({
+          date,
+          energiaGerada: Math.floor(Math.random() * 55) + 12,
+          energiaConsumida: Math.floor(Math.random() * 42) + 6,
+          energiaComprada: Math.floor(Math.random() * 32) + 2,
+          energiaVendida: Math.floor(Math.random() * 28) + 1
+        });
+      }
+    });
+    
+    // Ordenar por data (mais recente primeiro)
+    testData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    console.log(`🧪 ${testData.length} dados de teste gerados`);
+    console.log('📅 Distribuição:', {
+      '2024': testData.filter(d => d.date.startsWith('2024')).length,
+      '2025': testData.filter(d => d.date.startsWith('2025')).length,
+      '2026': testData.filter(d => d.date.startsWith('2026')).length
+    });
+    
+    // Atualizar estados
+    setData(testData);
+    setFilteredData(testData);
+    setApiInfo({
+      emailsFound: testData.length,
+      emailsProcessed: testData.length,
+      processedCount: testData.length,
+      successCount: testData.length,
+      searchType: 'test-data'
+    });
+    
+    // Limpar filtros
+    setDateRange('latest');
+    setCustomDate('');
+    
+    console.log('✅ Dados de teste carregados com sucesso!');
+  };
 
   // Calcular estatísticas
   const calculateStats = () => {
@@ -506,6 +604,16 @@ export default function Dashboard() {
 
             {/* Botões de ação */}
             <div className="flex gap-2 items-center border-l border-gray-600 pl-2">
+              {/* Botão de teste de dados */}
+              <button
+                onClick={loadTestData}
+                className="px-3 py-1.5 rounded-lg flex items-center gap-2 bg-purple-600 text-white hover:bg-purple-500 text-sm"
+                title="Carregar dados de teste"
+              >
+                <TestTube className="w-4 h-4" />
+                <span className="hidden sm:inline">Teste</span>
+              </button>
+
               {/* Botão de login/logout */}
               {status === 'authenticated' ? (
                 <button
