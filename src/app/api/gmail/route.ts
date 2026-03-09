@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: `Encontrados ${response.data.messages?.length || 0} e-mails de kp-net@kp-net.com. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
+      message: `Encontrados ${response.data.messages?.length || 0} e-mails. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
       data: emailsData,
       debug: {
         searchType,
