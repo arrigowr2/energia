@@ -29,7 +29,7 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const [data, setData] = useState<EnergyData[]>([]);
   const [filteredData, setFilteredData] = useState<EnergyData[]>([]);
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year' | 'custom'>('today');
+  const [dateRange, setDateRange] = useState<'latest' | 'week' | 'month' | 'year' | 'custom'>('latest');
   const [customDate, setCustomDate] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -120,12 +120,14 @@ export default function Dashboard() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     switch (dateRange) {
-      case 'today':
-        filtered = data.filter(item => {
-          const itemDate = new Date(item.date);
-          return itemDate >= today;
-        });
-        console.log('📅 Filtro "Hoje" aplicado:', filtered.length, 'itens');
+      case 'latest':
+        // Mostrar apenas o último dado disponível (mais recente)
+        if (filtered.length > 0) {
+          // Ordenar por data decrescente e pegar o primeiro (mais recente)
+          filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          filtered = [filtered[0]];
+          console.log('📅 Filtro "Último" aplicado:', filtered.length, 'itens - Data:', filtered[0]?.date);
+        }
         break;
       case 'week':
         const weekAgo = new Date(today);
@@ -299,14 +301,14 @@ export default function Dashboard() {
               {/* Filtros de data */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => setDateRange('today')}
+                  onClick={() => setDateRange('latest')}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    dateRange === 'today' 
+                    dateRange === 'latest' 
                       ? 'bg-blue-600 text-white' 
                       : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
                   }`}
                 >
-                  Hoje
+                  Último
                 </button>
                 <button
                   onClick={() => setDateRange('week')}
@@ -576,14 +578,14 @@ export default function Dashboard() {
             {/* Filtros de data */}
             <div className="flex gap-2">
               <button
-                onClick={() => setDateRange('today')}
+                onClick={() => setDateRange('latest')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  dateRange === 'today' 
+                  dateRange === 'latest' 
                     ? 'bg-blue-600 text-white' 
                     : isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-700'
                 }`}
               >
-                Hoje
+                Último
               </button>
               <button
                 onClick={() => setDateRange('week')}
