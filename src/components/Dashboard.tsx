@@ -674,81 +674,22 @@ export default function Dashboard() {
               {status === 'authenticated' ? (
                 <button
                   onClick={() => signOut()}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
                   title="Sair"
                 >
                   <LogIn className="w-5 h-5" />
+                  <span>Sair</span>
                 </button>
               ) : status === 'unauthenticated' ? (
                 <button
                   onClick={() => setShowLogin(!showLogin)}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
                   title="Fazer login"
                 >
                   <LogIn className="w-5 h-5" />
+                  <span>Entrar</span>
                 </button>
               ) : null}
-              
-              {/* Botão de teste - TEMPORÁRIO */}
-              <button
-                onClick={() => {
-                  console.log('🧪 TESTE SIMPLES INICIADO');
-                  const today = new Date();
-                  const yesterday = new Date(today);
-                  yesterday.setDate(yesterday.getDate() - 1);
-                  const twoDaysAgo = new Date(today);
-                  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-                  const formatDate = (d: Date) => d.toISOString().split('T')[0];
-                  const testData = [
-                    { date: formatDate(today), energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
-                    { date: formatDate(yesterday), energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
-                    { date: formatDate(twoDaysAgo), energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
-                  ];
-                  localStorage.setItem('energyData', JSON.stringify(testData));
-                  setData(testData);
-                  setFilteredData(testData);
-                  alert('✅ Dados de teste aplicados!');
-                }}
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg font-bold`}
-                title="Testar dados"
-              >
-                🧪
-              </button>
-              
-              {/* Botão de buscar emails */}
-              <button
-                onClick={async () => {
-                  if ((status as string) !== 'authenticated') {
-                    alert('❌ Faça login primeiro!');
-                    return;
-                  }
-                  const accessToken = (session as any)?.accessToken;
-                  if (!accessToken) {
-                    alert('❌ Token não disponível');
-                    return;
-                  }
-                  try {
-                    const response = await fetch('/api/gmail', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ accessToken })
-                    });
-                    const data = await response.json();
-                    if (response.ok && data.data?.length > 0) {
-                      handleDataUpdate(data.data);
-                      alert('✅ ' + data.data.length + ' registros carregados!');
-                    } else {
-                      alert('❌ ' + (data.error || 'Nenhum dado encontrado'));
-                    }
-                  } catch (err: any) {
-                    alert('❌ Erro: ' + err.message);
-                  }
-                }}
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-blue-800 text-blue-400' : 'bg-blue-100 text-blue-600'} shadow-lg font-bold`}
-                title="Buscar emails"
-              >
-                📧
-              </button>
               
               {/* Botão dark mode */}
               <button
@@ -765,7 +706,13 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <div className="max-w-7xl mx-auto">
         {stats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <>
+            <div className="mb-4">
+              <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Último Dado ({filteredData[0]?.date ? new Date(filteredData[0].date).toLocaleDateString('pt-BR') : ''})
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Ordem: Produzido → Consumido → Vendida → Comprada */}
             <StatCard
               title="Produzido Hoje"
@@ -800,6 +747,7 @@ export default function Dashboard() {
               borderColor="border-red-500/30"
             />
           </div>
+        </>
         ) : (
           <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -813,19 +761,31 @@ export default function Dashboard() {
             {/* Gráfico 1: Produzido vs Consumido */}
             <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
               <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Evolução da Energia (último dado)
+                {dateRange === 'week' && 'Evolução Semanal (7 dias)'}
+                {dateRange === 'month' && 'Evolução Mensal (30 dias)'}
+                {dateRange === 'year' && 'Evolução Anual (12 meses)'}
+                {dateRange === 'latest' && 'Evolução da Energia'}
+                {dateRange === 'custom' && 'Evolução da Energia'}
               </h3>
               <div style={{ width: '100%', height: 300 }}>
-                {/* Placeholder para gráfico - será substituído por Recharts */}
-                <div className={`h-full rounded-lg flex items-end justify-center gap-4 pb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <div className="text-center">
-                    <div className="bg-green-500 w-16 rounded-t-lg" style={{ height: '180px' }}></div>
-                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Prod</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-blue-500 w-16 rounded-t-lg" style={{ height: '120px' }}></div>
-                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Cons</p>
-                  </div>
+                <div className={`h-full rounded-lg flex items-end justify-center gap-2 pb-4 px-2 overflow-x-auto ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
+                    const maxVal = Math.max(item.energiaGerada, item.energiaConsumida, 1);
+                    const h1 = (item.energiaGerada / maxVal) * 180;
+                    const h2 = (item.energiaConsumida / maxVal) * 180;
+                    const label = dateRange === 'year' 
+                      ? item.date.split('/')[0] + '/' + item.date.split('/')[2]?.slice(-2)
+                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    return (
+                      <div key={index} className="flex flex-col items-center gap-1 min-w-[40px]">
+                        <div className="flex items-end gap-0.5">
+                          <div className="bg-green-500 w-3 rounded-t-sm" style={{ height: `${h1}px` }}></div>
+                          <div className="bg-blue-500 w-3 rounded-t-sm" style={{ height: `${h2}px` }}></div>
+                        </div>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transform -rotate-45 origin-top-left whitespace-nowrap`}>{label}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div className="flex justify-center gap-4 mt-4 text-sm">
@@ -843,19 +803,31 @@ export default function Dashboard() {
             {/* Gráfico 2: Comprado vs Vendido */}
             <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
               <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Energia Comprada vs Vendida
+                {dateRange === 'week' && 'Comparativo Semanal (7 dias)'}
+                {dateRange === 'month' && 'Comparativo Mensal (30 dias)'}
+                {dateRange === 'year' && 'Comparativo Anual (12 meses)'}
+                {dateRange === 'latest' && 'Energia Comprada vs Vendida'}
+                {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
               </h3>
               <div style={{ width: '100%', height: 300 }}>
-                {/* Placeholder para gráfico - será substituído por Recharts */}
-                <div className={`h-full rounded-lg flex items-end justify-center gap-4 pb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <div className="text-center">
-                    <div className="bg-red-500 w-16 rounded-t-lg" style={{ height: '80px' }}></div>
-                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Comp</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-yellow-500 w-16 rounded-t-lg" style={{ height: '200px' }}></div>
-                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Vend</p>
-                  </div>
+                <div className={`h-full rounded-lg flex items-end justify-center gap-2 pb-4 px-2 overflow-x-auto ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  {filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item, index) => {
+                    const maxVal = Math.max(item.energiaComprada, item.energiaVendida, 1);
+                    const h1 = (item.energiaComprada / maxVal) * 180;
+                    const h2 = (item.energiaVendida / maxVal) * 180;
+                    const label = dateRange === 'year'
+                      ? item.date.split('/')[0] + '/' + item.date.split('/')[2]?.slice(-2)
+                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    return (
+                      <div key={index} className="flex flex-col items-center gap-1 min-w-[40px]">
+                        <div className="flex items-end gap-0.5">
+                          <div className="bg-red-500 w-3 rounded-t-sm" style={{ height: `${h1}px` }}></div>
+                          <div className="bg-yellow-500 w-3 rounded-t-sm" style={{ height: `${h2}px` }}></div>
+                        </div>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} transform -rotate-45 origin-top-left whitespace-nowrap`}>{label}</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               <div className="flex justify-center gap-4 mt-4 text-sm">
