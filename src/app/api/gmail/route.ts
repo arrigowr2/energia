@@ -133,27 +133,27 @@ export async function POST(request: NextRequest) {
 }
 
 function parseEmailContent(content: string) {
-  // Padrões para extrair dados de energia (Português e Japonês)
+  // Padrões para extrair dados de energia (Português e Japonês) - mais flexíveis
   const patterns = {
     // Consumo - Portuguese e Japanese
     consumo: {
-      pt: /(?:consumo|consumida|energia\s+consumida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      jp: /(?:消費|消費電力量|使用量)[:\s]*(\d+\.?\d*)\s*kWh?/i
+      pt: /(?:consumo|consumida|energia\s+consumida|consumo\s+total|total\s+consumido)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:消費|消費電力量|使用量|使用電力)[:\s]*(\d+\.?\d*)\s*kWh?/i
     },
     // Comprado - Portuguese e Japanese  
     comprado: {
-      pt: /(?:comprado|comprada|adquirida|importada)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      jp: /(?:購入|買電|買電量)[:\s]*(\d+\.?\d*)\s*kWh?/i
+      pt: /(?:comprado|comprada|adquirida|importada|compra|energia\s+comprada)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:購入|買電|買電量|購入電力|買った電気)[:\s]*(\d+\.?\d*)\s*kWh?/i
     },
     // Vendido - Portuguese e Japanese
     vendido: {
-      pt: /(?:vendido|vendida|exportada|excedente)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      jp: /(?:売電|売電量|販売)[:\s]*(\d+\.?\d*)\s*kWh?/i
+      pt: /(?:vendido|vendida|exportada|excedente|venda|energia\s+vendida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:売電|売電量|販売|売った電気|逆潮流)[:\s]*(\d+\.?\d*)\s*kWh?/i
     },
     // Gerado - Portuguese e Japanese
     gerado: {
-      pt: /(?:gerado|gerada|produzida|produção)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      jp: /(?:発電|発電量|生成)[:\s]*(\d+\.?\d*)\s*kWh?/i
+      pt: /(?:gerado|gerada|produzida|produção|geração|energia\s+gerada|energia\s+produzida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:発電|発電量|生成|発電した電気|太陽光発電)[:\s]*(\d+\.?\d*)\s*kWh?/i
     }
   };
 
@@ -166,18 +166,25 @@ function parseEmailContent(content: string) {
 
   let foundAny = false;
 
-  // Tentar extrair cada campo em português e japonês
-  for (const [key, langs] of Object.entries(patterns)) {
-    const langPatterns = langs as any;
-    
-    // Tentar português primeiro
-    let match = content.match(langPatterns.pt);
-    if (!match) {
-      // Se não encontrar em português, tentar japonês
-      match = content.match(langPatterns.jp);
+  // Função auxiliar para extrair valor
+  const extractValue = (text: string, patterns: any) => {
+    for (const [lang, patternStr] of Object.entries(patterns)) {
+      const match = text.match(patternStr as RegExp);
+      if (match) {
+        console.log(`✅ Encontrado ${lang}: ${match[0]} -> ${match[1]}`);
+        return parseFloat(match[1]);
+      }
     }
-    
-    if (match) {
+    return null;
+  };
+
+  // Procurar cada campo em todo o conteúdo
+  const contentLower = content.toLowerCase();
+  
+  // Tentar extrair cada campo
+  for (const [key, langs] of Object.entries(patterns)) {
+    const value = extractValue(content, langs);
+    if (value !== null) {
       const fieldMap: any = {
         consumo: 'energiaConsumida',
         comprado: 'energiaComprada', 
@@ -185,28 +192,57 @@ function parseEmailContent(content: string) {
         gerado: 'energiaGerada'
       };
       
-      data[fieldMap[key]] = parseFloat(match[1]);
+      data[fieldMap[key]] = value;
       foundAny = true;
     }
   }
 
-  // Se não encontrou nada, tentar padrões genéricos
+  // Se não encontrou nada, tentar padrões genéricos mais amplos
   if (!foundAny) {
+    console.log('🔍 Tentando padrões genéricos...');
+    
     const genericPatterns = {
-      energiaConsumida: /(?:consumo|消費)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      energiaComprada: /(?:comprado|購入)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      energiaVendida: /(?:vendido|売電)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-      energiaGerada: /(?:gerado|発電)[:\s]*(\d+\.?\d*)\s*kWh?/i
+      energiaConsumida: [
+        /(\d+\.?\d*)\s*kWh?.*consumo/i,
+        /consumo.*?(\d+\.?\d*)\s*kWh?/i,
+        /(\d+\.?\d*)\s*kWh?.*消費/i,
+        /消費.*?(\d+\.?\d*)\s*kWh?/i
+      ],
+      energiaComprada: [
+        /(\d+\.?\d*)\s*kWh?.*comprad/i,
+        /comprad.*?(\d+\.?\d*)\s*kWh?/i,
+        /(\d+\.?\d*)\s*kWh?.*購入/i,
+        /購入.*?(\d+\.?\d*)\s*kWh?/i
+      ],
+      energiaVendida: [
+        /(\d+\.?\d*)\s*kWh?.*vendid/i,
+        /vendid.*?(\d+\.?\d*)\s*kWh?/i,
+        /(\d+\.?\d*)\s*kWh?.*売電/i,
+        /売電.*?(\d+\.?\d*)\s*kWh?/i
+      ],
+      energiaGerada: [
+        /(\d+\.?\d*)\s*kWh?.*gerad/i,
+        /gerad.*?(\d+\.?\d*)\s*kWh?/i,
+        /(\d+\.?\d*)\s*kWh?.*発電/i,
+        /発電.*?(\d+\.?\d*)\s*kWh?/i
+      ]
     };
 
-    for (const [key, pattern] of Object.entries(genericPatterns)) {
-      const match = content.match(pattern);
-      if (match) {
-        data[key] = parseFloat(match[1]);
-        foundAny = true;
+    for (const [key, patterns] of Object.entries(genericPatterns)) {
+      for (const pattern of patterns) {
+        const match = content.match(pattern);
+        if (match) {
+          data[key] = parseFloat(match[1]);
+          foundAny = true;
+          console.log(`✅ Padrão genérico ${key}: ${match[0]} -> ${match[1]}`);
+          break;
+        }
       }
     }
   }
 
+  console.log(`📊 Parse final:`, data);
+  console.log(`📄 Conteúdo do e-mail:`, content.substring(0, 500) + '...');
+  
   return foundAny ? data : null;
 }
