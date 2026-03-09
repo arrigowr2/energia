@@ -62,9 +62,23 @@ export default function Dashboard() {
   // Salvar dados no localStorage quando mudar
   useEffect(() => {
     if (data.length > 0) {
+      console.log('💾 Salvando dados no localStorage:', data.length, 'itens');
       localStorage.setItem('energyData', JSON.stringify(data));
     }
   }, [data]);
+
+  // Adicionar log para monitorar localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      console.log('🔄 localStorage mudou:', localStorage.getItem('energyData'));
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   // Função para atualizar dados quando login é feito
   const handleDataUpdate = (newData: any[]) => {
