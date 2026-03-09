@@ -37,15 +37,21 @@ export default function Dashboard() {
 
   // Carregar dados do localStorage ao montar
   useEffect(() => {
+    console.log('🔄 Carregando dados do localStorage...');
     const savedData = localStorage.getItem('energyData');
+    console.log('📦 Dados encontrados:', savedData);
+    
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        console.log('📊 Dados parseados:', parsedData);
         setData(parsedData);
         setFilteredData(parsedData);
       } catch (error) {
-        console.error('Erro ao carregar dados salvos:', error);
+        console.error('❌ Erro ao carregar dados salvos:', error);
       }
+    } else {
+      console.log('📭 Nenhum dado encontrado no localStorage');
     }
   }, [status]);
 
@@ -58,15 +64,29 @@ export default function Dashboard() {
 
   // Função para atualizar dados quando login é feito
   const handleDataUpdate = (newData: any[]) => {
-    console.log('📊 Dados recebidos:', newData);
-    setData(newData);
-    setFilteredData(newData);
-    setShowLogin(false); // Fechar modal após login
+    console.log('📊 Dados recebidos no handleDataUpdate:', newData);
+    console.log('🔢 Quantidade de dados:', newData.length);
+    
+    if (newData && newData.length > 0) {
+      setData(newData);
+      setFilteredData(newData);
+      setShowLogin(false); // Fechar modal após login
+      console.log('✅ Dados atualizados com sucesso');
+    } else {
+      console.log('❌ Nenhum dado recebido');
+    }
   };
 
   // Aplicar filtros
   useEffect(() => {
-    if (data.length === 0) return;
+    console.log('🔍 Aplicando filtros...');
+    console.log('📊 Dados atuais:', data);
+    console.log('📅 Filtro selecionado:', dateRange);
+    
+    if (data.length === 0) {
+      console.log('📭 Sem dados para filtrar');
+      return;
+    }
 
     let filtered = [...data];
     const now = new Date();
@@ -78,6 +98,7 @@ export default function Dashboard() {
           const itemDate = new Date(item.date);
           return itemDate >= today;
         });
+        console.log('📅 Filtro "Hoje" aplicado:', filtered.length, 'itens');
         break;
       case 'week':
         const weekAgo = new Date(today);
@@ -86,6 +107,7 @@ export default function Dashboard() {
           const itemDate = new Date(item.date);
           return itemDate >= weekAgo;
         });
+        console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
         break;
       case 'month':
         filtered = data.filter(item => {
@@ -93,12 +115,14 @@ export default function Dashboard() {
           return itemDate.getMonth() === now.getMonth() && 
                  itemDate.getFullYear() === now.getFullYear();
         });
+        console.log('📅 Filtro "Mês" aplicado:', filtered.length, 'itens');
         break;
       case 'year':
         filtered = data.filter(item => {
           const itemDate = new Date(item.date);
           return itemDate.getFullYear() === now.getFullYear();
         });
+        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'itens');
         break;
       case 'custom':
         if (customDate) {
@@ -107,6 +131,7 @@ export default function Dashboard() {
             const itemDate = new Date(item.date);
             return itemDate.toDateString() === custom.toDateString();
           });
+          console.log('📅 Filtro "Custom" aplicado:', filtered.length, 'itens');
         }
         break;
     }
@@ -114,6 +139,7 @@ export default function Dashboard() {
     // Ordenar por data (mais recente primeiro)
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setFilteredData(filtered);
+    console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate]);
 
   // Calcular estatísticas
