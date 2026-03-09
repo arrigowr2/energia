@@ -295,7 +295,10 @@ export default function Dashboard() {
                   Faça Login
                 </h2>
                 <button
-                  onClick={() => setShowLogin(false)}
+                  onClick={() => {
+                    console.log('❌ Botão fechar modal clicado');
+                    setShowLogin(false);
+                  }}
                   className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-600'}`}
                 >
                   <X className="w-5 h-5" />
@@ -306,7 +309,10 @@ export default function Dashboard() {
                 <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
                 <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
               </div>
-              <OAuthLogin onConfigured={handleDataUpdate} />
+              <div className="text-center">
+                <p className="text-sm text-blue-600 mb-2">🔐 Clique abaixo para fazer login</p>
+                <OAuthLogin onConfigured={handleDataUpdate} />
+              </div>
             </div>
           </div>
         )}
