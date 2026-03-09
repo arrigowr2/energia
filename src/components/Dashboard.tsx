@@ -40,7 +40,43 @@ export default function Dashboard() {
   useEffect(() => {
     console.log('🔍 Status da sessão mudou:', status);
     console.log('👤 Dados da sessão:', session);
-  }, [status, session]);
+    
+    // Carregar dados automaticamente após login
+    if (status === 'authenticated' && session?.accessToken && !hasLoadedData) {
+      console.log('🔄 Login detectado! Buscando dados automaticamente...');
+      fetchEmailsAfterLogin();
+    }
+  }, [status, session, hasLoadedData]);
+  
+  // Função para buscar emails após login
+  const fetchEmailsAfterLogin = async () => {
+    const accessToken = (session as any)?.accessToken;
+    if (!accessToken) {
+      console.log('❌ Token não disponível');
+      return;
+    }
+    
+    try {
+      console.log('📧 Buscando emails automaticamente...');
+      const response = await fetch('/api/gmail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken })
+      });
+      
+      const data = await response.json();
+      console.log('📊 Dados recebidos:', data);
+      
+      if (response.ok && data.data?.length > 0) {
+        console.log('✅', data.data.length, 'registros carregados automaticamente');
+        handleDataUpdate(data.data);
+      } else {
+        console.log('⚠️ Nenhum dado encontrado nos emails');
+      }
+    } catch (err: any) {
+      console.error('❌ Erro ao buscar emails:', err);
+    }
+  };
 
   // Carregar dados do localStorage apenas uma vez
   useEffect(() => {
@@ -768,6 +804,71 @@ export default function Dashboard() {
           <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p>Nenhum dado encontrado para o período selecionado</p>
+          </div>
+        )}
+
+        {/* Gráficos de Barras */}
+        {filteredData.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Gráfico 1: Produzido vs Consumido */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Evolução da Energia (último dado)
+              </h3>
+              <div style={{ width: '100%', height: 300 }}>
+                {/* Placeholder para gráfico - será substituído por Recharts */}
+                <div className={`h-full rounded-lg flex items-end justify-center gap-4 pb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <div className="text-center">
+                    <div className="bg-green-500 w-16 rounded-t-lg" style={{ height: '180px' }}></div>
+                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Prod</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-blue-500 w-16 rounded-t-lg" style={{ height: '120px' }}></div>
+                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Cons</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center gap-4 mt-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-green-500 rounded"></div>
+                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Produzida</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Consumida</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Gráfico 2: Comprado vs Vendido */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Energia Comprada vs Vendida
+              </h3>
+              <div style={{ width: '100%', height: 300 }}>
+                {/* Placeholder para gráfico - será substituído por Recharts */}
+                <div className={`h-full rounded-lg flex items-end justify-center gap-4 pb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <div className="text-center">
+                    <div className="bg-red-500 w-16 rounded-t-lg" style={{ height: '80px' }}></div>
+                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Comp</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-yellow-500 w-16 rounded-t-lg" style={{ height: '200px' }}></div>
+                    <p className={`text-xs mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Vend</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center gap-4 mt-4 text-sm">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-red-500 rounded"></div>
+                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Comprada</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                  <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Vendida</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
