@@ -25,10 +25,6 @@ interface EnergyData {
   energiaGerada: number;
 }
 
-interface DashboardProps {
-  initialData?: EnergyData[];
-}
-
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const [data, setData] = useState<EnergyData[]>([]);
@@ -59,6 +55,14 @@ export default function Dashboard() {
       localStorage.setItem('energyData', JSON.stringify(data));
     }
   }, [data]);
+
+  // Função para atualizar dados quando login é feito
+  const handleDataUpdate = (newData: any[]) => {
+    console.log('📊 Dados recebidos:', newData);
+    setData(newData);
+    setFilteredData(newData);
+    setShowLogin(false); // Fechar modal após login
+  };
 
   // Aplicar filtros
   useEffect(() => {
@@ -240,7 +244,7 @@ export default function Dashboard() {
                 <p className="mb-4">Faça login com Gmail para visualizar seus dados energéticos</p>
                 <p className="text-sm opacity-75">Dados automáticos de kp-net@kp-net.com</p>
               </div>
-              <OAuthLogin onConfigured={() => setShowLogin(false)} />
+              <OAuthLogin onConfigured={handleDataUpdate} />
             </div>
           </div>
         )}

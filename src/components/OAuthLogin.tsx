@@ -6,10 +6,10 @@ import { Mail, CheckCircle, AlertCircle, Loader2, Settings } from 'lucide-react'
 
 interface EnergyData {
   date: string;
-  energiaProduzida: number;
   energiaConsumida: number;
-  energiaVendida: number;
   energiaComprada: number;
+  energiaVendida: number;
+  energiaGerada: number;
 }
 
 interface OAuthLoginProps {
@@ -57,17 +57,10 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
       if (response.ok) {
         setSuccess(`✅ ${data.message}`);
         if (data.data && data.data.length > 0) {
-          // Mapear campos para manter compatibilidade com o dashboard
-          const mappedData = data.data.map((item: any) => ({
-            date: item.date,
-            energiaProduzida: item.energiaGerada || 0,
-            energiaConsumida: item.energiaConsumida || 0,
-            energiaVendida: item.energiaVendida || 0,
-            energiaComprada: item.energiaComprada || 0
-          }));
-          
-          onConfigured(mappedData);
-          localStorage.setItem('energyData', JSON.stringify(mappedData));
+          console.log('📊 Dados da API:', data.data);
+          // Usar dados diretamente da API (já com campos corretos)
+          onConfigured(data.data);
+          localStorage.setItem('energyData', JSON.stringify(data.data));
           localStorage.setItem('oauthMode', 'true');
         }
       } else {
