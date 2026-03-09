@@ -15,10 +15,10 @@ export async function POST(request: NextRequest) {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-    // Buscar e-mails específicos do kp-net@kp-net.com e também encaminhados para takayama.sp@gmail.com
+    // Buscar e-mails específicos do kp-net@kp-net.com e também recebidos de takayama.sp@gmail.com para testes
     const response = await gmail.users.messages.list({
       userId: 'me',
-      q: '(from:kp-net@kp-net.com OR to:takayama.sp@gmail.com) (subject:relatório OR subject:報告 OR subject:energy OR subject:エネルギー)',
+      q: '(from:kp-net@kp-net.com OR from:takayama.sp@gmail.com) (subject:relatório OR subject:報告 OR subject:energy OR subject:エネルギー)',
       maxResults: 30
     });
 
