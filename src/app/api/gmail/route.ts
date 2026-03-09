@@ -99,16 +99,24 @@ export async function POST(request: NextRequest) {
         
         // Subtrair 1 dia da data, tratando casos de fim de ano
         const previousDay = new Date(emailDate);
+        const originalDay = previousDay.getDate();
+        const originalMonth = previousDay.getMonth();
+        const originalYear = previousDay.getFullYear();
+        
         previousDay.setDate(previousDay.getDate() - 1);
         
-        // Se o resultado for 1º de janeiro, ajustar para 31 de dezembro do ano anterior
-        if (previousDay.getMonth() === 0 && previousDay.getDate() === 1) {
-          previousDay.setFullYear(previousDay.getFullYear() - 1);
+        // Verificar se realmente cruzou o ano (só se o dia original era 1º de janeiro)
+        if (originalMonth === 0 && originalDay === 1) {
+          // E-mail era 01/01, então o dia anterior é 31/12 do ano anterior
+          previousDay.setFullYear(originalYear - 1);
           previousDay.setMonth(11); // Dezembro (0-11)
           previousDay.setDate(31); // 31 de dezembro
         }
         
         const date = previousDay.toISOString().split('T')[0];
+        
+        // Log para depuração
+        console.log(`📅 Data e-mail: ${emailDate.toISOString().split('T')[0]} → Data ajustada: ${date}`);
 
         // Parse do conteúdo
         const parsedData = parseEmailContent(content);
