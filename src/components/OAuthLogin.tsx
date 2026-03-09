@@ -250,44 +250,6 @@ ${contentData.email.content}
     );
   }
 
-  const handleEmailContent = async () => {
-    setIsLoading(true);
-    try {
-      // Lógica para ver conteúdo do e-mail
-    } catch (err) {
-      setError('Erro ao buscar conteúdo do e-mail');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await signIn('google', { 
-        callbackUrl: '/',
-        redirect: false 
-      });
-    } catch (error) {
-      setError('Erro ao fazer login com Google');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    setIsLoading(true);
-    try {
-      await signOut({ redirect: false });
-      localStorage.removeItem('oauthMode');
-      setSuccess('Desconectado com sucesso');
-    } catch (error) {
-      setError('Erro ao fazer logout');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="text-center">
       <button
