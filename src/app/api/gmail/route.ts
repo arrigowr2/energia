@@ -15,10 +15,10 @@ export async function POST(request: NextRequest) {
 
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-    // Buscar e-mails específicos do kp-net@kp-net.com
+    // Buscar e-mails específicos do kp-net@kp-net.com e também encaminhados para takayama.sp@gmail.com
     const response = await gmail.users.messages.list({
       userId: 'me',
-      q: 'from:kp-net@kp-net.com',
+      q: '(from:kp-net@kp-net.com OR to:takayama.sp@gmail.com) (subject:relatório OR subject:報告 OR subject:energy OR subject:エネルギー)',
       maxResults: 30
     });
 
@@ -72,28 +72,78 @@ export async function POST(request: NextRequest) {
 }
 
 function parseEmailContent(content: string) {
-  // Padrões para extrair dados de energia
+  // Padrões para extrair dados de energia (Português e Japonês)
   const patterns = {
-    energiaProduzida: /(?:energia\s+produzida|produzida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-    energiaConsumida: /(?:energia\s+consumida|consumida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-    energiaVendida: /(?:energia\s+vendida|vendida|excedente)[:\s]*(\d+\.?\d*)\s*kWh?/i,
-    energiaComprada: /(?:energia\s+comprada|comprada|adquirida)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    // Consumo - Portuguese e Japanese
+    consumo: {
+      pt: /(?:consumo|consumida|energia\s+consumida)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:消費|消費電力量|使用量)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    },
+    // Comprado - Portuguese e Japanese  
+    comprado: {
+      pt: /(?:comprado|comprada|adquirida|importada)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:購入|買電|買電量)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    },
+    // Vendido - Portuguese e Japanese
+    vendido: {
+      pt: /(?:vendido|vendida|exportada|excedente)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:売電|売電量|販売)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    },
+    // Gerado - Portuguese e Japanese
+    gerado: {
+      pt: /(?:gerado|gerada|produzida|produção)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      jp: /(?:発電|発電量|生成)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    }
   };
 
   const data: any = {
-    energiaProduzida: 0,
     energiaConsumida: 0,
+    energiaComprada: 0,
     energiaVendida: 0,
-    energiaComprada: 0
+    energiaGerada: 0
   };
 
   let foundAny = false;
 
-  for (const [key, pattern] of Object.entries(patterns)) {
-    const match = content.match(pattern);
+  // Tentar extrair cada campo em português e japonês
+  for (const [key, langs] of Object.entries(patterns)) {
+    const langPatterns = langs as any;
+    
+    // Tentar português primeiro
+    let match = content.match(langPatterns.pt);
+    if (!match) {
+      // Se não encontrar em português, tentar japonês
+      match = content.match(langPatterns.jp);
+    }
+    
     if (match) {
-      data[key] = parseFloat(match[1]);
+      const fieldMap: any = {
+        consumo: 'energiaConsumida',
+        comprado: 'energiaComprada', 
+        vendido: 'energiaVendida',
+        gerado: 'energiaGerada'
+      };
+      
+      data[fieldMap[key]] = parseFloat(match[1]);
       foundAny = true;
+    }
+  }
+
+  // Se não encontrou nada, tentar padrões genéricos
+  if (!foundAny) {
+    const genericPatterns = {
+      energiaConsumida: /(?:consumo|消費)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      energiaComprada: /(?:comprado|購入)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      energiaVendida: /(?:vendido|売電)[:\s]*(\d+\.?\d*)\s*kWh?/i,
+      energiaGerada: /(?:gerado|発電)[:\s]*(\d+\.?\d*)\s*kWh?/i
+    };
+
+    for (const [key, pattern] of Object.entries(genericPatterns)) {
+      const match = content.match(pattern);
+      if (match) {
+        data[key] = parseFloat(match[1]);
+        foundAny = true;
+      }
     }
   }
 
