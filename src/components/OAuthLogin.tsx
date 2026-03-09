@@ -42,7 +42,7 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
   }, [session]);
 
   const fetchEmails = async () => {
-    console.log('📧 fetchEmails chamado');
+    console.log('📧 fetchEmails chamado - INÍCIO');
     console.log('🔑 AccessToken disponível:', !!session?.accessToken);
     
     if (!session?.accessToken) {
@@ -54,9 +54,9 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
     setIsLoading(true);
     setError('');
     setSuccess('');
-
+    
     try {
-      console.log('🚀 Iniciando fetch para /api/gmail');
+      console.log('� Iniciando fetch para /api/gmail');
       alert('🚀 Buscando e-mails... Verifique o console F12');
       const response = await fetch('/api/gmail', {
         method: 'POST',
