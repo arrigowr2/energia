@@ -87,6 +87,19 @@ export async function POST(request: NextRequest) {
           content = Buffer.from(fullMessage.data.payload.body.data, 'base64').toString('utf-8');
         }
 
+        // Tentar decodificar se tiver caracteres estranhos
+        try {
+          // Se já estiver UTF-8, mantém
+          if (content.includes('�') || content.includes('?')) {
+            // Tenta decodificar como ISO-8859-1 depois converter para UTF-8
+            const isoBuffer = Buffer.from(fullMessage.data.payload?.body?.data || '', 'base64');
+            const isoContent = isoBuffer.toString('latin1');
+            content = Buffer.from(isoContent, 'latin1').toString('utf-8');
+          }
+        } catch (decodeError) {
+          console.log('Erro na decodificação:', decodeError);
+        }
+
         // Extrair data do e-mail
         const dateHeader = fullMessage.data.payload?.headers?.find(h => h.name === 'Date')?.value || '';
         const date = new Date(dateHeader).toISOString().split('T')[0];

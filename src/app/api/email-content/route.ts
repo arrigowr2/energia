@@ -50,7 +50,21 @@ export async function POST(request: NextRequest) {
         }
       }
     } else if (fullMessage.data.payload?.body?.data) {
+      // E-mail simples
       content = Buffer.from(fullMessage.data.payload.body.data, 'base64').toString('utf-8');
+    }
+
+    // Tentar decodificar se tiver caracteres estranhos
+    try {
+      // Se já estiver UTF-8, mantém
+      if (content.includes('�') || content.includes('?')) {
+        // Tenta decodificar como ISO-8859-1 depois converter para UTF-8
+        const isoBuffer = Buffer.from(fullMessage.data.payload?.body?.data || '', 'base64');
+        const isoContent = isoBuffer.toString('latin1');
+        content = Buffer.from(isoContent, 'latin1').toString('utf-8');
+      }
+    } catch (decodeError) {
+      console.log('Erro na decodificação:', decodeError);
     }
 
     return NextResponse.json({
