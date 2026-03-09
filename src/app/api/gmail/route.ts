@@ -16,15 +16,41 @@ export async function POST(request: NextRequest) {
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
     // Buscar e-mails específicos do kp-net@kp-net.com e também recebidos de takayama.sp@gmail.com para testes
-    const response = await gmail.users.messages.list({
-      userId: 'me',
-      q: '(from:kp-net@kp-net.com OR from:takayama.sp@gmail.com) (subject:relatório OR subject:報告 OR subject:energy OR subject:エネルギー)',
-      maxResults: 30
-    });
+    // Tenta busca mais ampla primeiro, depois específica
+    let response;
+    
+    try {
+      // Busca ampla - qualquer e-mail de takayama.sp@gmail.com
+      response = await gmail.users.messages.list({
+        userId: 'me',
+        q: 'from:takayama.sp@gmail.com',
+        maxResults: 30
+      });
+      
+      if (!response.data.messages || response.data.messages.length === 0) {
+        // Se não encontrar, busca de kp-net@kp-net.com
+        response = await gmail.users.messages.list({
+          userId: 'me',
+          q: 'from:kp-net@kp-net.com',
+          maxResults: 30
+        });
+      }
+    } catch (error) {
+      // Se tudo falhar, busca genérica
+      response = await gmail.users.messages.list({
+        userId: 'me',
+        q: '(from:kp-net@kp-net.com OR from:takayama.sp@gmail.com)',
+        maxResults: 30
+      });
+    }
 
     if (!response.data.messages || response.data.messages.length === 0) {
       return NextResponse.json({
-        message: 'Nenhum e-mail da KP-Net encontrado',
+        message: 'Nenhum e-mail encontrado. Verifique se os e-mails existem na caixa de entrada.',
+        debug: {
+          searchedFor: ['takayama.sp@gmail.com', 'kp-net@kp-net.com'],
+          suggestion: 'Verifique se os e-mails estão na caixa de entrada principal (não em spam/pasta)'
+        },
         data: []
       });
     }

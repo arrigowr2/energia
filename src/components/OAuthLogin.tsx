@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { Mail, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, Loader2, Settings } from 'lucide-react';
 
 interface EnergyData {
   date: string;
@@ -75,6 +75,55 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
       }
     } catch (err) {
       setError('Erro de conexão com Gmail');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDebugEmails = async () => {
+    if (!session?.accessToken) return;
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch('/api/debug-emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accessToken: session.accessToken
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const debugMessage = `
+🔍 DEBUG - E-mails recentes:
+${data.message}
+
+📊 Resumo:
+- Total: ${data.summary.total} e-mails
+- De takayama.sp@gmail.com: ${data.summary.fromTakayama}
+- De kp-net@kp-net.com: ${data.summary.fromKpNet}
+
+📧 E-mails encontrados:
+${data.emails.map((email: any, i: number) => 
+  `${i+1}. ${email.isTarget ? '🎯' : '📧'} ${email.from}
+   Assunto: ${email.subject}
+   Data: ${email.date}`
+).join('\n')}
+        `.trim();
+
+        setSuccess(debugMessage);
+      } else {
+        setError(data.error || 'Erro no debug');
+      }
+    } catch (err) {
+      setError('Erro ao fazer debug dos e-mails');
     } finally {
       setIsLoading(false);
     }
@@ -170,11 +219,13 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
               </button>
 
               <button
-                onClick={handleLogout}
+                onClick={handleDebugEmails}
                 disabled={isLoading}
-                className="px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                className="px-4 py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                title="Debug e-mails - ver todos os e-mails recentes"
               >
-                Sair
+                <Settings className="w-5 h-5" />
+                Debug
               </button>
             </div>
           </div>
