@@ -213,7 +213,7 @@ export default function Dashboard() {
                 >
                   <LogIn className="w-5 h-5" />
                 </button>
-              ) : (
+              ) : status === 'unauthenticated' ? (
                 <button
                   onClick={() => setShowLogin(!showLogin)}
                   className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
@@ -221,7 +221,7 @@ export default function Dashboard() {
                 >
                   <LogIn className="w-5 h-5" />
                 </button>
-              )}
+              ) : null}
               
               {/* Botão dark mode */}
               <button
@@ -363,7 +363,7 @@ export default function Dashboard() {
                 >
                   <LogIn className="w-5 h-5" />
                 </button>
-              ) : (
+              ) : status === 'unauthenticated' ? (
                 <button
                   onClick={() => setShowLogin(!showLogin)}
                   className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
@@ -371,7 +371,7 @@ export default function Dashboard() {
                 >
                   <LogIn className="w-5 h-5" />
                 </button>
-              )}
+              ) : null}
               
               {/* Botão dark mode */}
               <button
