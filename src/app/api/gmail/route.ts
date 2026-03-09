@@ -24,11 +24,11 @@ export async function POST(request: NextRequest) {
     let searchType = '';
     
     try {
-      // Busca apenas e-mails de kp-net@kp-net.com
+      // Busca apenas e-mails de kp-net@kp-net.com com limite alto para grandes volumes
       response = await gmail.users.messages.list({
         userId: 'me',
         q: 'from:kp-net@kp-net.com',
-        maxResults: 30
+        maxResults: 2000
       });
       searchType = 'kp-net@kp-net.com';
     } catch (error) {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       response = await gmail.users.messages.list({
         userId: 'me',
         q: 'from:kp-net@kp-net.com',
-        maxResults: 30
+        maxResults: 2000
       });
       searchType = 'fallback';
     }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: `Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
+      message: `Encontrados ${response.data.messages?.length || 0} e-mails de kp-net@kp-net.com. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
       data: emailsData,
       debug: {
         searchType,

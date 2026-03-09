@@ -515,6 +515,11 @@ export default function Dashboard() {
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Último Dado ({filteredData[0]?.date ? new Date(filteredData[0].date).toLocaleDateString('pt-BR') : ''})
               </h2>
+              {data.length > 0 && (
+                <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  📧 {data.length} e-mails de kp-net@kp-net.com encontrados
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Ordem: Produzido → Consumido → Vendida → Comprada */}
