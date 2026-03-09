@@ -197,11 +197,43 @@ export default function Dashboard() {
         console.log('📅 Filtro "Mês" aplicado:', filtered.length, 'itens');
         break;
       case 'year':
+        // Agrupar dados por mês para o gráfico anual
+        const monthlyData: { [key: string]: any } = {};
         filtered = data.filter(item => {
           const itemDate = new Date(item.date);
-          return itemDate.getFullYear() === now.getFullYear();
+          const year = itemDate.getFullYear();
+          if (year !== now.getFullYear()) return false;
+          
+          // Agrupar por mês
+          const monthKey = itemDate.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+          if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = {
+              energiaGerada: 0,
+              energiaConsumida: 0,
+              energiaComprada: 0,
+              energiaVendida: 0,
+              date: monthKey,
+              count: 0
+            };
+          }
+          
+          monthlyData[monthKey].energiaGerada += item.energiaGerada || 0;
+          monthlyData[monthKey].energiaConsumida += item.energiaConsumida || 0;
+          monthlyData[monthKey].energiaComprada += item.energiaComprada || 0;
+          monthlyData[monthKey].energiaVendida += item.energiaVendida || 0;
+          monthlyData[monthKey].count += 1;
+          
+          return true;
         });
-        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'itens');
+        
+        // Converter para array ordenado por mês
+        filtered = Object.values(monthlyData).sort((a, b) => {
+          const monthOrder = ['jan/2026', 'fev/2026', 'mar/2026', 'abr/2026', 'mai/2026', 'jun/2026', 
+                           'jul/2026', 'ago/2026', 'set/2026', 'out/2026', 'nov/2026', 'dez/2026'];
+          return monthOrder.indexOf(a.date) - monthOrder.indexOf(b.date);
+        });
+        
+        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados');
         break;
       case 'custom':
         if (customDate) {
@@ -584,10 +616,8 @@ export default function Dashboard() {
               </h3>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart
-                  data={filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item) => ({
-                    name: dateRange === 'year'
-                      ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                  data={filteredData.map((item) => ({
+                    name: item.date,
                     energiaGerada: item.energiaGerada,
                     energiaConsumida: item.energiaConsumida
                   }))}
@@ -646,10 +676,8 @@ export default function Dashboard() {
               </h3>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart
-                  data={filteredData.slice(0, dateRange === 'year' ? 12 : dateRange === 'month' ? 30 : 7).map((item) => ({
-                    name: dateRange === 'year'
-                      ? new Date(item.date).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
-                      : new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                  data={filteredData.map((item) => ({
+                    name: item.date,
                     energiaComprada: item.energiaComprada,
                     energiaVendida: item.energiaVendida
                   }))}
