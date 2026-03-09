@@ -346,32 +346,33 @@ export default function Dashboard() {
               <div className="flex gap-2 items-center">
                 {renderLoginButton()}
                 
-                {/* Botão de teste - TEMPORÁRIO */}
+                {/* Botão de teste - TEMPORÁRIO - VERSÃO SIMPLES */}
                 <button
-                  onClick={async () => {
-                    console.log(' Botão de teste clicado');
-                    try {
-                      const response = await fetch('/api/test-data');
-                      const data = await response.json();
-                      console.log(' Dados de teste recebidos:', data);
-                      
-                      if (data.data && data.data.length > 0) {
-                        handleDataUpdate(data.data);
-                        console.log(' Dados de teste aplicados');
-                        alert(' Dados de teste aplicados! Verifique o dashboard.');
-                      } else {
-                        console.log(' Sem dados de teste');
-                        alert(' Sem dados de teste');
-                      }
-                    } catch (err) {
-                      console.log(' Erro no teste:', err);
-                      alert(' Erro no teste: ' + err);
-                    }
+                  onClick={() => {
+                    console.log('🧪 TESTE SIMPLES INICIADO');
+                    
+                    // Dados de teste hardcoded
+                    const testData = [
+                      { date: '2024-03-08', energiaConsumida: 25.5, energiaComprada: 15.2, energiaVendida: 8.3, energiaGerada: 18.6 },
+                      { date: '2024-03-07', energiaConsumida: 23.1, energiaComprada: 14.8, energiaVendida: 7.9, energiaGerada: 17.2 },
+                      { date: '2024-03-06', energiaConsumida: 26.8, energiaComprada: 16.1, energiaVendida: 9.2, energiaGerada: 19.9 }
+                    ];
+                    
+                    // Salvar direto no localStorage
+                    localStorage.setItem('energyData', JSON.stringify(testData));
+                    console.log('💾 localStorage salvo:', localStorage.getItem('energyData'));
+                    
+                    // Atualizar estado diretamente
+                    setData(testData);
+                    setFilteredData(testData);
+                    console.log('📊 Estado atualizado - data:', testData.length, 'itens');
+                    
+                    alert('✅ Dados de teste aplicados! Recarregue a página (F5) para ver se persistem.');
                   }}
-                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg`}
-                  title="Testar dados"
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg font-bold`}
+                  title="Testar dados (VERSÃO SIMPLES)"
                 >
-                  
+                  🧪
                 </button>
                 
                 {/* Botão dark mode */}
