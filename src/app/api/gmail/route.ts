@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
     // Buscar e-mails específicos do kp-net@kp-net.com e também recebidos de takayama.sp@gmail.com para testes
     // Tenta busca mais ampla primeiro, depois específica
     let response;
+    let searchType = '';
     
     try {
       // Busca ampla - qualquer e-mail de takayama.sp@gmail.com
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
         q: 'from:takayama.sp@gmail.com',
         maxResults: 30
       });
+      searchType = 'takayama.sp@gmail.com';
       
       if (!response.data.messages || response.data.messages.length === 0) {
         // Se não encontrar, busca de kp-net@kp-net.com
@@ -34,6 +36,7 @@ export async function POST(request: NextRequest) {
           q: 'from:kp-net@kp-net.com',
           maxResults: 30
         });
+        searchType = 'kp-net@kp-net.com';
       }
     } catch (error) {
       // Se tudo falhar, busca genérica
@@ -42,6 +45,7 @@ export async function POST(request: NextRequest) {
         q: '(from:kp-net@kp-net.com OR from:takayama.sp@gmail.com)',
         maxResults: 30
       });
+      searchType = 'generic';
     }
 
     if (!response.data.messages || response.data.messages.length === 0) {
@@ -56,36 +60,67 @@ export async function POST(request: NextRequest) {
     }
 
     const emailsData = [];
+    let processedCount = 0;
+    let successCount = 0;
 
     // Processar cada e-mail
     for (const message of response.data.messages) {
-      const fullMessage = await gmail.users.messages.get({
-        userId: 'me',
-        id: message.id!,
-        format: 'full'
-      });
+      try {
+        const fullMessage = await gmail.users.messages.get({
+          userId: 'me',
+          id: message.id!,
+          format: 'full'
+        });
 
-      const emailData = fullMessage.data;
-      
-      if (emailData.payload?.body?.data) {
-        // Decodificar base64
-        const emailBody = Buffer.from(emailData.payload.body.data, 'base64').toString('utf-8');
+        // Extrair conteúdo do e-mail
+        let content = '';
+        if (fullMessage.data.payload?.parts) {
+          // E-mail multipart
+          for (const part of fullMessage.data.payload.parts) {
+            if (part.mimeType === 'text/plain' && part.body?.data) {
+              content = Buffer.from(part.body.data, 'base64').toString('utf-8');
+              break;
+            }
+          }
+        } else if (fullMessage.data.payload?.body?.data) {
+          // E-mail simples
+          content = Buffer.from(fullMessage.data.payload.body.data, 'base64').toString('utf-8');
+        }
+
+        // Extrair data do e-mail
+        const dateHeader = fullMessage.data.payload?.headers?.find(h => h.name === 'Date')?.value || '';
+        const date = new Date(dateHeader).toISOString().split('T')[0];
+
+        // Parse do conteúdo
+        const parsedData = parseEmailContent(content);
         
-        // Extrair dados do e-mail
-        const parsedData = parseEmailContent(emailBody);
+        processedCount++;
         
         if (parsedData) {
           emailsData.push({
-            ...parsedData,
-            date: new Date(parseInt(emailData.internalDate!) / 1000).toISOString().split('T')[0]
+            date,
+            ...parsedData
           });
+          successCount++;
+          console.log(`✅ E-mail processado: ${date} - ${JSON.stringify(parsedData)}`);
+        } else {
+          console.log(`❌ E-mail sem dados válidos: ${date}`);
+          console.log(`Conteúdo: ${content.substring(0, 200)}...`);
         }
+      } catch (error) {
+        console.error(`Erro ao processar e-mail ${message.id}:`, error);
       }
     }
 
     return NextResponse.json({
-      message: `Encontrados ${emailsData.length} e-mails da KP-Net`,
-      data: emailsData
+      message: `Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,
+      data: emailsData,
+      debug: {
+        searchType,
+        processedCount,
+        successCount,
+        emailsFound: response.data.messages?.length || 0
+      }
     });
 
   } catch (error) {
