@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [showLogin, setShowLogin] = useState(false);
   const [hasLoadedData, setHasLoadedData] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [apiInfo, setApiInfo] = useState<any>(null); // Informações da API
 
   // Adicionar log para status do session
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function Dashboard() {
       
       if (response.ok && data.data?.length > 0) {
         console.log('✅', data.data.length, 'registros carregados automaticamente');
-        handleDataUpdate(data.data);
+        handleDataUpdate(data.data, data.debug); // Passar informações da API
       } else {
         console.log('⚠️ Nenhum dado encontrado nos emails');
       }
@@ -137,13 +138,15 @@ export default function Dashboard() {
   }, []);
 
   // Função para atualizar dados quando login é feito
-  const handleDataUpdate = (newData: any[]) => {
+  const handleDataUpdate = (newData: any[], apiResponseInfo?: any) => {
     console.log('📊 Dados recebidos no handleDataUpdate:', newData);
     console.log('🔢 Quantidade de dados:', newData.length);
+    console.log('📧 Info da API:', apiResponseInfo);
     
     if (newData && newData.length > 0) {
       setData(newData);
       setFilteredData(newData);
+      setApiInfo(apiResponseInfo); // Salvar informações da API
       setShowLogin(false); // Fechar modal após login
       console.log('✅ Dados atualizados com sucesso');
     } else {
@@ -516,9 +519,12 @@ export default function Dashboard() {
                 Último Dado ({filteredData[0]?.date ? new Date(filteredData[0].date).toLocaleDateString('pt-BR') : ''})
               </h2>
               {data.length > 0 && (
-                <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  📧 {data.length} e-mails de kp-net@kp-net.com encontrados
-                </p>
+                <div className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p>📧 {apiInfo?.emailsFound || data.length} e-mails encontrados no total</p>
+                  {apiInfo && apiInfo.emailsFound !== data.length && (
+                    <p className="mt-1">📥 {data.length} e-mails carregados com dados válidos</p>
+                  )}
+                </div>
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

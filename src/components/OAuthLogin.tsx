@@ -13,7 +13,7 @@ interface EnergyData {
 }
 
 interface OAuthLoginProps {
-  onConfigured: (data: EnergyData[]) => void;
+  onConfigured: (data: EnergyData[], apiInfo?: any) => void;
 }
 
 export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
@@ -86,7 +86,7 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
           console.log('💾 Salvando no localStorage...');
           
           // Usar dados diretamente da API (já com campos corretos)
-          onConfigured(data.data);
+          onConfigured(data.data, data.debug); // Passar também informações da API
           localStorage.setItem('energyData', JSON.stringify(data.data));
           localStorage.setItem('oauthMode', 'true');
           
