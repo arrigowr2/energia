@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -204,14 +204,24 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-4 items-center">
-              {/* Botão de login */}
-              <button
-                onClick={() => setShowLogin(!showLogin)}
-                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
-                title="Fazer login"
-              >
-                <LogIn className="w-5 h-5" />
-              </button>
+              {/* Botão de login/logout (sempre visível) */}
+              {status === 'authenticated' ? (
+                <button
+                  onClick={() => signOut()}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
+                  title="Sair"
+                >
+                  <LogIn className="w-5 h-5" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLogin(!showLogin)}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
+                  title="Fazer login"
+                >
+                  <LogIn className="w-5 h-5" />
+                </button>
+              )}
               
               {/* Botão dark mode */}
               <button
@@ -342,13 +352,35 @@ export default function Dashboard() {
               />
             </div>
             
-            {/* Botão dark mode */}
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-gray-600'} shadow-lg`}
-            >
-              {isDarkMode ? <Moon className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
-            </button>
+            {/* Botões de ação */}
+            <div className="flex gap-2 items-center">
+              {/* Botão de login/logout (sempre visível) */}
+              {status === 'authenticated' ? (
+                <button
+                  onClick={() => signOut()}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-lg`}
+                  title="Sair"
+                >
+                  <LogIn className="w-5 h-5" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLogin(!showLogin)}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-blue-400' : 'bg-white text-blue-600'} shadow-lg`}
+                  title="Fazer login"
+                >
+                  <LogIn className="w-5 h-5" />
+                </button>
+              )}
+              
+              {/* Botão dark mode */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-gray-600'} shadow-lg`}
+              >
+                {isDarkMode ? <Moon className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
