@@ -346,6 +346,34 @@ export default function Dashboard() {
               <div className="flex gap-2 items-center">
                 {renderLoginButton()}
                 
+                {/* Botão de teste - TEMPORÁRIO */}
+                <button
+                  onClick={async () => {
+                    console.log(' Botão de teste clicado');
+                    try {
+                      const response = await fetch('/api/test-data');
+                      const data = await response.json();
+                      console.log(' Dados de teste recebidos:', data);
+                      
+                      if (data.data && data.data.length > 0) {
+                        handleDataUpdate(data.data);
+                        console.log(' Dados de teste aplicados');
+                        alert(' Dados de teste aplicados! Verifique o dashboard.');
+                      } else {
+                        console.log(' Sem dados de teste');
+                        alert(' Sem dados de teste');
+                      }
+                    } catch (err) {
+                      console.log(' Erro no teste:', err);
+                      alert(' Erro no teste: ' + err);
+                    }
+                  }}
+                  className={`p-2 rounded-lg ${isDarkMode ? 'bg-green-800 text-green-400' : 'bg-green-100 text-green-600'} shadow-lg`}
+                  title="Testar dados"
+                >
+                  
+                </button>
+                
                 {/* Botão dark mode */}
                 <button
                   onClick={() => setIsDarkMode(!isDarkMode)}
