@@ -34,13 +34,21 @@ export default function Dashboard() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [hasLoadedData, setHasLoadedData] = useState(false);
 
   // Adicionar log para status do session
   useEffect(() => {
     console.log('🔍 Status da sessão mudou:', status);
     console.log('👤 Dados da sessão:', session);
   }, [status, session]);
+
+  // Carregar dados do localStorage apenas uma vez
   useEffect(() => {
+    if (hasLoadedData) {
+      console.log('⏭️ Dados já carregados, pulando...');
+      return;
+    }
+    
     console.log('🔄 Carregando dados do localStorage...');
     const savedData = localStorage.getItem('energyData');
     console.log('📦 Dados encontrados:', savedData);
@@ -51,13 +59,14 @@ export default function Dashboard() {
         console.log('📊 Dados parseados:', parsedData);
         setData(parsedData);
         setFilteredData(parsedData);
+        setHasLoadedData(true);
       } catch (error) {
         console.error('❌ Erro ao carregar dados salvos:', error);
       }
     } else {
       console.log('📭 Nenhum dado encontrado no localStorage');
     }
-  }, [status]);
+  }, [status, hasLoadedData]);
 
   // Salvar dados no localStorage quando mudar
   useEffect(() => {
