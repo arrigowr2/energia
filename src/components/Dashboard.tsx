@@ -220,21 +220,31 @@ export default function Dashboard() {
         }
         break;
       case 'week':
-        const weekAgo = new Date(today);
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        filtered = data.filter(item => {
-          const itemDate = new Date(item.date);
-          return itemDate >= weekAgo;
-        });
-        
-        // Se não houver dados na última semana, mostrar os 7 dias mais recentes
-        if (filtered.length === 0 && data.length > 0) {
+        // Mostrar exatamente 7 dias a partir do último dado disponível
+        if (data.length > 0) {
+          // Encontrar a data mais recente
           const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          filtered = sortedData.slice(0, 7);
-          console.log('📅 Sem dados na última semana, mostrando 7 dias mais recentes');
+          const latestDate = new Date(sortedData[0].date);
+          
+          // Calcular data de 7 dias antes do último dado
+          const weekBeforeLatest = new Date(latestDate);
+          weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 7);
+          
+          // Filtrar dados do período de 7 dias
+          filtered = data.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate >= weekBeforeLatest && itemDate <= latestDate;
+          });
+          
+          // Se ainda tiver muitos dados, pegar apenas 7 mais recentes
+          if (filtered.length > 7) {
+            filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            filtered = filtered.slice(0, 7);
+          }
+          
+          console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
+          console.log('📅 Período:', weekBeforeLatest.toLocaleDateString('pt-BR'), 'até', latestDate.toLocaleDateString('pt-BR'));
         }
-        
-        console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
         break;
       case 'month':
         filtered = data.filter(item => {
