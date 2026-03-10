@@ -40,7 +40,7 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const [data, setData] = useState<EnergyData[]>([]);
   const [filteredData, setFilteredData] = useState<EnergyData[]>([]);
-  const [dateRange, setDateRange] = useState<'latest' | 'week' | 'month' | 'year' | 'custom'>('latest');
+  const [dateRange, setDateRange] = useState<'latest' | 'week' | 'month' | 'year' | 'custom' | 'selected-month'>('latest');
   const [customDate, setCustomDate] = useState<string>('');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -236,13 +236,29 @@ export default function Dashboard() {
         });
         console.log('📅 Filtro "Mês" aplicado:', filtered.length, 'itens');
         break;
+      case 'selected-month':
+        // Filtrar por mês selecionado no dropdown
+        if (selectedMonth) {
+          const targetMonth = parseInt(selectedMonth) - 1; // JavaScript months são 0-11
+          const targetYear = parseInt(selectedYear) || now.getFullYear();
+          
+          filtered = data.filter(item => {
+            const itemDate = new Date(item.date);
+            return itemDate.getMonth() === targetMonth && 
+                   itemDate.getFullYear() === targetYear;
+          });
+          console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', targetMonth + 1, '/', targetYear);
+        }
+        break;
       case 'year':
         // Agrupar dados por mês para o gráfico anual
         const monthlyData: { [key: string]: any } = {};
+        const targetYear = parseInt(selectedYear) || now.getFullYear(); // Usar ano selecionado ou atual
+        
         filtered = data.filter(item => {
           const itemDate = new Date(item.date);
           const year = itemDate.getFullYear();
-          if (year !== now.getFullYear()) return false;
+          if (year !== targetYear) return false;
           
           // Agrupar por mês
           const monthKey = itemDate.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
@@ -268,12 +284,14 @@ export default function Dashboard() {
         
         // Converter para array ordenado por mês
         filtered = Object.values(monthlyData).sort((a, b) => {
-          const monthOrder = ['jan/2026', 'fev/2026', 'mar/2026', 'abr/2026', 'mai/2026', 'jun/2026', 
-                           'jul/2026', 'ago/2026', 'set/2026', 'out/2026', 'nov/2026', 'dez/2026'];
-          return monthOrder.indexOf(a.date) - monthOrder.indexOf(b.date);
+          const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 
+                           'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+          const monthA = a.date.split('/')[0].toLowerCase();
+          const monthB = b.date.split('/')[0].toLowerCase();
+          return monthOrder.indexOf(monthA) - monthOrder.indexOf(monthB);
         });
         
-        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados');
+        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados para', targetYear);
         break;
       case 'custom':
         if (customDate) {
@@ -678,10 +696,7 @@ export default function Dashboard() {
                 value={selectedMonth}
                 onChange={(e) => {
                   setSelectedMonth(e.target.value);
-                  setDateRange('custom');
-                  const now = new Date();
-                  const year = now.getFullYear();
-                  setCustomDate(`${year}-${e.target.value}-01`);
+                  setDateRange('selected-month');
                 }}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
               >
