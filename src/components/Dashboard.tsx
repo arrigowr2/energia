@@ -309,7 +309,7 @@ export default function Dashboard() {
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
-  }, [data, dateRange, customDate]);
+  }, [data, dateRange, customDate, selectedMonth, selectedYear]);
 
   // Extrair anos e meses disponíveis dos dados
   const extractAvailableDates = (data: EnergyData[]) => {
