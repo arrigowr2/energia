@@ -48,6 +48,14 @@ export default function Dashboard() {
   const [hasLoadedData, setHasLoadedData] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [apiInfo, setApiInfo] = useState<any>(null); // Informações da API
+  
+  // Estados para novos recursos
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
+  const [availableMonths, setAvailableMonths] = useState<{value: string, label: string}[]>([]);
 
   // Adicionar log para status do session
   useEffect(() => {
@@ -69,13 +77,32 @@ export default function Dashboard() {
       return;
     }
     
+    // Mostrar modal de loading
+    setShowLoadingModal(true);
+    setLoadingProgress(0);
+    
     try {
       console.log('📧 Buscando emails automaticamente...');
+      
+      // Simular progresso durante a busca
+      const progressInterval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 500);
+      
       const response = await fetch('/api/gmail', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accessToken })
       });
+      
+      clearInterval(progressInterval);
+      setLoadingProgress(95);
       
       const data = await response.json();
       console.log('📊 Dados recebidos:', data);
@@ -85,9 +112,13 @@ export default function Dashboard() {
         handleDataUpdate(data.data, data.debug); // Passar informações da API
       } else {
         console.log('⚠️ Nenhum dado encontrado nos emails');
+        setShowLoadingModal(false);
+        setLoadingProgress(0);
       }
     } catch (err: any) {
       console.error('❌ Erro ao buscar emails:', err);
+      setShowLoadingModal(false);
+      setLoadingProgress(0);
     }
   };
 
@@ -149,9 +180,17 @@ export default function Dashboard() {
       setFilteredData(newData);
       setApiInfo(apiResponseInfo); // Salvar informações da API
       setShowLogin(false); // Fechar modal após login
+      setShowLoadingModal(false); // Fechar modal de loading
+      setLoadingProgress(100); // Completar progresso
+      
+      // Extrair anos e meses disponíveis para os dropdowns
+      extractAvailableDates(newData);
+      
       console.log('✅ Dados atualizados com sucesso');
     } else {
       console.log('❌ Nenhum dado recebido');
+      setShowLoadingModal(false);
+      setLoadingProgress(0);
     }
   };
 
@@ -253,6 +292,39 @@ export default function Dashboard() {
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate]);
+
+  // Extrair anos e meses disponíveis dos dados
+  const extractAvailableDates = (data: EnergyData[]) => {
+    const years = new Set<string>();
+    const monthsSet = new Set<string>();
+    
+    data.forEach(item => {
+      const date = new Date(item.date);
+      const year = date.getFullYear().toString();
+      const month = date.toLocaleDateString('pt-BR', { month: 'long' });
+      
+      years.add(year);
+      monthsSet.add(month);
+    });
+    
+    const months = [
+      { value: '01', label: 'Janeiro' },
+      { value: '02', label: 'Fevereiro' },
+      { value: '03', label: 'Março' },
+      { value: '04', label: 'Abril' },
+      { value: '05', label: 'Maio' },
+      { value: '06', label: 'Junho' },
+      { value: '07', label: 'Julho' },
+      { value: '08', label: 'Agosto' },
+      { value: '09', label: 'Setembro' },
+      { value: '10', label: 'Outubro' },
+      { value: '11', label: 'Novembro' },
+      { value: '12', label: 'Dezembro' }
+    ];
+    
+    setAvailableYears(Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)));
+    setAvailableMonths(months);
+  };
 
   // Função para carregar dados de teste
   const loadTestData = () => {
@@ -529,6 +601,37 @@ export default function Dashboard() {
     );
   }
 
+  // Modal de Loading
+  const LoadingModal = () => {
+    if (!showLoadingModal) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className={`max-w-md w-full mx-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 text-center`}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Carregando Dados
+          </h3>
+          <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Buscando e processando e-mails de energia...
+          </p>
+          
+          {/* Barra de Progresso */}
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${loadingProgress}%` }}
+            ></div>
+          </div>
+          
+          <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {loadingProgress}% concluído
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header estilo Painel Solar */}
@@ -569,26 +672,39 @@ export default function Dashboard() {
               >
                 Semana
               </button>
-              <button
-                onClick={() => setDateRange('month')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  dateRange === 'month' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+              
+              {/* Dropdown Mês */}
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                  setDateRange('custom');
+                  const now = new Date();
+                  const year = now.getFullYear();
+                  setCustomDate(`${year}-${e.target.value}-01`);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
               >
-                Mês
-              </button>
-              <button
-                onClick={() => setDateRange('year')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  dateRange === 'year' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
+                <option value="">Mês</option>
+                {availableMonths.map(month => (
+                  <option key={month.value} value={month.value}>{month.label}</option>
+                ))}
+              </select>
+              
+              {/* Dropdown Ano */}
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setDateRange('year');
+                }}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
               >
-                Ano
-              </button>
+                <option value="">Ano</option>
+                {availableYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
             </div>
 
             {/* Date picker */}
@@ -911,6 +1027,9 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      
+      {/* Modal de Loading */}
+      <LoadingModal />
     </div>
   );
 }
