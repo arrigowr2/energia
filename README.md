@@ -9,6 +9,7 @@ Sistema inteligente para monitoramento automático de dados energéticos atravé
 - **Dashboard Interativo**: Visualização completa com gráficos e estatísticas
 - **Armazenamento Local**: Dados salvos localmente no navegador
 - **Análise de Tendências**: Monitoramento de evolução temporal dos dados
+- **Paginação Inteligente**: Carregamento eficiente de grandes volumes de e-mails
 
 ## 📊 Dados Monitorados
 
