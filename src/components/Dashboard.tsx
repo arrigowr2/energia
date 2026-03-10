@@ -434,11 +434,18 @@ export default function Dashboard() {
       searchType: 'test-data'
     });
     
-    // Limpar filtros
+    // Extrair anos e meses disponíveis para os dropdowns
+    extractAvailableDates(testData);
+    
+    // Limpar filtros e seleções
     setDateRange('latest');
     setCustomDate('');
+    setSelectedMonth('');
+    setSelectedYear('');
     
     console.log('✅ Dados de teste carregados com sucesso!');
+    console.log('📅 Anos disponíveis:', [...new Set(testData.map(d => d.date.split('-')[0]))]);
+    console.log('📅 Meses disponíveis:', [...new Set(testData.map(d => d.date.split('-')[1]))]);
   };
 
   // Calcular estatísticas
