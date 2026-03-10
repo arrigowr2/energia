@@ -393,18 +393,30 @@ export default function Dashboard() {
         // Mais dados por mês para simular dados reais
         const dataCount = Math.floor(Math.random() * 15) + 20; // 20-35 dados por mês
         
-        for (let i = 0; i < dataCount; i++) {
+        // Gerar dias únicos para evitar duplicatas
+        const usedDays = new Set<number>();
+        let attempts = 0;
+        const maxAttempts = dataCount * 3; // Tentativas máximas
+        
+        while (usedDays.size < dataCount && attempts < maxAttempts) {
           const day = Math.floor(Math.random() * daysInMonth) + 1;
-          const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           
-          // Valores mais realistas
-          testData.push({
-            date,
-            energiaGerada: Math.floor(Math.random() * 80) + 5, // 5-85 kWh
-            energiaConsumida: Math.floor(Math.random() * 60) + 3, // 3-63 kWh
-            energiaComprada: Math.floor(Math.random() * 40) + 1, // 1-41 kWh
-            energiaVendida: Math.floor(Math.random() * 30) + 0.5 // 0.5-30.5 kWh
-          });
+          // Só adicionar se o dia ainda não foi usado
+          if (!usedDays.has(day)) {
+            usedDays.add(day);
+            const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            
+            // Valores mais realistas
+            testData.push({
+              date,
+              energiaGerada: Math.floor(Math.random() * 80) + 5, // 5-85 kWh
+              energiaConsumida: Math.floor(Math.random() * 60) + 3, // 3-63 kWh
+              energiaComprada: Math.floor(Math.random() * 40) + 1, // 1-41 kWh
+              energiaVendida: Math.floor(Math.random() * 30) + 0.5 // 0.5-30.5 kWh
+            });
+          }
+          
+          attempts++;
         }
       }
     }
