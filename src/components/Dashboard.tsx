@@ -226,6 +226,14 @@ export default function Dashboard() {
           const itemDate = new Date(item.date);
           return itemDate >= weekAgo;
         });
+        
+        // Se não houver dados na última semana, mostrar os 7 dias mais recentes
+        if (filtered.length === 0 && data.length > 0) {
+          const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          filtered = sortedData.slice(0, 7);
+          console.log('📅 Sem dados na última semana, mostrando 7 dias mais recentes');
+        }
+        
         console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
         break;
       case 'month':
@@ -295,12 +303,10 @@ export default function Dashboard() {
         break;
       case 'custom':
         if (customDate) {
-          const custom = new Date(customDate);
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date);
-            return itemDate.toDateString() === custom.toDateString();
+            return item.date === customDate; // Comparar strings diretamente
           });
-          console.log('📅 Filtro "Custom" aplicado:', filtered.length, 'itens');
+          console.log('📅 Filtro "Custom" aplicado:', filtered.length, 'itens para', customDate);
         }
         break;
     }
