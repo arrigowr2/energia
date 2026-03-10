@@ -351,73 +351,57 @@ export default function Dashboard() {
   };
 
   // Função para carregar dados de teste
-  const loadTestData = () => {
+  const loadTestData = async () => {
     console.log('🧪 Carregando dados de teste...');
     
+    // Mostrar modal de loading
+    setShowLoadingModal(true);
+    setLoadingProgress(0);
+    
+    // Simular delay para mostrar loading
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const testData: EnergyData[] = [];
+    const totalMonths = 36; // 3 anos de dados
+    const currentProgress = { value: 0 };
     
-    // Dados de 2024 (meses selecionados)
-    const months2024 = ['mar', 'abr', 'mai', 'jun', 'set', 'out', 'nov'];
-    months2024.forEach(month => {
-      const monthNum = new Date(Date.parse(`${month} 1, 2024`)).getMonth() + 1;
-      const daysInMonth = new Date(2024, monthNum, 0).getDate();
-      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
-      
-      for (let i = 0; i < dataCount; i++) {
-        const day = Math.floor(Math.random() * daysInMonth) + 1;
-        const date = `2024-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        testData.push({
-          date,
-          energiaGerada: Math.floor(Math.random() * 50) + 10,
-          energiaConsumida: Math.floor(Math.random() * 40) + 5,
-          energiaComprada: Math.floor(Math.random() * 30) + 2,
-          energiaVendida: Math.floor(Math.random() * 25) + 1
-        });
-      }
-    });
+    // Simular progresso durante geração
+    const progressInterval = setInterval(() => {
+      currentProgress.value += 2;
+      setLoadingProgress(Math.min(currentProgress.value, 95));
+    }, 50);
     
-    // Dados de 2025 (meses selecionados)
-    const months2025 = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out'];
-    months2025.forEach(month => {
-      const monthNum = new Date(Date.parse(`${month} 1, 2025`)).getMonth() + 1;
-      const daysInMonth = new Date(2025, monthNum, 0).getDate();
-      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
-      
-      for (let i = 0; i < dataCount; i++) {
-        const day = Math.floor(Math.random() * daysInMonth) + 1;
-        const date = `2025-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        testData.push({
-          date,
-          energiaGerada: Math.floor(Math.random() * 60) + 15,
-          energiaConsumida: Math.floor(Math.random() * 45) + 8,
-          energiaComprada: Math.floor(Math.random() * 35) + 3,
-          energiaVendida: Math.floor(Math.random() * 30) + 2
-        });
-      }
-    });
+    // Gerar dados para 2024, 2025, 2026 (todos os meses)
+    const years = [2024, 2025, 2026];
+    const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     
-    // Dados de 2026 (meses selecionados)
-    const months2026 = ['jan', 'fev'];
-    months2026.forEach(month => {
-      const monthNum = new Date(Date.parse(`${month} 1, 2026`)).getMonth() + 1;
-      const daysInMonth = new Date(2026, monthNum, 0).getDate();
-      const dataCount = Math.floor(Math.random() * 6) + 5; // 5-10 dados por mês
-      
-      for (let i = 0; i < dataCount; i++) {
-        const day = Math.floor(Math.random() * daysInMonth) + 1;
-        const date = `2026-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    for (const year of years) {
+      for (const month of months) {
+        const monthNum = new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1;
+        const daysInMonth = new Date(year, monthNum, 0).getDate();
         
-        testData.push({
-          date,
-          energiaGerada: Math.floor(Math.random() * 55) + 12,
-          energiaConsumida: Math.floor(Math.random() * 42) + 6,
-          energiaComprada: Math.floor(Math.random() * 32) + 2,
-          energiaVendida: Math.floor(Math.random() * 28) + 1
-        });
+        // Mais dados por mês para simular dados reais
+        const dataCount = Math.floor(Math.random() * 15) + 20; // 20-35 dados por mês
+        
+        for (let i = 0; i < dataCount; i++) {
+          const day = Math.floor(Math.random() * daysInMonth) + 1;
+          const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          
+          // Valores mais realistas
+          testData.push({
+            date,
+            energiaGerada: Math.floor(Math.random() * 80) + 5, // 5-85 kWh
+            energiaConsumida: Math.floor(Math.random() * 60) + 3, // 3-63 kWh
+            energiaComprada: Math.floor(Math.random() * 40) + 1, // 1-41 kWh
+            energiaVendida: Math.floor(Math.random() * 30) + 0.5 // 0.5-30.5 kWh
+          });
+        }
       }
-    });
+    }
+    
+    // Parar progresso
+    clearInterval(progressInterval);
+    setLoadingProgress(95);
     
     // Ordenar por data (mais recente primeiro)
     testData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -429,6 +413,9 @@ export default function Dashboard() {
       '2026': testData.filter(d => d.date.startsWith('2026')).length
     });
     
+    // Simular delay final
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     // Atualizar estados
     setData(testData);
     setFilteredData(testData);
@@ -437,7 +424,7 @@ export default function Dashboard() {
       emailsProcessed: testData.length,
       processedCount: testData.length,
       successCount: testData.length,
-      searchType: 'test-data'
+      searchType: 'test-data-large'
     });
     
     // Extrair anos e meses disponíveis para os dropdowns
@@ -448,6 +435,11 @@ export default function Dashboard() {
     setCustomDate('');
     setSelectedMonth('');
     setSelectedYear('');
+    
+    // Fechar modal de loading
+    setLoadingProgress(100);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    setShowLoadingModal(false);
     
     console.log('✅ Dados de teste carregados com sucesso!');
     console.log('📅 Anos disponíveis:', [...new Set(testData.map(d => d.date.split('-')[0]))]);
