@@ -247,8 +247,21 @@ export default function Dashboard() {
           const latestDateStr = sortedData[0].date;
           console.log('🔍 [WEEK] Data mais recente:', latestDateStr);
           
+          // Validar formato da data
+          if (!latestDateStr || !latestDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            console.log('🔍 [WEEK] ERRO: Data inválida:', latestDateStr);
+            break;
+          }
+          
           // Calcular data de 6 dias antes
           const latestDate = new Date(latestDateStr + 'T12:00:00');
+          console.log('🔍 [WEEK] Date criado:', latestDate, latestDate.toString());
+          
+          if (isNaN(latestDate.getTime())) {
+            console.log('🔍 [WEEK] ERRO: Date inválido!');
+            break;
+          }
+          
           const weekBeforeLatest = new Date(latestDate);
           weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 6);
           
