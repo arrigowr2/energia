@@ -458,15 +458,18 @@ export default function Dashboard() {
   // Extrair anos e meses disponíveis dos dados
   const extractAvailableDates = (data: EnergyData[]) => {
     const years = new Set<string>();
-    const monthsSet = new Set<string>();
     
     data.forEach(item => {
-      const date = new Date(item.date);
-      const year = date.getFullYear().toString();
-      const month = date.toLocaleDateString('pt-BR', { month: 'long' });
+      // Usar split de string para evitar problemas de timezone
+      if (item.date && typeof item.date === 'string' && item.date.includes('NaN')) {
+        return; // Pular datas inválidas
+      }
       
-      years.add(year);
-      monthsSet.add(month);
+      const parts = item.date.split('-');
+      if (parts.length === 3) {
+        const year = parts[0];
+        years.add(year);
+      }
     });
     
     const months = [
@@ -485,20 +488,9 @@ export default function Dashboard() {
     ];
     
     setAvailableYears(Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)));
-    setAvailableMonths([
-      { value: '01', label: 'Janeiro' },
-      { value: '02', label: 'Fevereiro' },
-      { value: '03', label: 'Março' },
-      { value: '04', label: 'Abril' },
-      { value: '05', label: 'Maio' },
-      { value: '06', label: 'Junho' },
-      { value: '07', label: 'Julho' },
-      { value: '08', label: 'Agosto' },
-      { value: '09', label: 'Setembro' },
-      { value: '10', label: 'Outubro' },
-      { value: '11', label: 'Novembro' },
-      { value: '12', label: 'Dezembro' }
-    ]);
+    setAvailableMonths(months);
+    console.log('📅 Anos disponíveis:', Array.from(years));
+    console.log('📅 Meses configurados:', months.length);
   };
 
   // Função para carregar dados de teste
