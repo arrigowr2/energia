@@ -249,13 +249,13 @@ export default function Dashboard() {
           
           // Filtrar dados do período de 7 dias
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date);
+            const itemDate = new Date(item.date + 'T00:00:00'); // Evitar timezone
             return itemDate >= weekBeforeLatest && itemDate <= latestDate;
           });
           
           // Se ainda tiver muitos dados, pegar apenas 7 mais recentes
           if (filtered.length > 7) {
-            filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            filtered.sort((a, b) => new Date(b.date + 'T00:00:00').getTime() - new Date(a.date + 'T00:00:00').getTime());
             filtered = filtered.slice(0, 7);
           }
           
