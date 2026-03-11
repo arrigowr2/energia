@@ -380,7 +380,7 @@ export default function Dashboard() {
     const weeks: { [key: string]: EnergyData } = {};
     
     data.forEach(item => {
-      const date = new Date(item.date);
+      const date = new Date(item.date + 'T00:00:00'); // Evitar timezone
       const weekNum = Math.ceil(date.getDate() / 7);
       const weekKey = `Semana ${weekNum}`;
       
@@ -408,7 +408,7 @@ export default function Dashboard() {
     const months: { [key: string]: EnergyData } = {};
     
     data.forEach(item => {
-      const date = new Date(item.date);
+      const date = new Date(item.date + 'T00:00:00'); // Evitar timezone
       const year = date.getFullYear();
       const month = date.getMonth(); // 0-11
       const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
