@@ -14,7 +14,8 @@ import {
   Lightbulb,
   LogIn,
   TestTube,
-  X
+  X,
+  HelpCircle
 } from 'lucide-react';
 import {
   BarChart,
@@ -1537,9 +1538,29 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Tendência de Geração */}
                 <div>
-                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Evolução da Geração
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Evolução da Geração
+                    </h4>
+                    <div className="relative group">
+                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <strong>📈 O que mostra:</strong><br/>
+                          • Linha <span className="text-green-500">verde</span>: Energia gerada mês a mês<br/>
+                          • Linha <span className="text-blue-500">azul</span>: Energia consumida mês a mês<br/>
+                          • Eixo X: Meses do ano<br/>
+                          • Eixo Y: Total em kWh<br/><br/>
+                          <strong>💡 Como interpretar:</strong><br/>
+                          • Linhas subindo = Melhora no sistema<br/>
+                          • Linhas descendo = Redução de eficiência<br/>
+                          • Distância entre linhas = Autossuficiência
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="h-64">
                     {(() => {
                       const monthlyData: { [key: string]: any } = {};
@@ -1668,9 +1689,27 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Eficiência */}
                 <div>
-                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Taxa de Aproveitamento
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Taxa de Aproveitamento
+                    </h4>
+                    <div className="relative group">
+                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <strong>⚡ O que mostra:</strong><br/>
+                          • Fatia <span className="text-green-500">verde</span>: Energia gerada pelo sistema<br/>
+                          • Fatia <span className="text-red-500">vermelha</span>: Energia comprada da rede<br/><br/>
+                          <strong>💡 Como interpretar:</strong><br/>
+                          • Mais verde = Maior autossuficiência<br/>
+                          • Mais vermelho = Maior dependência da rede<br/>
+                          • Ideal: Máximo verde, mínimo vermelho
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
@@ -1774,9 +1813,29 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico Econômico */}
                 <div>
-                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Fluxo de Energia
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Fluxo de Energia
+                    </h4>
+                    <div className="relative group">
+                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <strong>💰 O que mostra:</strong><br/>
+                          • Barras <span className="text-amber-500">laranjas</span>: Energia vendida para a rede<br/>
+                          • Barras <span className="text-red-500">vermelhas</span>: Energia comprada da rede<br/>
+                          • Eixo X: Meses do período<br/>
+                          • Eixo Y: Total em kWh<br/><br/>
+                          <strong>💡 Como interpretar:</strong><br/>
+                          • Mais laranja que vermelho = Lucro líquido<br/>
+                          • Mais vermelho que laranja = Déficit energético<br/>
+                          • Altura das barras = Volume de transação
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="h-64">
                     {(() => {
                       const monthlyData: { [key: string]: any } = {};
@@ -1904,9 +1963,30 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Padrões Semanais */}
                 <div>
-                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Padrão Semanal
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Padrão Semanal
+                    </h4>
+                    <div className="relative group">
+                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <strong>🔄 O que mostra:</strong><br/>
+                          • Barras <span className="text-green-500">verdes</span>: Média de geração por dia da semana<br/>
+                          • Barras <span className="text-blue-500">azuis</span>: Média de consumo por dia da semana<br/>
+                          • Eixo X: Dias da semana (Dom-Sáb)<br/>
+                          • Eixo Y: Média em kWh<br/><br/>
+                          <strong>💡 Como interpretar:</strong><br/>
+                          • Padrões de comportamento semanal<br/>
+                          • Dias de maior/menor consumo<br/>
+                          • Melhores dias para gerar energia solar<br/>
+                          • Otimização de horários de uso
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="h-64">
                     {(() => {
                       const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -2023,9 +2103,30 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Gráfico de Previsão */}
                 <div>
-                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Projeção para Próximos 7 Dias
-                  </h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                      Projeção para Próximos 7 Dias
+                    </h4>
+                    <div className="relative group">
+                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
+                        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                      }`}>
+                        <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <strong>🔮 O que mostra:</strong><br/>
+                          • Linhas <span className="text-green-500">verdes tracejadas</span>: Previsão de geração<br/>
+                          • Linhas <span className="text-blue-500">azuis tracejadas</span>: Previsão de consumo<br/>
+                          • Eixo X: Próximos 7 dias<br/>
+                          • Eixo Y: Previsão em kWh<br/><br/>
+                          <strong>💡 Como interpretar:</strong><br/>
+                          • Baseado na média dos últimos 7 dias<br/>
+                          • Variação de ±20% simulada<br/>
+                          • Ajuda no planejamento energético<br/>
+                          • Previsão de excedentes/déficits
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   <div className="h-64">
                     {(() => {
                       if (filteredData.length < 7) {
