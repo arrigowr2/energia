@@ -1602,7 +1602,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                        <ResponsiveContainer width="100%" height={256}>
                           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
@@ -1878,7 +1878,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                        <ResponsiveContainer width="100%" height={256}>
                           <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
