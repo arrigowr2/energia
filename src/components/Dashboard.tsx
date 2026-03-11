@@ -1049,7 +1049,7 @@ export default function Dashboard() {
               <div className="overflow-x-auto pb-4">
                 <div style={{ minWidth: `${optimizeChartData(filteredData).length * 60}px` }}>
                   <BarChart
-                    width={Math.max(600, optimizeChartData(filteredData).length * 60)}
+                    width={Math.max(600, optimizeChartData(filteredData).length * 80)}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => ({
                       name: item.date,
@@ -1075,8 +1075,8 @@ export default function Dashboard() {
                       }}
                     />
                     <Legend />
-                    <Bar dataKey="energiaGerada" fill="#10b981" name="Produzido" />
-                    <Bar dataKey="energiaConsumida" fill="#3b82f6" name="Consumido" />
+                    <Bar dataKey="energiaGerada" fill="#10b981" name="Produzido" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="energiaConsumida" fill="#3b82f6" name="Consumido" radius={[4, 4, 0, 0]} maxBarSize={40} />
                   </BarChart>
                 </div>
               </div>
@@ -1156,62 +1156,6 @@ export default function Dashboard() {
             <p className={`text-sm mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Em breve: Tendências, Eficiência, Economia, Padrões e Previsões
             </p>
-          </div>
-        )}
-
-        {/* Tabela de dados - Collapsible */}
-        {filteredData.length > 0 && (
-          <div className={`p-4 sm:p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <h2 className={`text-lg sm:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Histórico de Dados
-              </h2>
-              <div className={`transform transition-transform ${showHistory ? 'rotate-180' : ''}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </button>
-            
-            {showHistory && (
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[600px]">
-                  <thead>
-                    <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                      <th className={`text-left py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Data</th>
-                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Consumo</th>
-                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Comprado</th>
-                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Vendido</th>
-                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Gerado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredData.map((item, index) => (
-                      <tr key={index} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
-                        <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {new Date(item.date).toLocaleDateString('pt-BR')}
-                        </td>
-                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {item.energiaConsumida.toFixed(2)}
-                        </td>
-                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {item.energiaComprada.toFixed(2)}
-                        </td>
-                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {item.energiaVendida.toFixed(2)}
-                        </td>
-                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {item.energiaGerada.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
         )}
       </div>
