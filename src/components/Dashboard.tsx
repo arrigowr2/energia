@@ -1588,14 +1588,6 @@ export default function Dashboard() {
                         consumo: item.consumo
                       }));
                       
-                      // Debug para entender o problema
-                      console.log('🔍 Debug Gráfico Tendências:', {
-                        filteredDataLength: filteredData.length,
-                        monthlyDataKeys: Object.keys(monthlyData),
-                        chartDataLength: chartData.length,
-                        chartData: chartData
-                      });
-                      
                       // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
                       // O problema pode ser que chartData.length === 0 mesmo com dados
                       if (chartData.length === 0) {
@@ -1610,8 +1602,8 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={chartData}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
                               dataKey="month" 
@@ -1886,8 +1878,8 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={chartData}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
                               dataKey="month" 
