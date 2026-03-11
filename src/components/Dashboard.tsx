@@ -1067,11 +1067,16 @@ export default function Dashboard() {
                   <BarChart
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
-                    data={optimizeChartData(filteredData).map(item => ({
-                      name: item.date, // Data completa: dia/mês/ano
-                      energiaGerada: item.energiaGerada,
-                      energiaConsumida: item.energiaConsumida
-                    }))}
+                    data={optimizeChartData(filteredData).map(item => {
+                      // Formatar data manualmente para evitar timezone (DD/MM/YYYY)
+                      const [year, month, day] = item.date.split('-');
+                      const formattedDate = `${day}/${month}/${year}`;
+                      return {
+                        name: formattedDate,
+                        energiaGerada: item.energiaGerada,
+                        energiaConsumida: item.energiaConsumida
+                      };
+                    })}
                     margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -1117,11 +1122,16 @@ export default function Dashboard() {
                   <BarChart
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={320}
-                    data={optimizeChartData(filteredData).map((item) => ({
-                      name: item.date, // Data completa: dia/mês/ano
-                      energiaComprada: item.energiaComprada,
-                      energiaVendida: item.energiaVendida
-                    }))}
+                    data={optimizeChartData(filteredData).map((item) => {
+                      // Formatar data manualmente para evitar timezone (DD/MM/YYYY)
+                      const [year, month, day] = item.date.split('-');
+                      const formattedDate = `${day}/${month}/${year}`;
+                      return {
+                        name: formattedDate,
+                        energiaComprada: item.energiaComprada,
+                        energiaVendida: item.energiaVendida
+                      };
+                    })}
                     margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
