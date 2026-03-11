@@ -564,9 +564,13 @@ export default function Dashboard() {
         // Mais dados por mês para atingir ~1500 total
         let dataCount;
         if (year === 2023) {
-          dataCount = Math.floor(Math.random() * 20) + 25; // 25-45 dados (2023 tem menos)
+          dataCount = Math.floor(Math.random() * 15) + 30; // 30-45 dados (2023 tem menos)
+        } else if (year === 2024) {
+          dataCount = Math.floor(Math.random() * 20) + 35; // 35-55 dados (2024 médio)
+        } else if (year === 2025) {
+          dataCount = Math.floor(Math.random() * 25) + 40; // 40-65 dados (2025 bom)
         } else {
-          dataCount = Math.floor(Math.random() * 25) + 35; // 35-60 dados (2024-2026 tem mais)
+          dataCount = Math.floor(Math.random() * 30) + 45; // 45-75 dados (2026 excelente)
         }
         
         // Gerar dias únicos para evitar duplicatas
@@ -1110,6 +1114,7 @@ export default function Dashboard() {
           <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p>Nenhum dado encontrado para o período selecionado</p>
+            <p className="text-sm mt-2">Total de dados disponíveis: {data.length} dias</p>
           </div>
         )}
 
@@ -1499,10 +1504,10 @@ export default function Dashboard() {
                   </h4>
                   <div className="space-y-3">
                     {(() => {
-                      if (filteredData.length < 14) return (
+                    if (filteredData.length < 14) return (
                         <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                           <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            📊 Precisa de mais dados para análise de tendências (mínimo 14 dias)
+                            📊 Precisa de mais dados para análise de tendências (mínimo 14 dias) - atual: {filteredData.length} dias
                           </p>
                         </div>
                       );
@@ -1945,7 +1950,7 @@ export default function Dashboard() {
                       if (filteredData.length < 7) return (
                         <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                           <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            📊 Precisa de mais dados para previsões (mínimo 7 dias)
+                            📊 Precisa de mais dados para previsões (mínimo 7 dias) - atual: {filteredData.length} dias
                           </p>
                         </div>
                       );
