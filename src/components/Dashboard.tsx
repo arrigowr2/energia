@@ -317,16 +317,13 @@ export default function Dashboard() {
         console.log('📅 Filtro "Mês" aplicado:', filtered.length, 'itens');
         break;
       case 'selected-month':
-        // Filtrar por mês selecionado no dropdown
+        // Filtrar por mês selecionado no dropdown (formato: YYYY-MM)
         if (selectedMonth) {
-          const targetMonth = selectedMonth.padStart(2, '0'); // Garantir 2 dígitos
-          const targetYear = selectedYear || now.getFullYear().toString();
-          
           filtered = data.filter(item => {
             // Usar comparação de strings para evitar timezone
-            return item.date.startsWith(`${targetYear}-${targetMonth}`);
+            return item.date.startsWith(selectedMonth);
           });
-          console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', targetMonth, '/', targetYear);
+          console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', selectedMonth);
         }
         break;
       case 'year':
@@ -340,7 +337,7 @@ export default function Dashboard() {
           if (year !== targetYear) return false;
           
           // Agrupar por mês
-          const monthKey = itemDate.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+          const monthKey = formatMonthYear(item.date);
           if (!monthlyData[monthKey]) {
             monthlyData[monthKey] = {
               energiaGerada: 0,
@@ -544,6 +541,17 @@ export default function Dashboard() {
     setAvailableMonths(months);
     console.log('📅 Anos disponíveis:', Array.from(years));
     console.log('📅 Meses com dados:', months.length);
+    console.log('📅 Meses disponíveis:', months.map(m => ({ value: m.value, label: m.label })));
+    console.log('📅 Exemplo de dados:', data.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
+  };
+
+  // Função helper para formatar datas no formato mes/ano
+  const formatMonthYear = (dateString: string): string => {
+    const date = new Date(dateString);
+    const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear().toString().slice(-2); // Últimos 2 dígitos
+    return `${month}/${year}`;
   };
 
   // Função para carregar dados de teste
@@ -1525,7 +1533,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
+                        month: formatMonthYear(item.month + '-01'),
                         monthKey: item.month, // Adicionar chave única para evitar duplicatas
                         geracao: item.geracao,
                         consumo: item.consumo
@@ -1806,7 +1814,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
+                        month: formatMonthYear(item.month + '-01'),
                         monthKey: item.month, // Adicionar chave única
                         vendido: item.vendido,
                         comprado: item.comprado
