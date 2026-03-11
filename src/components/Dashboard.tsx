@@ -1398,17 +1398,6 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-              
-              <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} flex justify-between items-center`}>
-                <span>
-                  Período atual: <span className="font-medium">{dateRange === 'selected-month' ? `${selectedMonth}/${selectedYear}` : dateRangeLabels[dateRange]}</span>
-                  {' • '}
-                  <span className="font-medium">{filteredData.length}</span> dias encontrados
-                </span>
-                <span className="font-medium">
-                  Total disponível: {data.length} dias
-                </span>
-              </div>
             </div>
 
             {/* Cards Resumo */}
