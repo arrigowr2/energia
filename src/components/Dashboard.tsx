@@ -1101,55 +1101,63 @@ export default function Dashboard() {
                 {dateRange === 'latest' && 'Energia Comprada vs Vendida'}
                 {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
               </h3>
-              <ResponsiveContainer width="100%" height={320}>
-                <BarChart
-                  data={optimizeChartData(filteredData).map((item) => ({
-                    name: item.date,
-                    energiaComprada: item.energiaComprada,
-                    energiaVendida: item.energiaVendida
-                  }))}
-                  margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
-                  />
-                  <YAxis 
-                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
-                    label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                      border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                      borderRadius: '8px',
-                      color: isDarkMode ? '#F3F4F6' : '#111827'
-                    }}
-                    formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
-                  />
-                  <Legend 
-                    wrapperStyle={{ paddingTop: '20px' }}
-                    iconType="rect"
-                  />
-                  <Bar 
-                    dataKey="energiaComprada" 
-                    fill="#EF4444" 
-                    name="Comprada"
-                    radius={[4, 4, 0, 0]}
-                    maxBarSize={40}
-                  />
-                  <Bar 
-                    dataKey="energiaVendida" 
-                    fill="#EAB308" 
-                    name="Vendida"
-                    radius={[4, 4, 0, 0]}
-                    maxBarSize={40}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              
+              {/* Scroll horizontal para gráficos longos */}
+              <div className={optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
+                <div style={{ minWidth: optimizeChartData(filteredData).length > 8 ? `${optimizeChartData(filteredData).length * 80}px` : "100%" }}>
+                  <BarChart
+                    width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
+                    height={320}
+                    data={optimizeChartData(filteredData).map((item) => ({
+                      name: item.date,
+                      energiaComprada: item.energiaComprada,
+                      energiaVendida: item.energiaVendida
+                    }))}
+                    margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                      angle={isMobile ? -45 : 0}
+                      textAnchor={isMobile ? 'end' : 'middle'}
+                      height={isMobile ? 80 : 40}
+                    />
+                    <YAxis 
+                      tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
+                      axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
+                      label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                        border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                        borderRadius: '8px',
+                        color: isDarkMode ? '#F3F4F6' : '#111827'
+                      }}
+                      formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
+                    />
+                    <Legend 
+                      wrapperStyle={{ paddingTop: '20px' }}
+                      iconType="rect"
+                    />
+                    <Bar 
+                      dataKey="energiaComprada" 
+                      fill="#EF4444" 
+                      name="Comprada"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={40}
+                    />
+                    <Bar 
+                      dataKey="energiaVendida" 
+                      fill="#EAB308" 
+                      name="Vendida"
+                      radius={[4, 4, 0, 0]}
+                      maxBarSize={40}
+                    />
+                  </BarChart>
+                </div>
+              </div>
             </div>
           </div>
         )}
