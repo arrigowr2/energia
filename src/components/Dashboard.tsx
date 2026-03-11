@@ -240,6 +240,7 @@ export default function Dashboard() {
         // Mostrar exatamente 7 dias a partir do último dado disponível
         console.log('🔍 [WEEK] Iniciando filtro 7 dias...');
         console.log('🔍 [WEEK] Total de dados disponíveis:', data.length);
+        console.log('🔍 [WEEK] Primeiros 5 dados:', data.slice(0, 5).map(d => d.date));
         
         if (data.length > 0) {
           // Encontrar a data mais recente de TODOS os dados
@@ -250,6 +251,7 @@ export default function Dashboard() {
           // Validar formato da data
           if (!latestDateStr || !latestDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
             console.log('🔍 [WEEK] ERRO: Data inválida:', latestDateStr);
+            console.log('🔍 [WEEK] Tipo da data:', typeof latestDateStr);
             break;
           }
           
@@ -281,13 +283,14 @@ export default function Dashboard() {
           });
           
           console.log('🔍 [WEEK] Total filtrado:', filtered.length);
+          console.log('🔍 [WEEK] Dados filtrados:', filtered.map(d => d.date));
           
           // Ordenar por data crescente
           filtered.sort((a, b) => a.date.localeCompare(b.date));
           
           console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
           console.log('📅 Período:', weekBeforeStr, 'até', latestDateStr);
-          console.log('📅 Dados:', filtered.map(d => d.date));
+          console.log('📅 Dados finais:', filtered.map(d => d.date));
         } else {
           console.log('🔍 [WEEK] Sem dados para filtrar!');
         }
