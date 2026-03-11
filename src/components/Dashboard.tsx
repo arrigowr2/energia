@@ -338,7 +338,7 @@ export default function Dashboard() {
         break;
     }
 
-    // Ordenar por data (mais recente primeiro)
+    // Ordenar por data (mais recente primeiro para a tabela, mas gráfico usa ordem inversa)
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
@@ -347,6 +347,9 @@ export default function Dashboard() {
   // Função de otimização de dados para gráficos
   const optimizeChartData = (data: EnergyData[]) => {
     if (!data.length) return data;
+    
+    // Para gráficos: ordenar em ordem crescente (dia 1 → dia 30)
+    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
     // Determinar limite de barras baseado no tamanho da tela
     let maxBars = 30; // Desktop
@@ -359,11 +362,11 @@ export default function Dashboard() {
     // Aplicar agrupamento baseado no chartView
     switch (chartView) {
       case 'weekly':
-        return groupByWeek(data);
+        return groupByWeek(sortedData);
       case 'monthly':
-        return groupByMonth(data);
+        return groupByMonth(sortedData);
       default:
-        return data.slice(0, maxBars);
+        return sortedData.slice(0, maxBars);
     }
   };
   
@@ -1072,7 +1075,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => ({
-                      name: item.date,
+                      name: new Date(item.date).getDate().toString(),
                       energiaGerada: item.energiaGerada,
                       energiaConsumida: item.energiaConsumida
                     }))}
@@ -1122,7 +1125,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={320}
                     data={optimizeChartData(filteredData).map((item) => ({
-                      name: item.date,
+                      name: new Date(item.date).getDate().toString(),
                       energiaComprada: item.energiaComprada,
                       energiaVendida: item.energiaVendida
                     }))}
