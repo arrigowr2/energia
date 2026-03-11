@@ -349,7 +349,12 @@ export default function Dashboard() {
     if (!data.length) return data;
     
     // Para gráficos: ordenar em ordem crescente (dia 1 → dia 30)
-    const sortedData = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Evitar problemas de timezone com parse direto da string
+    const sortedData = [...data].sort((a, b) => {
+      const dateA = new Date(a.date + 'T00:00:00');
+      const dateB = new Date(b.date + 'T00:00:00');
+      return dateA.getTime() - dateB.getTime();
+    });
     
     // Determinar limite de barras baseado no tamanho da tela
     let maxBars = 30; // Desktop
@@ -871,59 +876,71 @@ export default function Dashboard() {
 
           {/* Filtros de data e ações */}
           <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-end">
-            {/* Filtros de data */}
-            <div className="flex gap-1 sm:gap-2">
-              <button
-                onClick={() => setDateRange('latest')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  dateRange === 'latest' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                Último
-              </button>
-              <button
-                onClick={() => setDateRange('week')}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  dateRange === 'week' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                }`}
-              >
-                Semana
-              </button>
-              
-              {/* Dropdown Mês */}
-              <select
-                value={selectedMonth}
-                onChange={(e) => {
-                  setSelectedMonth(e.target.value);
-                  setDateRange('selected-month');
-                }}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
-              >
-                <option value="">Mês</option>
-                {availableMonths.map(month => (
-                  <option key={month.value} value={month.value}>{month.label}</option>
-                ))}
-              </select>
-              
-              {/* Dropdown Ano */}
-              <select
-                value={selectedYear}
-                onChange={(e) => {
-                  setSelectedYear(e.target.value);
-                  setDateRange('year');
-                }}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
-              >
-                <option value="">Ano</option>
-                {availableYears.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
+            {/* Filtros de data - apenas no Dashboard */}
+            {activeTab === 'dashboard' && (
+              <div className="flex gap-1 sm:gap-2">
+                <button
+                  onClick={() => setDateRange('latest')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    dateRange === 'latest' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  Hoje
+                </button>
+                <button
+                  onClick={() => setDateRange('week')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    dateRange === 'week' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  7 Dias
+                </button>
+                <button
+                  onClick={() => setDateRange('month')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    dateRange === 'month' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  30 Dias
+                </button>
+                
+                {/* Dropdown Mês */}
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
+                    setDateRange('selected-month');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
+                >
+                  <option value="">Mês</option>
+                  {availableMonths.map(month => (
+                    <option key={month.value} value={month.value}>{month.label}</option>
+                  ))}
+                </select>
+                
+                {/* Dropdown Ano */}
+                <select
+                  value={selectedYear}
+                  onChange={(e) => {
+                    setSelectedYear(e.target.value);
+                    setDateRange('year');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
+                >
+                  <option value="">Ano</option>
+                  {availableYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Seletor de visualização - apenas no Dashboard */}
             {activeTab === 'dashboard' && (
