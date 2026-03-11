@@ -239,25 +239,32 @@ export default function Dashboard() {
       case 'week':
         // Mostrar exatamente 7 dias a partir do último dado disponível
         if (data.length > 0) {
-          // Encontrar a data mais recente
-          const sortedData = [...data].sort((a, b) => new Date(b.date + 'T00:00:00Z').getTime() - new Date(a.date + 'T00:00:00Z').getTime());
-          const latestDate = new Date(sortedData[0].date + 'T00:00:00Z');
+          // Encontrar a data mais recente (ordenação por string funciona para ISO dates)
+          const sortedData = [...data].sort((a, b) => b.date.localeCompare(a.date));
+          const latestDateStr = sortedData[0].date; // formato: '2023-03-26'
           
-          // Calcular data de 7 dias antes
+          // Calcular data de 6 dias antes
+          const latestDate = new Date(latestDateStr + 'T12:00:00'); // meio-dia para evitar problemas de timezone
           const weekBeforeLatest = new Date(latestDate);
           weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 6);
           
-          // Filtrar dados do período de 7 dias
+          // Converter de volta para string YYYY-MM-DD
+          const year = weekBeforeLatest.getFullYear();
+          const month = String(weekBeforeLatest.getMonth() + 1).padStart(2, '0');
+          const day = String(weekBeforeLatest.getDate()).padStart(2, '0');
+          const weekBeforeStr = `${year}-${month}-${day}`;
+          
+          // Filtrar dados usando comparação de strings (mais confiável)
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date + 'T00:00:00Z');
-            return itemDate >= weekBeforeLatest && itemDate <= latestDate;
+            return item.date >= weekBeforeStr && item.date <= latestDateStr;
           });
           
           // Ordenar por data crescente (dia 1 → dia 7)
-          filtered.sort((a, b) => new Date(a.date + 'T00:00:00Z').getTime() - new Date(b.date + 'T00:00:00Z').getTime());
+          filtered.sort((a, b) => a.date.localeCompare(b.date));
           
           console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
-          console.log('📅 Período:', weekBeforeLatest.toLocaleDateString('pt-BR'), 'até', latestDate.toLocaleDateString('pt-BR'));
+          console.log('📅 Período esperado:', weekBeforeStr, 'até', latestDateStr);
+          console.log('📅 Dados retornados:', filtered.map(d => d.date));
         }
         break;
       case 'month':
@@ -1209,7 +1216,11 @@ export default function Dashboard() {
                     {filteredData.map((item, index) => (
                       <tr key={index} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
                         <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {new Date(item.date).toLocaleDateString('pt-BR')}
+                          {/* Formatar data manualmente para evitar timezone */}
+                          {(() => {
+                            const [year, month, day] = item.date.split('-');
+                            return `${day}/${month}/${year}`;
+                          })()}
                         </td>
                         <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           {item.energiaConsumida.toFixed(2)}
