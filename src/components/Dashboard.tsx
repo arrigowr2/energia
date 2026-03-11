@@ -541,7 +541,20 @@ export default function Dashboard() {
     for (const year of years) {
       for (const month of months) {
         const monthNum = new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1;
+        
+        // Validar monthNum para evitar NaN
+        if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+          console.log(`❌ Mês inválido ignorado: ${month} ${year} -> ${monthNum}`);
+          continue;
+        }
+        
         const daysInMonth = new Date(year, monthNum, 0).getDate();
+        
+        // Validar daysInMonth para evitar NaN
+        if (isNaN(daysInMonth) || daysInMonth < 1 || daysInMonth > 31) {
+          console.log(`❌ Dias inválidos no mês: ${month} ${year} -> ${daysInMonth}`);
+          continue;
+        }
         
         // Mais dados por mês para atingir ~1500 total
         let dataCount;
@@ -1038,7 +1051,10 @@ export default function Dashboard() {
           <>
             <div className="mb-4">
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Último Dado ({filteredData[0]?.date ? new Date(filteredData[0].date).toLocaleDateString('pt-BR') : ''})
+                Último Dado ({filteredData[0]?.date ? (() => {
+                  const [year, month, day] = filteredData[0].date.split('-');
+                  return `${day}/${month}/${year}`;
+                })() : ''})
               </h2>
               {data.length > 0 && (
                 <div className={`text-sm mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
