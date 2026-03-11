@@ -240,8 +240,8 @@ export default function Dashboard() {
         // Mostrar exatamente 7 dias a partir do último dado disponível
         if (data.length > 0) {
           // Encontrar a data mais recente
-          const sortedData = [...data].sort((a, b) => new Date(b.date + 'T00:00:00').getTime() - new Date(a.date + 'T00:00:00').getTime());
-          const latestDate = new Date(sortedData[0].date + 'T00:00:00');
+          const sortedData = [...data].sort((a, b) => new Date(b.date + 'T00:00:00Z').getTime() - new Date(a.date + 'T00:00:00Z').getTime());
+          const latestDate = new Date(sortedData[0].date + 'T00:00:00Z');
           
           // Calcular data de 7 dias antes
           const weekBeforeLatest = new Date(latestDate);
@@ -249,12 +249,12 @@ export default function Dashboard() {
           
           // Filtrar dados do período de 7 dias
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date + 'T00:00:00');
+            const itemDate = new Date(item.date + 'T00:00:00Z');
             return itemDate >= weekBeforeLatest && itemDate <= latestDate;
           });
           
           // Ordenar por data crescente (dia 1 → dia 7)
-          filtered.sort((a, b) => new Date(a.date + 'T00:00:00').getTime() - new Date(b.date + 'T00:00:00').getTime());
+          filtered.sort((a, b) => new Date(a.date + 'T00:00:00Z').getTime() - new Date(b.date + 'T00:00:00Z').getTime());
           
           console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
           console.log('📅 Período:', weekBeforeLatest.toLocaleDateString('pt-BR'), 'até', latestDate.toLocaleDateString('pt-BR'));
@@ -262,7 +262,7 @@ export default function Dashboard() {
         break;
       case 'month':
         filtered = data.filter(item => {
-          const itemDate = new Date(item.date);
+          const itemDate = new Date(item.date + 'T00:00:00Z');
           return itemDate.getMonth() === now.getMonth() && 
                  itemDate.getFullYear() === now.getFullYear();
         });
@@ -275,7 +275,7 @@ export default function Dashboard() {
           const targetYear = parseInt(selectedYear) || now.getFullYear();
           
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date);
+            const itemDate = new Date(item.date + 'T00:00:00Z');
             return itemDate.getMonth() === targetMonth && 
                    itemDate.getFullYear() === targetYear;
           });
@@ -288,7 +288,7 @@ export default function Dashboard() {
         const targetYear = parseInt(selectedYear) || now.getFullYear(); // Usar ano selecionado ou atual
         
         filtered = data.filter(item => {
-          const itemDate = new Date(item.date);
+          const itemDate = new Date(item.date + 'T00:00:00Z');
           const year = itemDate.getFullYear();
           if (year !== targetYear) return false;
           
@@ -346,13 +346,8 @@ export default function Dashboard() {
     if (!data.length) return data;
     
     // Para gráficos: ordenar em ordem crescente (dia 1 → dia 30)
-    // Evitar problemas de timezone com parse direto da string
-    const sortedData = [...data].sort((a, b) => {
-      // Usar UTC para evitar problemas de timezone
-      const dateA = new Date(a.date + 'T00:00:00Z');
-      const dateB = new Date(b.date + 'T00:00:00Z');
-      return dateA.getTime() - dateB.getTime();
-    });
+    // Usar comparação de strings ao invés de Date para evitar timezone
+    const sortedData = [...data].sort((a, b) => a.date.localeCompare(b.date));
     
     // Determinar limite de barras baseado no tamanho da tela
     let maxBars = 30; // Desktop
@@ -370,7 +365,7 @@ export default function Dashboard() {
     const weeks: { [key: string]: EnergyData } = {};
     
     data.forEach(item => {
-      const date = new Date(item.date + 'T00:00:00'); // Evitar timezone
+      const date = new Date(item.date + 'T00:00:00Z'); // UTC para evitar timezone
       const weekNum = Math.ceil(date.getDate() / 7);
       const weekKey = `Semana ${weekNum}`;
       
@@ -1068,9 +1063,9 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => {
-                      // Formatar data manualmente para evitar timezone (DD/MM/YYYY)
+                      // Formatar data manualmente com prefixo para evitar interpretação como data
                       const [year, month, day] = item.date.split('-');
-                      const formattedDate = `${day}/${month}/${year}`;
+                      const formattedDate = `Dia ${day}/${month}/${year}`;
                       return {
                         name: formattedDate,
                         energiaGerada: item.energiaGerada,
@@ -1123,9 +1118,9 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={320}
                     data={optimizeChartData(filteredData).map((item) => {
-                      // Formatar data manualmente para evitar timezone (DD/MM/YYYY)
+                      // Formatar data manualmente com prefixo para evitar interpretação como data
                       const [year, month, day] = item.date.split('-');
-                      const formattedDate = `${day}/${month}/${year}`;
+                      const formattedDate = `Dia ${day}/${month}/${year}`;
                       return {
                         name: formattedDate,
                         energiaComprada: item.energiaComprada,
