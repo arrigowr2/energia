@@ -1239,7 +1239,15 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredData.map((item, index) => (
+                    {filteredData
+                      .filter((item, index) => {
+                        // Se for filtro 'week', mostrar apenas 7 itens mais recentes
+                        if (dateRange === 'week') {
+                          return index < 7;
+                        }
+                        return true; // Para outros filtros, mostrar todos
+                      })
+                      .map((item, index) => (
                       <tr key={index} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
                         <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           {/* Formatar data manualmente para evitar timezone */}
