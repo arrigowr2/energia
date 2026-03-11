@@ -1052,18 +1052,18 @@ export default function Dashboard() {
                 Produzido vs Consumido
               </h3>
               
-              {/* Scroll horizontal para gráficos longos */}
-              <div className="overflow-x-auto pb-4">
-                <div style={{ minWidth: `${optimizeChartData(filteredData).length * 60}px` }}>
+              {/* Scroll horizontal apenas se necessário */}
+              <div className={optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
+                <div style={{ minWidth: optimizeChartData(filteredData).length > 8 ? `${optimizeChartData(filteredData).length * 80}px` : "100%" }}>
                   <BarChart
-                    width={Math.max(600, optimizeChartData(filteredData).length * 80)}
+                    width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => ({
                       name: item.date,
                       energiaGerada: item.energiaGerada,
                       energiaConsumida: item.energiaConsumida
                     }))}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
@@ -1073,7 +1073,10 @@ export default function Dashboard() {
                       textAnchor={isMobile ? 'end' : 'middle'}
                       height={isMobile ? 80 : 40}
                     />
-                    <YAxis tick={{ fontSize: 12 }} />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
+                    />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
@@ -1105,7 +1108,7 @@ export default function Dashboard() {
                     energiaComprada: item.energiaComprada,
                     energiaVendida: item.energiaVendida
                   }))}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                   <XAxis 
