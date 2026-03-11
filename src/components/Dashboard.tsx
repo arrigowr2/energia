@@ -297,24 +297,26 @@ export default function Dashboard() {
         break;
       case 'month':
         filtered = data.filter(item => {
-          const itemDate = new Date(item.date + 'T00:00:00Z');
-          return itemDate.getMonth() === now.getMonth() && 
-                 itemDate.getFullYear() === now.getFullYear();
+          // Usar comparação de strings para evitar timezone
+          const itemDate = item.date; // formato: '2023-01-01'
+          const currentYear = now.getFullYear().toString();
+          const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+          
+          return itemDate.startsWith(`${currentYear}-${currentMonth}`);
         });
         console.log('📅 Filtro "Mês" aplicado:', filtered.length, 'itens');
         break;
       case 'selected-month':
         // Filtrar por mês selecionado no dropdown
         if (selectedMonth) {
-          const targetMonth = parseInt(selectedMonth) - 1; // JavaScript months são 0-11
-          const targetYear = parseInt(selectedYear) || now.getFullYear();
+          const targetMonth = selectedMonth.padStart(2, '0'); // Garantir 2 dígitos
+          const targetYear = selectedYear || now.getFullYear().toString();
           
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date + 'T00:00:00Z');
-            return itemDate.getMonth() === targetMonth && 
-                   itemDate.getFullYear() === targetYear;
+            // Usar comparação de strings para evitar timezone
+            return item.date.startsWith(`${targetYear}-${targetMonth}`);
           });
-          console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', targetMonth + 1, '/', targetYear);
+          console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', targetMonth, '/', targetYear);
         }
         break;
       case 'year':
