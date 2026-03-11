@@ -235,29 +235,14 @@ export default function Dashboard() {
           filtered = [filtered[0]];
           console.log('📅 Filtro "Último" aplicado:', filtered.length, 'itens - Data:', filtered[0]?.date);
         }
-        break;
-      case 'week':
-        // Mostrar exatamente 7 dias a partir do último dado disponível
-        if (data.length > 0) {
-          // Encontrar a data mais recente
-          const sortedData = [...data].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          const latestDate = new Date(sortedData[0].date);
-          
-          // Calcular data de 7 dias antes do último dado
-          const weekBeforeLatest = new Date(latestDate);
-          weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 7);
-          
           // Filtrar dados do período de 7 dias
           filtered = data.filter(item => {
-            const itemDate = new Date(item.date + 'T00:00:00'); // Evitar timezone
+            const itemDate = new Date(item.date + 'T00:00:00');
             return itemDate >= weekBeforeLatest && itemDate <= latestDate;
           });
           
-          // Se ainda tiver muitos dados, pegar apenas 7 mais recentes
-          if (filtered.length > 7) {
-            filtered.sort((a, b) => new Date(b.date + 'T00:00:00').getTime() - new Date(a.date + 'T00:00:00').getTime());
-            filtered = filtered.slice(0, 7);
-          }
+          // Ordenar por data crescente (dia 1 → dia 7)
+          filtered.sort((a, b) => new Date(a.date + 'T00:00:00').getTime() - new Date(b.date + 'T00:00:00').getTime());
           
           console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
           console.log('📅 Período:', weekBeforeLatest.toLocaleDateString('pt-BR'), 'até', latestDate.toLocaleDateString('pt-BR'));
@@ -1070,7 +1055,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => ({
-                      name: new Date(item.date + 'T00:00:00').getDate().toString(),
+                      name: item.date, // Data completa: dia/mês/ano
                       energiaGerada: item.energiaGerada,
                       energiaConsumida: item.energiaConsumida
                     }))}
@@ -1120,7 +1105,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={320}
                     data={optimizeChartData(filteredData).map((item) => ({
-                      name: new Date(item.date + 'T00:00:00').getDate().toString(),
+                      name: item.date, // Data completa: dia/mês/ano
                       energiaComprada: item.energiaComprada,
                       energiaVendida: item.energiaVendida
                     }))}
