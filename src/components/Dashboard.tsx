@@ -1141,7 +1141,16 @@ export default function Dashboard() {
                       tick={{ fontSize: 12 }}
                       angle={isMobile ? -45 : 0}
                       textAnchor={isMobile ? 'end' : 'middle'}
-                      height={isMobile ? 80 : 40}
+                      height={isMobile ? 80 : 60}
+                      interval={isMobile ? 1 : 0} // Mostrar todas as legendas no desktop, alternar no mobile
+                      tickFormatter={(value) => {
+                        // Se for muito longo, mostrar apenas dia/mês
+                        if (value.includes('Dia ')) {
+                          const parts = value.split(' ')[1].split('/');
+                          return `${parts[0]}/${parts[1]}`;
+                        }
+                        return value;
+                      }}
                     />
                     <YAxis 
                       tick={{ fontSize: 12 }}
@@ -1196,7 +1205,16 @@ export default function Dashboard() {
                       tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
                       angle={isMobile ? -45 : 0}
                       textAnchor={isMobile ? 'end' : 'middle'}
-                      height={isMobile ? 80 : 40}
+                      height={isMobile ? 80 : 60}
+                      interval={isMobile ? 1 : 0} // Mostrar todas as legendas no desktop, alternar no mobile
+                      tickFormatter={(value) => {
+                        // Se for muito longo, mostrar apenas dia/mês
+                        if (value.includes('Dia ')) {
+                          const parts = value.split(' ')[1].split('/');
+                          return `${parts[0]}/${parts[1]}`;
+                        }
+                        return value;
+                      }}
                     />
                     <YAxis 
                       tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
