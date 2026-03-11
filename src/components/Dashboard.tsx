@@ -1100,10 +1100,11 @@ export default function Dashboard() {
           </div>
         </>
         ) : (
-          <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p>Nenhum dado encontrado para o período selecionado</p>
-            <p className="text-sm mt-2">Total de dados disponíveis: {data.length} dias</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className={`col-span-full text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p>Selecione um período com dados para visualizar as estatísticas</p>
+              <p className="text-sm mt-1">Total disponível: {data.length} dias</p>
+            </div>
           </div>
         )}
 
