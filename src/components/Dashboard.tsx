@@ -1241,6 +1241,10 @@ export default function Dashboard() {
                   <tbody>
                     {filteredData
                       .filter((item, index) => {
+                        // Remover itens com datas inválidas
+                        if (!item.date || typeof item.date !== 'string' || item.date.includes('NaN')) {
+                          return false;
+                        }
                         // Se for filtro 'week', mostrar apenas 7 itens mais recentes
                         if (dateRange === 'week') {
                           return index < 7;
@@ -1250,9 +1254,16 @@ export default function Dashboard() {
                       .map((item, index) => (
                       <tr key={index} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
                         <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          {/* Formatar data manualmente para evitar timezone */}
+                          {/* Formatar data manualmente com validação para evitar NaN */}
                           {(() => {
-                            const [year, month, day] = item.date.split('-');
+                            if (!item.date || typeof item.date !== 'string') {
+                              return 'Data inválida';
+                            }
+                            const parts = item.date.split('-');
+                            if (parts.length !== 3 || parts.some(part => !part || part === 'NaN')) {
+                              return 'Data inválida';
+                            }
+                            const [year, month, day] = parts;
                             return `${day}/${month}/${year}`;
                           })()}
                         </td>
