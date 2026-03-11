@@ -405,7 +405,7 @@ export default function Dashboard() {
     // Determinar limite de barras baseado no tamanho da tela
     let maxBars = 30; // Desktop
     if (isMobile) {
-      maxBars = 7; // Mobile
+      maxBars = 7; // Mobile - mas com scroll horizontal para ver mais
     } else if (window.innerWidth < 1024) {
       maxBars = 15; // Tablet
     }
@@ -1117,11 +1117,17 @@ export default function Dashboard() {
                 Produzido vs Consumido
               </h3>
               
-              {/* Scroll horizontal apenas se necessário */}
-              <div className={optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
-                <div style={{ minWidth: optimizeChartData(filteredData).length > 8 ? `${optimizeChartData(filteredData).length * 80}px` : "100%" }}>
+              {/* Scroll horizontal para mobile quando tiver muitas barras */}
+              <div className={isMobile && optimizeChartData(filteredData).length > 7 ? "overflow-x-auto pb-4" : optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
+                <div style={{ 
+                  minWidth: (isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
+                    ? `${optimizeChartData(filteredData).length * (isMobile ? 60 : 80)}px` 
+                    : "100%" 
+                }}>
                   <BarChart
-                    width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
+                    width={(isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
+                      ? Math.max(isMobile ? 400 : 600, optimizeChartData(filteredData).length * (isMobile ? 60 : 80)) 
+                      : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => {
                       // Formatar data manualmente com prefixo para evitar interpretação como data
@@ -1181,11 +1187,17 @@ export default function Dashboard() {
                 {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
               </h3>
               
-              {/* Scroll horizontal para gráficos longos */}
-              <div className={optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
-                <div style={{ minWidth: optimizeChartData(filteredData).length > 8 ? `${optimizeChartData(filteredData).length * 80}px` : "100%" }}>
+              {/* Scroll horizontal para mobile quando tiver muitas barras */}
+              <div className={isMobile && optimizeChartData(filteredData).length > 7 ? "overflow-x-auto pb-4" : optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
+                <div style={{ 
+                  minWidth: (isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
+                    ? `${optimizeChartData(filteredData).length * (isMobile ? 60 : 80)}px` 
+                    : "100%" 
+                }}>
                   <BarChart
-                    width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
+                    width={(isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
+                      ? Math.max(isMobile ? 400 : 600, optimizeChartData(filteredData).length * (isMobile ? 60 : 80)) 
+                      : "100%"}
                     height={320}
                     data={optimizeChartData(filteredData).map((item) => {
                       // Formatar data manualmente com prefixo para evitar interpretação como data
