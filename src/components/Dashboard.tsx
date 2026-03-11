@@ -62,6 +62,15 @@ export default function Dashboard() {
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [availableMonths, setAvailableMonths] = useState<{value: string, label: string}[]>([]);
   
+  // Labels para os filtros de data
+  const dateRangeLabels: { [key: string]: string } = {
+    'latest': 'Último Dado',
+    'week': 'Últimos 7 Dias',
+    'month': 'Últimos 30 Dias',
+    'year': 'Ano Inteiro',
+    'selected-month': 'Mês Específico'
+  };
+  
   // Estados para otimização de gráficos
   const [activeTab, setActiveTab] = useState<'dashboard' | 'analysis'>('dashboard');
   const [chartView, setChartView] = useState<'daily' | 'weekly' | 'monthly'>('daily');
@@ -1346,6 +1355,97 @@ export default function Dashboard() {
               <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 Insights inteligentes sobre seu sistema de energia
               </p>
+            </div>
+
+            {/* Controles de Filtro para Análise */}
+            <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className="flex flex-wrap gap-2 items-center justify-between">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setDateRange('latest')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      dateRange === 'latest' 
+                        ? 'bg-blue-600 text-white' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Último Dado
+                  </button>
+                  <button
+                    onClick={() => setDateRange('week')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      dateRange === 'week' 
+                        ? 'bg-blue-600 text-white' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    7 Dias
+                  </button>
+                  <button
+                    onClick={() => setDateRange('month')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      dateRange === 'month' 
+                        ? 'bg-blue-600 text-white' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    30 Dias
+                  </button>
+                  <button
+                    onClick={() => setDateRange('year')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      dateRange === 'year' 
+                        ? 'bg-blue-600 text-white' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Ano
+                  </button>
+                  <button
+                    onClick={() => setDateRange('selected-month')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      dateRange === 'selected-month' 
+                        ? 'bg-blue-600 text-white' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Mês Específico
+                  </button>
+                </div>
+                
+                {dateRange === 'selected-month' && (
+                  <div className="flex gap-2 items-center">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                    >
+                      {availableMonths.map(month => (
+                        <option key={month.value} value={month.value}>
+                          {month.label}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                    >
+                      {availableYears.map(year => (
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+              
+              <div className={`mt-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Período atual: <span className="font-medium">{dateRange === 'selected-month' ? `${selectedMonth}/${selectedYear}` : dateRangeLabels[dateRange]}</span>
+                {' • '}
+                <span className="font-medium">{filteredData.length}</span> dias encontrados
+              </div>
             </div>
 
             {/* Cards Resumo */}
