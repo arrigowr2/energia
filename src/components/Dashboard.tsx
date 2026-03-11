@@ -348,8 +348,9 @@ export default function Dashboard() {
     // Para gráficos: ordenar em ordem crescente (dia 1 → dia 30)
     // Evitar problemas de timezone com parse direto da string
     const sortedData = [...data].sort((a, b) => {
-      const dateA = new Date(a.date + 'T00:00:00');
-      const dateB = new Date(b.date + 'T00:00:00');
+      // Usar UTC para evitar problemas de timezone
+      const dateA = new Date(a.date + 'T00:00:00Z');
+      const dateB = new Date(b.date + 'T00:00:00Z');
       return dateA.getTime() - dateB.getTime();
     });
     
