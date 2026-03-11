@@ -254,12 +254,12 @@ export default function Dashboard() {
       case 'week':
         // Mostrar exatamente 7 dias a partir do último dado disponível
         console.log('🔍 [WEEK] Iniciando filtro 7 dias...');
-        console.log('🔍 [WEEK] Total de dados disponíveis:', data.length);
-        console.log('🔍 [WEEK] Primeiros 5 dados:', data.slice(0, 5).map(d => d.date));
+        console.log('🔍 [WEEK] Total de dados disponíveis:', cleanSourceData.length);
+        console.log('🔍 [WEEK] Primeiros 5 dados:', cleanSourceData.slice(0, 5).map(d => d.date));
         
-        if (data.length > 0) {
-          // Encontrar a data mais recente de TODOS os dados
-          const sortedData = [...data].sort((a, b) => b.date.localeCompare(a.date));
+        if (cleanSourceData.length > 0) {
+          // Encontrar a data mais recente de TODOS os dados limpos
+          const sortedData = [...cleanSourceData].sort((a, b) => b.date.localeCompare(a.date));
           const latestDateStr = sortedData[0].date;
           console.log('🔍 [WEEK] Data mais recente global:', latestDateStr);
           
@@ -285,8 +285,8 @@ export default function Dashboard() {
           
           console.log('🔍 [WEEK] Período calculado:', weekBeforeStr, 'até', latestDateStr);
           
-          // Filtrar dados de TODOS os dados usando strings
-          filtered = data.filter(item => {
+          // Filtrar dados de TODOS os dados limpos usando strings
+          filtered = cleanSourceData.filter(item => {
             const include = item.date >= weekBeforeStr && item.date <= latestDateStr;
             console.log(`🔍 [WEEK] ${item.date}: ${include ? 'INCLUÍDO' : 'excluído'}`);
             return include;
@@ -1136,63 +1136,40 @@ export default function Dashboard() {
               </h3>
               
               {/* Scroll horizontal para mobile quando tiver muitas barras */}
-              <div className={isMobile && optimizeChartData(filteredData).length > 7 ? "overflow-x-auto pb-4" : optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
-                <div style={{ 
-                  minWidth: (isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
-                    ? `${optimizeChartData(filteredData).length * (isMobile ? 60 : 80)}px` 
-                    : "100%" 
-                }}>
-                  <BarChart
-                    width={(isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
-                      ? Math.max(isMobile ? 400 : 600, optimizeChartData(filteredData).length * (isMobile ? 60 : 80)) 
-                      : "100%"}
-                    height={300}
-                    data={optimizeChartData(filteredData).map(item => {
-                      // Formatar data manualmente com prefixo para evitar interpretação como data
-                      const [year, month, day] = item.date.split('-');
-                      const formattedDate = `Dia ${day}/${month}/${year}`;
-                      return {
-                        name: formattedDate,
-                        energiaGerada: item.energiaGerada,
-                        energiaConsumida: item.energiaConsumida
-                      };
-                    })}
-                    margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+              {(() => {
+                const chartData1 = optimizeChartData(filteredData);
+                const needsScroll1 = (isMobile && chartData1.length > 7) || chartData1.length > 8;
+                const scrollWidth1 = chartData1.length * (isMobile ? 60 : 80);
+                const formattedData1 = chartData1.map(item => {
+                  const [year, month, day] = item.date.split('-');
+                  return { name: `Dia ${day}/${month}/${year}`, energiaGerada: item.energiaGerada, energiaConsumida: item.energiaConsumida };
+                });
+                const tickFmt = (value: string) => { if (value.includes('Dia ')) { const parts = value.split(' ')[1].split('/'); return `${parts[0]}/${parts[1]}`; } return value; };
+                const chartContent = (
+                  <BarChart data={formattedData1} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+                    {...(needsScroll1 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth1), height: 300 } : {})}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fontSize: 12 }}
-                      angle={isMobile ? -45 : 0}
-                      textAnchor={isMobile ? 'end' : 'middle'}
-                      height={isMobile ? 80 : 60}
-                      interval={isMobile ? 1 : 0} // Mostrar todas as legendas no desktop, alternar no mobile
-                      tickFormatter={(value) => {
-                        // Se for muito longo, mostrar apenas dia/mês
-                        if (value.includes('Dia ')) {
-                          const parts = value.split(' ')[1].split('/');
-                          return `${parts[0]}/${parts[1]}`;
-                        }
-                        return value;
-                      }}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 12 }}
-                      label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
-                        border: '1px solid ' + (isDarkMode ? '#374151' : '#e5e7eb'),
-                        borderRadius: '8px'
-                      }}
-                    />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? 'end' : 'middle'} height={isMobile ? 80 : 60} interval={isMobile ? 1 : 0} tickFormatter={tickFmt} />
+                    <YAxis tick={{ fontSize: 12 }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
+                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1f2937' : '#ffffff', border: '1px solid ' + (isDarkMode ? '#374151' : '#e5e7eb'), borderRadius: '8px' }} />
                     <Legend />
                     <Bar dataKey="energiaGerada" fill="#10b981" name="Produzido" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     <Bar dataKey="energiaConsumida" fill="#3b82f6" name="Consumido" radius={[4, 4, 0, 0]} maxBarSize={40} />
                   </BarChart>
-                </div>
-              </div>
+                );
+                return (
+                  <div className={needsScroll1 ? "overflow-x-auto pb-4" : ""}>
+                    <div style={{ minWidth: needsScroll1 ? `${scrollWidth1}px` : "100%" }}>
+                      {needsScroll1 ? chartContent : (
+                        <ResponsiveContainer width="100%" height={300} minWidth={300}>
+                          {chartContent}
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Gráfico 2: Comprado vs Vendido */}
@@ -1206,81 +1183,40 @@ export default function Dashboard() {
               </h3>
               
               {/* Scroll horizontal para mobile quando tiver muitas barras */}
-              <div className={isMobile && optimizeChartData(filteredData).length > 7 ? "overflow-x-auto pb-4" : optimizeChartData(filteredData).length > 8 ? "overflow-x-auto pb-4" : ""}>
-                <div style={{ 
-                  minWidth: (isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
-                    ? `${optimizeChartData(filteredData).length * (isMobile ? 60 : 80)}px` 
-                    : "100%" 
-                }}>
-                  <BarChart
-                    width={(isMobile && optimizeChartData(filteredData).length > 7) || optimizeChartData(filteredData).length > 8 
-                      ? Math.max(isMobile ? 400 : 600, optimizeChartData(filteredData).length * (isMobile ? 60 : 80)) 
-                      : "100%"}
-                    height={320}
-                    data={optimizeChartData(filteredData).map((item) => {
-                      // Formatar data manualmente com prefixo para evitar interpretação como data
-                      const [year, month, day] = item.date.split('-');
-                      const formattedDate = `Dia ${day}/${month}/${year}`;
-                      return {
-                        name: formattedDate,
-                        energiaComprada: item.energiaComprada,
-                        energiaVendida: item.energiaVendida
-                      };
-                    })}
-                    margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+              {(() => {
+                const chartData2 = optimizeChartData(filteredData);
+                const needsScroll2 = (isMobile && chartData2.length > 7) || chartData2.length > 8;
+                const scrollWidth2 = chartData2.length * (isMobile ? 60 : 80);
+                const formattedData2 = chartData2.map(item => {
+                  const [year, month, day] = item.date.split('-');
+                  return { name: `Dia ${day}/${month}/${year}`, energiaComprada: item.energiaComprada, energiaVendida: item.energiaVendida };
+                });
+                const tickFmt2 = (value: string) => { if (value.includes('Dia ')) { const parts = value.split(' ')[1].split('/'); return `${parts[0]}/${parts[1]}`; } return value; };
+                const chartContent2 = (
+                  <BarChart data={formattedData2} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
+                    {...(needsScroll2 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth2), height: 320 } : {})}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                      angle={isMobile ? -45 : 0}
-                      textAnchor={isMobile ? 'end' : 'middle'}
-                      height={isMobile ? 80 : 60}
-                      interval={isMobile ? 1 : 0} // Mostrar todas as legendas no desktop, alternar no mobile
-                      tickFormatter={(value) => {
-                        // Se for muito longo, mostrar apenas dia/mês
-                        if (value.includes('Dia ')) {
-                          const parts = value.split(' ')[1].split('/');
-                          return `${parts[0]}/${parts[1]}`;
-                        }
-                        return value;
-                      }}
-                    />
-                    <YAxis 
-                      tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                      axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
-                      label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                        border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                        borderRadius: '8px',
-                        color: isDarkMode ? '#F3F4F6' : '#111827'
-                      }}
-                      formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
-                    />
-                    <Legend 
-                      wrapperStyle={{ paddingTop: '20px' }}
-                      iconType="rect"
-                    />
-                    <Bar 
-                      dataKey="energiaComprada" 
-                      fill="#EF4444" 
-                      name="Comprada"
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={40}
-                    />
-                    <Bar 
-                      dataKey="energiaVendida" 
-                      fill="#EAB308" 
-                      name="Vendida"
-                      radius={[4, 4, 0, 0]}
-                      maxBarSize={40}
-                    />
+                    <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? 'end' : 'middle'} height={isMobile ? 80 : 60} interval={isMobile ? 1 : 0} tickFormatter={tickFmt2} />
+                    <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
+                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, borderRadius: '8px', color: isDarkMode ? '#F3F4F6' : '#111827' }} formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />
+                    <Bar dataKey="energiaComprada" fill="#EF4444" name="Comprada" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="energiaVendida" fill="#EAB308" name="Vendida" radius={[4, 4, 0, 0]} maxBarSize={40} />
                   </BarChart>
-                </div>
-              </div>
+                );
+                return (
+                  <div className={needsScroll2 ? "overflow-x-auto pb-4" : ""}>
+                    <div style={{ minWidth: needsScroll2 ? `${scrollWidth2}px` : "100%" }}>
+                      {needsScroll2 ? chartContent2 : (
+                        <ResponsiveContainer width="100%" height={320} minWidth={300}>
+                          {chartContent2}
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -1620,7 +1556,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height={256}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
@@ -1653,19 +1589,23 @@ export default function Dashboard() {
                   </h4>
                   <div className="space-y-3">
                     {(() => {
-                    if (filteredData.length < 14) return (
+                    // Para filtro "year", dados são agrupados por mês, então 2+ meses é suficiente
+                    const minDataPoints = dateRange === 'year' ? 2 : 14;
+                    if (filteredData.length < minDataPoints) return (
                         <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                           <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            📊 Precisa de mais dados para análise de tendências (mínimo 14 dias) - atual: {filteredData.length} dias
+                            📊 Precisa de mais dados para análise de tendências (mínimo {minDataPoints} {dateRange === 'year' ? 'meses' : 'dias'}) - atual: {filteredData.length} {dateRange === 'year' ? 'meses' : 'dias'}
                           </p>
                         </div>
                       );
 
-                      const recent = filteredData.slice(-7);
-                      const older = filteredData.slice(-14, -7);
-                      const recentGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0);
-                      const olderGen = older.reduce((sum, d) => sum + d.energiaGerada, 0);
-                      const trend = ((recentGen - olderGen) / olderGen * 100);
+                      // Para filtro "year", comparar metades dos dados; para outros, últimos 7 vs anteriores
+                      const halfLen = Math.max(1, Math.floor(filteredData.length / 2));
+                      const recentSlice = dateRange === 'year' ? filteredData.slice(-halfLen) : filteredData.slice(-7);
+                      const olderSlice = dateRange === 'year' ? filteredData.slice(0, halfLen) : filteredData.slice(-14, -7);
+                      const recentGen = recentSlice.reduce((sum, d) => sum + d.energiaGerada, 0);
+                      const olderGen = olderSlice.reduce((sum, d) => sum + d.energiaGerada, 0);
+                      const trend = olderGen > 0 ? ((recentGen - olderGen) / olderGen * 100) : 0;
 
                       return (
                         <>
@@ -1896,7 +1836,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height={256}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
                           <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
