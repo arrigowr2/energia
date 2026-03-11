@@ -1128,15 +1128,15 @@ export default function Dashboard() {
                     dataKey="energiaComprada" 
                     fill="#EF4444" 
                     name="Comprada"
-                    radius={[2, 2, 0, 0]}
-                    maxBarSize={20}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={40}
                   />
                   <Bar 
                     dataKey="energiaVendida" 
                     fill="#EAB308" 
                     name="Vendida"
-                    radius={[2, 2, 0, 0]}
-                    maxBarSize={20}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={40}
                   />
                 </BarChart>
               </ResponsiveContainer>
