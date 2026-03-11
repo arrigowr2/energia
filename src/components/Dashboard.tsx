@@ -238,13 +238,17 @@ export default function Dashboard() {
         break;
       case 'week':
         // Mostrar exatamente 7 dias a partir do último dado disponível
+        console.log('🔍 [WEEK] Iniciando filtro 7 dias...');
+        console.log('🔍 [WEEK] Total de dados disponíveis:', data.length);
+        
         if (data.length > 0) {
-          // Encontrar a data mais recente (ordenação por string funciona para ISO dates)
+          // Encontrar a data mais recente
           const sortedData = [...data].sort((a, b) => b.date.localeCompare(a.date));
-          const latestDateStr = sortedData[0].date; // formato: '2023-03-26'
+          const latestDateStr = sortedData[0].date;
+          console.log('🔍 [WEEK] Data mais recente:', latestDateStr);
           
           // Calcular data de 6 dias antes
-          const latestDate = new Date(latestDateStr + 'T12:00:00'); // meio-dia para evitar problemas de timezone
+          const latestDate = new Date(latestDateStr + 'T12:00:00');
           const weekBeforeLatest = new Date(latestDate);
           weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 6);
           
@@ -254,17 +258,25 @@ export default function Dashboard() {
           const day = String(weekBeforeLatest.getDate()).padStart(2, '0');
           const weekBeforeStr = `${year}-${month}-${day}`;
           
-          // Filtrar dados usando comparação de strings (mais confiável)
+          console.log('🔍 [WEEK] Período calculado:', weekBeforeStr, 'até', latestDateStr);
+          
+          // Filtrar dados
           filtered = data.filter(item => {
-            return item.date >= weekBeforeStr && item.date <= latestDateStr;
+            const include = item.date >= weekBeforeStr && item.date <= latestDateStr;
+            console.log(`🔍 [WEEK] ${item.date}: ${include ? 'INCLUÍDO' : 'excluído'}`);
+            return include;
           });
           
-          // Ordenar por data crescente (dia 1 → dia 7)
+          console.log('🔍 [WEEK] Total filtrado:', filtered.length);
+          
+          // Ordenar por data crescente
           filtered.sort((a, b) => a.date.localeCompare(b.date));
           
           console.log('📅 Filtro "Semana" aplicado:', filtered.length, 'itens');
-          console.log('📅 Período esperado:', weekBeforeStr, 'até', latestDateStr);
-          console.log('📅 Dados retornados:', filtered.map(d => d.date));
+          console.log('📅 Período:', weekBeforeStr, 'até', latestDateStr);
+          console.log('📅 Dados:', filtered.map(d => d.date));
+        } else {
+          console.log('🔍 [WEEK] Sem dados para filtrar!');
         }
         break;
       case 'month':
@@ -342,8 +354,9 @@ export default function Dashboard() {
         break;
     }
 
-    // Ordenar por data (mais recente primeiro para a tabela, mas gráfico usa ordem inversa)
-    filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Ordenar por data (mais recente primeiro para a tabela)
+    // Usar comparação de strings ao invés de Date para evitar timezone
+    filtered.sort((a, b) => b.date.localeCompare(a.date));
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate, selectedMonth, selectedYear]);
