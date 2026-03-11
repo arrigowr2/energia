@@ -467,17 +467,17 @@ export default function Dashboard() {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const testData: EnergyData[] = [];
-    const totalMonths = 36; // 3 anos de dados
+    const totalMonths = 48; // 4 anos de dados (2023-2026)
     const currentProgress = { value: 0 };
     
     // Simular progresso durante geração
     const progressInterval = setInterval(() => {
-      currentProgress.value += 2;
+      currentProgress.value += 1.5;
       setLoadingProgress(Math.min(currentProgress.value, 95));
-    }, 50);
+    }, 30);
     
-    // Gerar dados para 2024, 2025, 2026 (todos os meses)
-    const years = [2024, 2025, 2026];
+    // Gerar dados para 2023, 2024, 2025, 2026 (todos os meses)
+    const years = [2023, 2024, 2025, 2026];
     const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     
     for (const year of years) {
@@ -485,13 +485,18 @@ export default function Dashboard() {
         const monthNum = new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1;
         const daysInMonth = new Date(year, monthNum, 0).getDate();
         
-        // Mais dados por mês para simular dados reais
-        const dataCount = Math.floor(Math.random() * 15) + 20; // 20-35 dados por mês
+        // Mais dados por mês para atingir ~1500 total
+        let dataCount;
+        if (year === 2023) {
+          dataCount = Math.floor(Math.random() * 20) + 25; // 25-45 dados (2023 tem menos)
+        } else {
+          dataCount = Math.floor(Math.random() * 25) + 35; // 35-60 dados (2024-2026 tem mais)
+        }
         
         // Gerar dias únicos para evitar duplicatas
         const usedDays = new Set<number>();
         let attempts = 0;
-        const maxAttempts = dataCount * 3; // Tentativas máximas
+        const maxAttempts = dataCount * 2; // Tentativas máximas
         
         while (usedDays.size < dataCount && attempts < maxAttempts) {
           const day = Math.floor(Math.random() * daysInMonth) + 1;
@@ -501,13 +506,41 @@ export default function Dashboard() {
             usedDays.add(day);
             const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             
-            // Valores mais realistas
+            // Valores mais realistas e variados por ano
+            let energiaGerada, energiaConsumida, energiaComprada, energiaVendida;
+            
+            if (year === 2023) {
+              // 2023: Valores mais baixos (sistema mais antigo)
+              energiaGerada = Math.floor(Math.random() * 40) + 10;  // 10-50 kWh
+              energiaConsumida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+              energiaComprada = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
+              energiaVendida = Math.floor(Math.random() * 20) + 2;  // 2-22 kWh
+            } else if (year === 2024) {
+              // 2024: Valores médios (sistema em crescimento)
+              energiaGerada = Math.floor(Math.random() * 50) + 15;  // 15-65 kWh
+              energiaConsumida = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
+              energiaComprada = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+              energiaVendida = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
+            } else if (year === 2025) {
+              // 2025: Valores otimizados (sistema maduro)
+              energiaGerada = Math.floor(Math.random() * 60) + 20;  // 20-80 kWh
+              energiaConsumida = Math.floor(Math.random() * 45) + 15; // 15-60 kWh
+              energiaComprada = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
+              energiaVendida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+            } else {
+              // 2026: Valores mais altos (sistema no pico)
+              energiaGerada = Math.floor(Math.random() * 70) + 25;  // 25-95 kWh
+              energiaConsumida = Math.floor(Math.random() * 50) + 18; // 18-68 kWh
+              energiaComprada = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
+              energiaVendida = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
+            }
+            
             testData.push({
               date,
-              energiaGerada: Math.floor(Math.random() * 80) + 5, // 5-85 kWh
-              energiaConsumida: Math.floor(Math.random() * 60) + 3, // 3-63 kWh
-              energiaComprada: Math.floor(Math.random() * 40) + 1, // 1-41 kWh
-              energiaVendida: Math.floor(Math.random() * 30) + 0.5 // 0.5-30.5 kWh
+              energiaGerada,
+              energiaConsumida,
+              energiaComprada,
+              energiaVendida
             });
           }
           
@@ -525,6 +558,7 @@ export default function Dashboard() {
     
     console.log(`🧪 ${testData.length} dados de teste gerados`);
     console.log('📅 Distribuição:', {
+      '2023': testData.filter(d => d.date.startsWith('2023')).length,
       '2024': testData.filter(d => d.date.startsWith('2024')).length,
       '2025': testData.filter(d => d.date.startsWith('2025')).length,
       '2026': testData.filter(d => d.date.startsWith('2026')).length
@@ -541,7 +575,7 @@ export default function Dashboard() {
       emailsProcessed: testData.length,
       processedCount: testData.length,
       successCount: testData.length,
-      searchType: 'test-data-large'
+      searchType: 'test-data-massive'
     });
     
     // Extrair anos e meses disponíveis para os dropdowns
