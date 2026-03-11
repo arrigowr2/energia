@@ -255,27 +255,22 @@ export default function Dashboard() {
             break;
           }
           
-          // Calcular data de 6 dias antes
-          const latestDate = new Date(latestDateStr + 'T12:00:00');
-          console.log('🔍 [WEEK] Date criado:', latestDate, latestDate.toString());
-          
-          if (isNaN(latestDate.getTime())) {
-            console.log('🔍 [WEEK] ERRO: Date inválido!');
-            break;
-          }
+          // Calcular data de 6 dias antes usando strings
+          const [year, month, day] = latestDateStr.split('-').map(Number);
+          const latestDate = new Date(year, month - 1, day); // month-1 porque JS months são 0-11
           
           const weekBeforeLatest = new Date(latestDate);
           weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 6);
           
           // Converter de volta para string YYYY-MM-DD
-          const year = weekBeforeLatest.getFullYear();
-          const month = String(weekBeforeLatest.getMonth() + 1).padStart(2, '0');
-          const day = String(weekBeforeLatest.getDate()).padStart(2, '0');
-          const weekBeforeStr = `${year}-${month}-${day}`;
+          const startYear = weekBeforeLatest.getFullYear();
+          const startMonth = String(weekBeforeLatest.getMonth() + 1).padStart(2, '0');
+          const startDay = String(weekBeforeLatest.getDate()).padStart(2, '0');
+          const weekBeforeStr = `${startYear}-${startMonth}-${startDay}`;
           
           console.log('🔍 [WEEK] Período calculado:', weekBeforeStr, 'até', latestDateStr);
           
-          // Filtrar dados de TODOS os dados
+          // Filtrar dados de TODOS os dados usando strings
           filtered = data.filter(item => {
             const include = item.date >= weekBeforeStr && item.date <= latestDateStr;
             console.log(`🔍 [WEEK] ${item.date}: ${include ? 'INCLUÍDO' : 'excluído'}`);
