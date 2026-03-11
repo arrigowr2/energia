@@ -1587,8 +1587,17 @@ export default function Dashboard() {
                         consumo: item.consumo
                       }));
                       
+                      // Debug para entender o problema
+                      console.log('🔍 Debug Gráfico Tendências:', {
+                        filteredDataLength: filteredData.length,
+                        monthlyDataKeys: Object.keys(monthlyData),
+                        chartDataLength: chartData.length,
+                        chartData: chartData
+                      });
+                      
                       // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
-                      if (Object.keys(monthlyData).length === 0) {
+                      // O problema pode ser que chartData.length === 0 mesmo com dados
+                      if (chartData.length === 0) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p className="text-center">
