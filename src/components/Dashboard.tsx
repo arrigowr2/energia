@@ -24,7 +24,12 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import OAuthLogin from './OAuthLogin';
 
@@ -1348,16 +1353,716 @@ export default function Dashboard() {
         
         {/* Conteúdo da aba Análise */}
         {activeTab === 'analysis' && (
-          <div className="text-center py-12">
-            <h2 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              Análise de Dados
-            </h2>
-            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              🚧 Em desenvolvimento...
-            </p>
-            <p className={`text-sm mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-              Em breve: Tendências, Eficiência, Economia, Padrões e Previsões
-            </p>
+          <div className="space-y-6">
+            {/* Cabeçalho da Análise */}
+            <div className="text-center mb-8">
+              <h2 className={`text-2xl sm:text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📊 Análise de Dados
+              </h2>
+              <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                Insights inteligentes sobre seu sistema de energia
+              </p>
+            </div>
+
+            {/* Cards Resumo */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">📈</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tendência</span>
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {(() => {
+                    if (filteredData.length < 2) return '--';
+                    const recent = filteredData.slice(-7);
+                    const older = filteredData.slice(-14, -7);
+                    const recentAvg = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
+                    const olderAvg = older.reduce((sum, d) => sum + d.energiaGerada, 0) / older.length;
+                    const trend = parseFloat(((recentAvg - olderAvg) / olderAvg * 100).toFixed(1));
+                    return `${trend > 0 ? '+' : ''}${trend}%`;
+                  })()}
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  vs. período anterior
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">⚡</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Eficiência</span>
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {(() => {
+                    if (filteredData.length === 0) return '--';
+                    const totalGenerated = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0);
+                    const totalConsumed = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0);
+                    const efficiency = totalGenerated > 0 ? (totalGenerated / (totalGenerated + totalConsumed) * 100) : 0;
+                    return `${efficiency.toFixed(1)}%`;
+                  })()}
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  taxa de aproveitamento
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">💰</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Economia</span>
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {(() => {
+                    if (filteredData.length === 0) return '--';
+                    const totalSold = filteredData.reduce((sum, d) => sum + d.energiaVendida, 0);
+                    const totalBought = filteredData.reduce((sum, d) => sum + d.energiaComprada, 0);
+                    const net = totalSold - totalBought;
+                    return net >= 0 ? `+${net.toFixed(0)}` : net.toFixed(0);
+                  })()}
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  kWh líquido
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">🎯</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Previsão</span>
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {(() => {
+                    if (filteredData.length < 7) return '--';
+                    const recent = filteredData.slice(-7);
+                    const avgGeneration = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
+                    return `${avgGeneration.toFixed(1)}`;
+                  })()}
+                </div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  kWh/dia previsto
+                </div>
+              </div>
+            </div>
+
+            {/* Seção 1: Tendências */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                📈 Análise de Tendências
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Gráfico de Tendência de Geração */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Evolução da Geração
+                  </h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={(() => {
+                        const monthlyData: { [key: string]: any } = {};
+                        filteredData.forEach(item => {
+                          const monthKey = item.date.substring(0, 7); // YYYY-MM
+                          if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = { month: monthKey, geracao: 0, consumo: 0 };
+                          }
+                          monthlyData[monthKey].geracao += item.energiaGerada;
+                          monthlyData[monthKey].consumo += item.energiaConsumida;
+                        });
+                        return Object.values(monthlyData).slice(-12).map(item => ({
+                          month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                          geracao: item.geracao,
+                          consumo: item.consumo
+                        }));
+                      })()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                        <XAxis dataKey="month" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend />
+                        <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
+                        <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Insights de Tendência */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Insights Automáticos
+                  </h4>
+                  <div className="space-y-3">
+                    {(() => {
+                      if (filteredData.length < 14) return (
+                        <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            📊 Precisa de mais dados para análise de tendências (mínimo 14 dias)
+                          </p>
+                        </div>
+                      );
+
+                      const recent = filteredData.slice(-7);
+                      const older = filteredData.slice(-14, -7);
+                      const recentGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0);
+                      const olderGen = older.reduce((sum, d) => sum + d.energiaGerada, 0);
+                      const trend = ((recentGen - olderGen) / olderGen * 100);
+
+                      return (
+                        <>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {trend > 5 ? '📈 Tendência de Alta' : trend < -5 ? '📉 Tendência de Baixa' : '➡️ Tendência Estável'}
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              Geração {trend > 0 ? 'aumentou' : 'diminuiu'} {Math.abs(trend).toFixed(1)}% vs período anterior
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🎯 Pico de Produção
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {(() => {
+                                const maxDay = filteredData.reduce((max, d) => d.energiaGerada > max.energiaGerada ? d : max);
+                                return `${maxDay.energiaGerada.toFixed(1)} kWh em ${new Date(maxDay.date).toLocaleDateString('pt-BR')}`;
+                              })()}
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              📊 Média Diária
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {(() => {
+                                const avgGen = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0) / filteredData.length;
+                                const avgCons = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0) / filteredData.length;
+                                return `${avgGen.toFixed(1)} kWh gerados, ${avgCons.toFixed(1)} kWh consumidos por dia`;
+                              })()}
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção 2: Eficiência */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                ⚡ Análise de Eficiência
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Gráfico de Eficiência */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Taxa de Aproveitamento
+                  </h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={(() => {
+                            const totalGenerated = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0);
+                            const totalConsumed = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0);
+                            const fromGrid = Math.max(0, totalConsumed - totalGenerated);
+                            
+                            return [
+                              { name: 'Gerado', value: totalGenerated, color: '#10B981' },
+                              { name: 'Da Rede', value: fromGrid, color: '#EF4444' }
+                            ];
+                          })()}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {(() => {
+                            const data = [
+                              { name: 'Gerado', value: filteredData.reduce((sum, d) => sum + d.energiaGerada, 0), color: '#10B981' },
+                              { name: 'Da Rede', value: Math.max(0, filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0) - filteredData.reduce((sum, d) => sum + d.energiaGerada, 0)), color: '#EF4444' }
+                            ];
+                            return data.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ));
+                          })()}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Métricas de Eficiência */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Métricas de Desempenho
+                  </h4>
+                  <div className="space-y-3">
+                    {(() => {
+                      const totalGenerated = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0);
+                      const totalConsumed = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0);
+                      const totalSold = filteredData.reduce((sum, d) => sum + d.energiaVendida, 0);
+                      const totalBought = filteredData.reduce((sum, d) => sum + d.energiaComprada, 0);
+                      
+                      const selfSufficiency = totalConsumed > 0 ? (Math.min(totalGenerated, totalConsumed) / totalConsumed * 100) : 0;
+                      const exportRate = totalGenerated > 0 ? (totalSold / totalGenerated * 100) : 0;
+                      const importRate = totalConsumed > 0 ? (totalBought / totalConsumed * 100) : 0;
+
+                      return (
+                        <>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🏡 Autossuficiência
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {selfSufficiency.toFixed(1)}% do consumo atendido pela geração
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              📤 Taxa de Exportação
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {exportRate.toFixed(1)}% da energia gerada foi vendida
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              📥 Taxa de Importação
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {importRate.toFixed(1)}% do consumo veio da rede
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção 3: Economia */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                💰 Análise Econômica
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Gráfico Econômico */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Fluxo de Energia
+                  </h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={(() => {
+                        const monthlyData: { [key: string]: any } = {};
+                        filteredData.forEach(item => {
+                          const monthKey = item.date.substring(0, 7);
+                          if (!monthlyData[monthKey]) {
+                            monthlyData[monthKey] = { month: monthKey, vendido: 0, comprado: 0 };
+                          }
+                          monthlyData[monthKey].vendido += item.energiaVendida;
+                          monthlyData[monthKey].comprado += item.energiaComprada;
+                        });
+                        return Object.values(monthlyData).slice(-12).map(item => ({
+                          month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                          vendido: item.vendido,
+                          comprado: item.comprado
+                        }));
+                      })()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                        <XAxis dataKey="month" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend />
+                        <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
+                        <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Análise Financeira */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Resumo Financeiro
+                  </h4>
+                  <div className="space-y-3">
+                    {(() => {
+                      const totalSold = filteredData.reduce((sum, d) => sum + d.energiaVendida, 0);
+                      const totalBought = filteredData.reduce((sum, d) => sum + d.energiaComprada, 0);
+                      const netBalance = totalSold - totalBought;
+                      
+                      // Preços estimados (poderiam vir de configuração)
+                      const sellPrice = 0.50; // R$ 0.50/kWh vendido
+                      const buyPrice = 0.80;  // R$ 0.80/kWh comprado
+                      
+                      const revenue = totalSold * sellPrice;
+                      const cost = totalBought * buyPrice;
+                      const netProfit = revenue - cost;
+
+                      return (
+                        <>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              💵 Receita (Vendas)
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              R$ {revenue.toFixed(2)} ({totalSold.toFixed(1)} kWh × R$ {sellPrice})
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              💸 Custo (Compras)
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              R$ {cost.toFixed(2)} ({totalBought.toFixed(1)} kWh × R$ {buyPrice})
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${netProfit >= 0 ? 'bg-green-900/20 border border-green-700' : 'bg-red-900/20 border border-red-700'}`}>
+                            <p className={`text-sm font-medium ${netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {netProfit >= 0 ? '📈 Lucro Líquido' : '📉 Prejuízo Líquido'}
+                            </p>
+                            <p className={`text-sm mt-1 ${netProfit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                              R$ {Math.abs(netProfit).toFixed(2)}
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              ⚖️ Balanço Energético
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {netBalance >= 0 ? `Excedente de ${netBalance.toFixed(1)} kWh` : `Déficit de ${Math.abs(netBalance).toFixed(1)} kWh`}
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção 4: Padrões */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                🔄 Análise de Padrões
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Padrões Semanais */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Padrão Semanal
+                  </h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={(() => {
+                        const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                        const weekData = weekDays.map((day, index) => {
+                          const dayData = filteredData.filter(d => {
+                            const date = new Date(d.date);
+                            return date.getDay() === index;
+                          });
+                          return {
+                            day,
+                            geracao: dayData.reduce((sum, d) => sum + d.energiaGerada, 0) / Math.max(1, dayData.length),
+                            consumo: dayData.reduce((sum, d) => sum + d.energiaConsumida, 0) / Math.max(1, dayData.length)
+                          };
+                        });
+                        return weekData;
+                      })()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                        <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend />
+                        <Bar dataKey="geracao" fill="#10B981" name="Geração Média" />
+                        <Bar dataKey="consumo" fill="#3B82F6" name="Consumo Médio" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Insights de Padrões */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Padrões Identificados
+                  </h4>
+                  <div className="space-y-3">
+                    {(() => {
+                      const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                      const weekData = weekDays.map((day, index) => {
+                        const dayData = filteredData.filter(d => {
+                          const date = new Date(d.date);
+                          return date.getDay() === index;
+                        });
+                        return {
+                          day,
+                          avgGen: dayData.reduce((sum, d) => sum + d.energiaGerada, 0) / Math.max(1, dayData.length),
+                          avgCons: dayData.reduce((sum, d) => sum + d.energiaConsumida, 0) / Math.max(1, dayData.length)
+                        };
+                      });
+
+                      const maxGenDay = weekData.reduce((max, d) => d.avgGen > max.avgGen ? d : max);
+                      const maxConsDay = weekData.reduce((max, d) => d.avgCons > max.avgCons ? d : max);
+                      const minGenDay = weekData.reduce((min, d) => d.avgGen < min.avgGen ? d : min);
+
+                      return (
+                        <>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              ☀️ Maior Geração
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {maxGenDay.day}: {maxGenDay.avgGen.toFixed(1)} kWh médios
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🏠 Maior Consumo
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {maxConsDay.day}: {maxConsDay.avgCons.toFixed(1)} kWh médios
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🌙 Menor Geração
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {minGenDay.day}: {minGenDay.avgGen.toFixed(1)} kWh médios
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção 5: Previsões */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                🔮 Previsões e Projeções
+              </h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Gráfico de Previsão */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Projeção para Próximos 7 Dias
+                  </h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={(() => {
+                        if (filteredData.length < 7) return [];
+                        
+                        // Calcular média móvel e projeção simples
+                        const recent = filteredData.slice(-7);
+                        const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
+                        const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
+                        
+                        // Criar projeção para próximos 7 dias
+                        const projection = [];
+                        const today = new Date();
+                        
+                        for (let i = 1; i <= 7; i++) {
+                          const futureDate = new Date(today);
+                          futureDate.setDate(today.getDate() + i);
+                          
+                          // Adicionar alguma variação aleatória (+/- 20%)
+                          const genVariation = 0.8 + Math.random() * 0.4; // 0.8 a 1.2
+                          const consVariation = 0.8 + Math.random() * 0.4;
+                          
+                          projection.push({
+                            day: futureDate.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' }),
+                            geracaoPrev: avgGen * genVariation,
+                            consumoPrev: avgCons * consVariation
+                          });
+                        }
+                        
+                        return projection;
+                      })()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                        <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                            borderRadius: '8px'
+                          }}
+                        />
+                        <Legend />
+                        <Line type="monotone" dataKey="geracaoPrev" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" name="Geração Prevista" />
+                        <Line type="monotone" dataKey="consumoPrev" stroke="#3B82F6" strokeWidth={2} strokeDasharray="5 5" name="Consumo Previsto" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Métricas de Previsão */}
+                <div>
+                  <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                    Análise de Previsão
+                  </h4>
+                  <div className="space-y-3">
+                    {(() => {
+                      if (filteredData.length < 7) return (
+                        <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            📊 Precisa de mais dados para previsões (mínimo 7 dias)
+                          </p>
+                        </div>
+                      );
+
+                      const recent = filteredData.slice(-7);
+                      const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
+                      const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
+                      
+                      // Calcular variabilidade
+                      const genVariance = recent.reduce((sum, d) => Math.pow(d.energiaGerada - avgGen, 2), 0) / recent.length;
+                      const genStdDev = Math.sqrt(genVariance);
+                      const genVariability = (genStdDev / avgGen * 100);
+
+                      return (
+                        <>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              📈 Previsão de Geração
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {avgGen.toFixed(1)} kWh/dia (±{genStdDev.toFixed(1)} kWh)
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              📊 Previsão de Consumo
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {avgCons.toFixed(1)} kWh/dia
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🎯 Confiança da Previsão
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {genVariability < 20 ? 'Alta' : genVariability < 40 ? 'Média' : 'Baixa'} 
+                              ({genVariability.toFixed(1)}% de variabilidade)
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              💡 Recomendação
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {avgGen > avgCons 
+                                ? 'Sistema excedente - considere armazenamento ou mais vendas'
+                                : avgGen * 1.2 > avgCons
+                                ? 'Bom equilíbrio - mantenha configuração atual'
+                                : 'Déficit previsto - otimize consumo ou aumente geração'
+                              }
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Resumo Final */}
+            <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gradient-to-r from-blue-900 to-purple-900' : 'bg-gradient-to-r from-blue-50 to-purple-50'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                🎯 Resumo Executivo
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {(() => {
+                  const totalGenerated = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0);
+                  const totalConsumed = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0);
+                  const totalSold = filteredData.reduce((sum, d) => sum + d.energiaVendida, 0);
+                  const totalBought = filteredData.reduce((sum, d) => sum + d.energiaComprada, 0);
+                  
+                  const efficiency = totalGenerated > 0 ? (totalGenerated / (totalGenerated + totalConsumed) * 100) : 0;
+                  const selfSufficiency = totalConsumed > 0 ? (Math.min(totalGenerated, totalConsumed) / totalConsumed * 100) : 0;
+                  const netBalance = totalSold - totalBought;
+
+                  return (
+                    <>
+                      <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-white/50'}`}>
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-blue-200' : 'text-blue-700'}`}>
+                          ⚡ Performance Geral
+                        </p>
+                        <p className={`text-2xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {efficiency.toFixed(1)}%
+                        </p>
+                        <p className={`text-sm ${isDarkMode ? 'text-blue-200' : 'text-blue-600'}`}>
+                          eficiência do sistema
+                        </p>
+                      </div>
+                      <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-white/50'}`}>
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>
+                          🏡 Autossuficiência
+                        </p>
+                        <p className={`text-2xl font-bold mt-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {selfSufficiency.toFixed(1)}%
+                        </p>
+                        <p className={`text-sm ${isDarkMode ? 'text-purple-200' : 'text-purple-600'}`}>
+                          do consumo atendido
+                        </p>
+                      </div>
+                      <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-white/50'}`}>
+                        <p className={`text-sm font-medium ${isDarkMode ? 'text-green-200' : 'text-green-700'}`}>
+                          ⚖️ Balanço Líquido
+                        </p>
+                        <p className={`text-2xl font-bold mt-2 ${netBalance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {netBalance >= 0 ? '+' : ''}{netBalance.toFixed(0)}
+                        </p>
+                        <p className={`text-sm ${isDarkMode ? 'text-green-200' : 'text-green-600'}`}>
+                          kWh período
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
         )}
       </div>
