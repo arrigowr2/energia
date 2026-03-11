@@ -507,25 +507,43 @@ export default function Dashboard() {
       }
     });
     
-    const months = [
-      { value: '01', label: 'Janeiro' },
-      { value: '02', label: 'Fevereiro' },
-      { value: '03', label: 'Março' },
-      { value: '04', label: 'Abril' },
-      { value: '05', label: 'Maio' },
-      { value: '06', label: 'Junho' },
-      { value: '07', label: 'Julho' },
-      { value: '08', label: 'Agosto' },
-      { value: '09', label: 'Setembro' },
-      { value: '10', label: 'Outubro' },
-      { value: '11', label: 'Novembro' },
-      { value: '12', label: 'Dezembro' }
+    // Gerar lista de meses que realmente têm dados
+    const monthNames = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ];
+    
+    const monthsWithData = new Set<string>();
+    data.forEach(item => {
+      const monthKey = item.date.substring(0, 7); // YYYY-MM
+      const monthNum = monthKey.substring(5, 7); // MM
+      const monthName = monthNames[parseInt(monthNum) - 1];
+      if (monthName) {
+        monthsWithData.add(`${monthNum}/${monthKey.substring(0, 4)}`);
+      }
+    });
+    
+    // Converter para o formato esperado pelo select
+    const months = Array.from(monthsWithData)
+      .sort((a, b) => {
+        const [monthA, yearA] = a.split('/');
+        const [monthB, yearB] = b.split('/');
+        if (yearA !== yearB) return yearB.localeCompare(yearA);
+        return monthB.localeCompare(monthA);
+      })
+      .map(monthYear => {
+        const [monthNum, year] = monthYear.split('/');
+        const monthName = monthNames[parseInt(monthNum) - 1];
+        return {
+          value: `${year}-${monthNum}`,
+          label: `${monthName}/${year}`
+        };
+      });
     
     setAvailableYears(Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)));
     setAvailableMonths(months);
     console.log('📅 Anos disponíveis:', Array.from(years));
-    console.log('📅 Meses configurados:', months.length);
+    console.log('📅 Meses com dados:', months.length);
   };
 
   // Função para carregar dados de teste
@@ -1582,7 +1600,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
                         monthKey: item.month, // Adicionar chave única para evitar duplicatas
                         geracao: item.geracao,
                         consumo: item.consumo
@@ -1859,7 +1877,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
                         monthKey: item.month, // Adicionar chave única
                         vendido: item.vendido,
                         comprado: item.comprado
@@ -2337,6 +2355,16 @@ export default function Dashboard() {
                 <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
                 <p>Nenhum dado encontrado para análise</p>
                 <p className="text-sm mt-2">Total de dados disponíveis: {data.length} dias</p>
+                <button
+                  onClick={() => setDateRange('latest')}
+                  className={`mt-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isDarkMode 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                  }`}
+                >
+                  Voltar para Último Dado
+                </button>
               </div>
             )}
           </div>
