@@ -237,15 +237,19 @@ export default function Dashboard() {
         }
         break;
       case 'week':
-        // Mostrar exatamente 7 dias a partir do último dado disponível
+        // Mostrar exatamente 7 dias a partir do último dado disponível no período já filtrado
         console.log('🔍 [WEEK] Iniciando filtro 7 dias...');
         console.log('🔍 [WEEK] Total de dados disponíveis:', data.length);
+        console.log('🔍 [WEEK] Dados já filtrados:', filtered.length);
         
-        if (data.length > 0) {
-          // Encontrar a data mais recente
-          const sortedData = [...data].sort((a, b) => b.date.localeCompare(a.date));
+        // Usar os dados já filtrados (por mês/ano) em vez de todos os dados
+        const sourceData = filtered.length > 0 ? filtered : data;
+        
+        if (sourceData.length > 0) {
+          // Encontrar a data mais recente dentro do período filtrado
+          const sortedData = [...sourceData].sort((a, b) => b.date.localeCompare(a.date));
           const latestDateStr = sortedData[0].date;
-          console.log('🔍 [WEEK] Data mais recente:', latestDateStr);
+          console.log('🔍 [WEEK] Data mais recente no período:', latestDateStr);
           
           // Validar formato da data
           if (!latestDateStr || !latestDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -273,8 +277,8 @@ export default function Dashboard() {
           
           console.log('🔍 [WEEK] Período calculado:', weekBeforeStr, 'até', latestDateStr);
           
-          // Filtrar dados
-          filtered = data.filter(item => {
+          // Filtrar dados dentro do período já filtrado
+          filtered = sourceData.filter(item => {
             const include = item.date >= weekBeforeStr && item.date <= latestDateStr;
             console.log(`🔍 [WEEK] ${item.date}: ${include ? 'INCLUÍDO' : 'excluído'}`);
             return include;
