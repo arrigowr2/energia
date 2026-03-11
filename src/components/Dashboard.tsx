@@ -56,6 +56,11 @@ export default function Dashboard() {
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [availableMonths, setAvailableMonths] = useState<{value: string, label: string}[]>([]);
+  
+  // Estados para otimização de gráficos
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analysis'>('dashboard');
+  const [chartView, setChartView] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [isMobile, setIsMobile] = useState(false);
 
   // Adicionar log para status do session
   useEffect(() => {
@@ -68,6 +73,18 @@ export default function Dashboard() {
       fetchEmailsAfterLogin();
     }
   }, [status, session, hasLoadedData]);
+  
+  // Detectar tamanho de tela para responsividade
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Função para buscar emails após login
   const fetchEmailsAfterLogin = async () => {
@@ -326,6 +343,84 @@ export default function Dashboard() {
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate, selectedMonth, selectedYear]);
+
+  // Função de otimização de dados para gráficos
+  const optimizeChartData = (data: EnergyData[]) => {
+    if (!data.length) return data;
+    
+    // Determinar limite de barras baseado no tamanho da tela
+    let maxBars = 30; // Desktop
+    if (isMobile) {
+      maxBars = 7; // Mobile
+    } else if (window.innerWidth < 1024) {
+      maxBars = 15; // Tablet
+    }
+    
+    // Aplicar agrupamento baseado no chartView
+    switch (chartView) {
+      case 'weekly':
+        return groupByWeek(data);
+      case 'monthly':
+        return groupByMonth(data);
+      default:
+        return data.slice(0, maxBars);
+    }
+  };
+  
+  // Função para agrupar dados por semana
+  const groupByWeek = (data: EnergyData[]) => {
+    const weeks: { [key: string]: EnergyData } = {};
+    
+    data.forEach(item => {
+      const date = new Date(item.date);
+      const weekNum = Math.ceil(date.getDate() / 7);
+      const weekKey = `Semana ${weekNum}`;
+      
+      if (!weeks[weekKey]) {
+        weeks[weekKey] = {
+          date: weekKey,
+          energiaGerada: 0,
+          energiaConsumida: 0,
+          energiaComprada: 0,
+          energiaVendida: 0
+        };
+      }
+      
+      weeks[weekKey].energiaGerada += item.energiaGerada;
+      weeks[weekKey].energiaConsumida += item.energiaConsumida;
+      weeks[weekKey].energiaComprada += item.energiaComprada;
+      weeks[weekKey].energiaVendida += item.energiaVendida;
+    });
+    
+    return Object.values(weeks).slice(-4); // Últimas 4 semanas
+  };
+  
+  // Função para agrupar dados por mês
+  const groupByMonth = (data: EnergyData[]) => {
+    const months: { [key: string]: EnergyData } = {};
+    
+    data.forEach(item => {
+      const date = new Date(item.date);
+      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+      
+      if (!months[monthKey]) {
+        months[monthKey] = {
+          date: monthKey,
+          energiaGerada: 0,
+          energiaConsumida: 0,
+          energiaComprada: 0,
+          energiaVendida: 0
+        };
+      }
+      
+      months[monthKey].energiaGerada += item.energiaGerada;
+      months[monthKey].energiaConsumida += item.energiaConsumida;
+      months[monthKey].energiaComprada += item.energiaComprada;
+      months[monthKey].energiaVendida += item.energiaVendida;
+    });
+    
+    return Object.values(months).slice(-12); // Últimos 12 meses
+  };
 
   // Extrair anos e meses disponíveis dos dados
   const extractAvailableDates = (data: EnergyData[]) => {
@@ -693,6 +788,30 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Guias Dashboard e Análise */}
+          <div className="flex items-center gap-1 bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'dashboard'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => setActiveTab('analysis')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'analysis'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              Análise
+            </button>
+          </div>
+
           {/* Filtros de data e ações */}
           <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-end">
             {/* Filtros de data */}
@@ -748,6 +867,21 @@ export default function Dashboard() {
                 ))}
               </select>
             </div>
+
+            {/* Seletor de visualização - apenas no Dashboard */}
+            {activeTab === 'dashboard' && (
+              <div className="flex gap-1 sm:gap-2">
+                <select
+                  value={chartView}
+                  onChange={(e) => setChartView(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
+                >
+                  <option value="daily">Diário</option>
+                  <option value="weekly">Semanal</option>
+                  <option value="monthly">Mensal</option>
+                </select>
+              </div>
+            )}
 
             {/* Date picker */}
             <input
@@ -810,7 +944,7 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="max-w-7xl mx-auto">
-        {stats ? (
+        {activeTab === 'dashboard' && stats ? (
           <>
             <div className="mb-4">
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -869,66 +1003,49 @@ export default function Dashboard() {
         )}
 
         {/* Gráficos de Barras */}
-        {filteredData.length > 0 && (
+        {activeTab === 'dashboard' && filteredData.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Gráfico 1: Produzido vs Consumido */}
             <div className={`p-4 sm:p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
-              <h3 className={`text-base sm:text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {dateRange === 'week' && 'Evolução Semanal (7 dias)'}
-                {dateRange === 'month' && 'Evolução Mensal (30 dias)'}
-                {dateRange === 'year' && 'Evolução Anual (12 meses)'}
-                {dateRange === 'latest' && 'Evolução da Energia'}
-                {dateRange === 'custom' && 'Evolução da Energia'}
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Produzido vs Consumido
               </h3>
-              <ResponsiveContainer width="100%" height={320}>
-                <BarChart
-                  data={filteredData.map((item) => ({
-                    name: item.date,
-                    energiaGerada: item.energiaGerada,
-                    energiaConsumida: item.energiaConsumida
-                  }))}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                  <XAxis 
-                    dataKey="name" 
-                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
-                  />
-                  <YAxis 
-                    tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }}
-                    axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }}
-                    label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                      border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                      borderRadius: '8px',
-                      color: isDarkMode ? '#F3F4F6' : '#111827'
-                    }}
-                    formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']}
-                  />
-                  <Legend 
-                    wrapperStyle={{ paddingTop: '20px' }}
-                    iconType="rect"
-                  />
-                  <Bar 
-                    dataKey="energiaGerada" 
-                    fill="#10B981" 
-                    name="Produzida"
-                    radius={[2, 2, 0, 0]}
-                    maxBarSize={20}
-                  />
-                  <Bar 
-                    dataKey="energiaConsumida" 
-                    fill="#3B82F6" 
-                    name="Consumida"
-                    radius={[2, 2, 0, 0]}
-                    maxBarSize={20}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              
+              {/* Scroll horizontal para gráficos longos */}
+              <div className="overflow-x-auto pb-4">
+                <div style={{ minWidth: `${optimizeChartData(filteredData).length * 60}px` }}>
+                  <BarChart
+                    width={Math.max(600, optimizeChartData(filteredData).length * 60)}
+                    height={300}
+                    data={optimizeChartData(filteredData).map(item => ({
+                      name: item.date,
+                      energiaGerada: item.energiaGerada,
+                      energiaConsumida: item.energiaConsumida
+                    }))}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12 }}
+                      angle={isMobile ? -45 : 0}
+                      textAnchor={isMobile ? 'end' : 'middle'}
+                      height={isMobile ? 80 : 40}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                        border: '1px solid ' + (isDarkMode ? '#374151' : '#e5e7eb'),
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="energiaGerada" fill="#10b981" name="Produzido" />
+                    <Bar dataKey="energiaConsumida" fill="#3b82f6" name="Consumido" />
+                  </BarChart>
+                </div>
+              </div>
             </div>
 
             {/* Gráfico 2: Comprado vs Vendido */}
@@ -942,7 +1059,7 @@ export default function Dashboard() {
               </h3>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart
-                  data={filteredData.map((item) => ({
+                  data={optimizeChartData(filteredData).map((item) => ({
                     name: item.date,
                     energiaComprada: item.energiaComprada,
                     energiaVendida: item.energiaVendida
@@ -990,6 +1107,21 @@ export default function Dashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+          </div>
+        )}
+        
+        {/* Conteúdo da aba Análise */}
+        {activeTab === 'analysis' && (
+          <div className="text-center py-12">
+            <h2 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+              Análise de Dados
+            </h2>
+            <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              🚧 Em desenvolvimento...
+            </p>
+            <p className={`text-sm mt-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Em breve: Tendências, Eficiência, Economia, Padrões e Previsões
+            </p>
           </div>
         )}
 
