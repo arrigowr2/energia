@@ -1541,38 +1541,59 @@ export default function Dashboard() {
                     Evolução da Geração
                   </h4>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={(() => {
-                        const monthlyData: { [key: string]: any } = {};
-                        filteredData.forEach(item => {
-                          const monthKey = item.date.substring(0, 7); // YYYY-MM
-                          if (!monthlyData[monthKey]) {
-                            monthlyData[monthKey] = { month: monthKey, geracao: 0, consumo: 0 };
-                          }
-                          monthlyData[monthKey].geracao += item.energiaGerada;
-                          monthlyData[monthKey].consumo += item.energiaConsumida;
-                        });
-                        return Object.values(monthlyData).slice(-12).map(item => ({
-                          month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
-                          geracao: item.geracao,
-                          consumo: item.consumo
-                        }));
-                      })()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                        <XAxis dataKey="month" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Legend />
-                        <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
-                        <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    {(() => {
+                      const monthlyData: { [key: string]: any } = {};
+                      filteredData.forEach(item => {
+                        const monthKey = item.date.substring(0, 7); // YYYY-MM
+                        if (!monthlyData[monthKey]) {
+                          monthlyData[monthKey] = { month: monthKey, geracao: 0, consumo: 0 };
+                        }
+                        monthlyData[monthKey].geracao += item.energiaGerada;
+                        monthlyData[monthKey].consumo += item.energiaConsumida;
+                      });
+                      
+                      const chartData = Object.values(monthlyData).slice(-12).map(item => ({
+                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                        monthKey: item.month, // Adicionar chave única para evitar duplicatas
+                        geracao: item.geracao,
+                        consumo: item.consumo
+                      }));
+                      
+                      if (chartData.length === 0) {
+                        return (
+                          <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className="text-center">
+                              📊<br />
+                              Sem dados suficientes para o gráfico
+                            </p>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                            <XAxis 
+                              dataKey="month" 
+                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              interval={0} // Mostrar todas as legendas sem duplicar
+                            />
+                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                borderRadius: '8px'
+                              }}
+                            />
+                            <Legend />
+                            <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
+                            <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1757,38 +1778,59 @@ export default function Dashboard() {
                     Fluxo de Energia
                   </h4>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={(() => {
-                        const monthlyData: { [key: string]: any } = {};
-                        filteredData.forEach(item => {
-                          const monthKey = item.date.substring(0, 7);
-                          if (!monthlyData[monthKey]) {
-                            monthlyData[monthKey] = { month: monthKey, vendido: 0, comprado: 0 };
-                          }
-                          monthlyData[monthKey].vendido += item.energiaVendida;
-                          monthlyData[monthKey].comprado += item.energiaComprada;
-                        });
-                        return Object.values(monthlyData).slice(-12).map(item => ({
-                          month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
-                          vendido: item.vendido,
-                          comprado: item.comprado
-                        }));
-                      })()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                        <XAxis dataKey="month" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Legend />
-                        <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
-                        <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    {(() => {
+                      const monthlyData: { [key: string]: any } = {};
+                      filteredData.forEach(item => {
+                        const monthKey = item.date.substring(0, 7);
+                        if (!monthlyData[monthKey]) {
+                          monthlyData[monthKey] = { month: monthKey, vendido: 0, comprado: 0 };
+                        }
+                        monthlyData[monthKey].vendido += item.energiaVendida;
+                        monthlyData[monthKey].comprado += item.energiaComprada;
+                      });
+                      
+                      const chartData = Object.values(monthlyData).slice(-12).map(item => ({
+                        month: new Date(item.month + '-01').toLocaleDateString('pt-BR', { month: 'short' }),
+                        monthKey: item.month, // Adicionar chave única
+                        vendido: item.vendido,
+                        comprado: item.comprado
+                      }));
+                      
+                      if (chartData.length === 0) {
+                        return (
+                          <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className="text-center">
+                              📊<br />
+                              Sem dados suficientes para o gráfico
+                            </p>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                            <XAxis 
+                              dataKey="month" 
+                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              interval={0} // Evitar duplicatas
+                            />
+                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                borderRadius: '8px'
+                              }}
+                            />
+                            <Legend />
+                            <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
+                            <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1866,37 +1908,51 @@ export default function Dashboard() {
                     Padrão Semanal
                   </h4>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={(() => {
-                        const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-                        const weekData = weekDays.map((day, index) => {
-                          const dayData = filteredData.filter(d => {
-                            const date = new Date(d.date);
-                            return date.getDay() === index;
-                          });
-                          return {
-                            day,
-                            geracao: dayData.reduce((sum, d) => sum + d.energiaGerada, 0) / Math.max(1, dayData.length),
-                            consumo: dayData.reduce((sum, d) => sum + d.energiaConsumida, 0) / Math.max(1, dayData.length)
-                          };
+                    {(() => {
+                      const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                      const weekData = weekDays.map((day, index) => {
+                        const dayData = filteredData.filter(d => {
+                          const date = new Date(d.date);
+                          return date.getDay() === index;
                         });
-                        return weekData;
-                      })()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                        <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Legend />
-                        <Bar dataKey="geracao" fill="#10B981" name="Geração Média" />
-                        <Bar dataKey="consumo" fill="#3B82F6" name="Consumo Médio" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                        return {
+                          day,
+                          geracao: dayData.reduce((sum, d) => sum + d.energiaGerada, 0) / Math.max(1, dayData.length),
+                          consumo: dayData.reduce((sum, d) => sum + d.energiaConsumida, 0) / Math.max(1, dayData.length)
+                        };
+                      });
+                      
+                      if (filteredData.length === 0) {
+                        return (
+                          <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className="text-center">
+                              📊<br />
+                              Sem dados suficientes para o gráfico
+                            </p>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={weekData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                            <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                borderRadius: '8px'
+                              }}
+                            />
+                            <Legend />
+                            <Bar dataKey="geracao" fill="#10B981" name="Geração Média" />
+                            <Bar dataKey="consumo" fill="#3B82F6" name="Consumo Médio" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -1971,51 +2027,67 @@ export default function Dashboard() {
                     Projeção para Próximos 7 Dias
                   </h4>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={(() => {
-                        if (filteredData.length < 7) return [];
+                    {(() => {
+                      if (filteredData.length < 7) {
+                        return (
+                          <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className="text-center">
+                              📊<br />
+                              Precisa de mais dados para previsões (mínimo 7 dias) - atual: {filteredData.length} dias
+                            </p>
+                          </div>
+                        );
+                      }
+                      
+                      // Calcular média móvel e projeção simples
+                      const recent = filteredData.slice(-7);
+                      const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
+                      const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
+                      
+                      // Criar projeção para próximos 7 dias
+                      const projection = [];
+                      const today = new Date();
+                      
+                      for (let i = 1; i <= 7; i++) {
+                        const futureDate = new Date(today);
+                        futureDate.setDate(today.getDate() + i);
                         
-                        // Calcular média móvel e projeção simples
-                        const recent = filteredData.slice(-7);
-                        const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
-                        const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
+                        // Adicionar alguma variação aleatória (+/- 20%)
+                        const genVariation = 0.8 + Math.random() * 0.4; // 0.8 a 1.2
+                        const consVariation = 0.8 + Math.random() * 0.4;
                         
-                        // Criar projeção para próximos 7 dias
-                        const projection = [];
-                        const today = new Date();
-                        
-                        for (let i = 1; i <= 7; i++) {
-                          const futureDate = new Date(today);
-                          futureDate.setDate(today.getDate() + i);
-                          
-                          // Adicionar alguma variação aleatória (+/- 20%)
-                          const genVariation = 0.8 + Math.random() * 0.4; // 0.8 a 1.2
-                          const consVariation = 0.8 + Math.random() * 0.4;
-                          
-                          projection.push({
-                            day: futureDate.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' }),
-                            geracaoPrev: avgGen * genVariation,
-                            consumoPrev: avgCons * consVariation
-                          });
-                        }
-                        
-                        return projection;
-                      })()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                        <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                            border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Legend />
-                        <Line type="monotone" dataKey="geracaoPrev" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" name="Geração Prevista" />
-                        <Line type="monotone" dataKey="consumoPrev" stroke="#3B82F6" strokeWidth={2} strokeDasharray="5 5" name="Consumo Previsto" />
-                      </LineChart>
-                    </ResponsiveContainer>
+                        projection.push({
+                          day: futureDate.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' }),
+                          dayKey: `day-${i}`, // Chave única
+                          geracaoPrev: avgGen * genVariation,
+                          consumoPrev: avgCons * consVariation
+                        });
+                      }
+                      
+                      return (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={projection}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                            <XAxis 
+                              dataKey="day" 
+                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              interval={0} // Evitar duplicatas
+                            />
+                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                borderRadius: '8px'
+                              }}
+                            />
+                            <Legend />
+                            <Line type="monotone" dataKey="geracaoPrev" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" name="Geração Prevista" />
+                            <Line type="monotone" dataKey="consumoPrev" stroke="#3B82F6" strokeWidth={2} strokeDasharray="5 5" name="Consumo Previsto" />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      );
+                    })()}
                   </div>
                 </div>
 
