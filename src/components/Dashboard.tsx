@@ -459,7 +459,20 @@ export default function Dashboard() {
     ];
     
     setAvailableYears(Array.from(years).sort((a, b) => parseInt(b) - parseInt(a)));
-    setAvailableMonths(months);
+    setAvailableMonths([
+      { value: '01', label: 'Janeiro' },
+      { value: '02', label: 'Fevereiro' },
+      { value: '03', label: 'Março' },
+      { value: '04', label: 'Abril' },
+      { value: '05', label: 'Maio' },
+      { value: '06', label: 'Junho' },
+      { value: '07', label: 'Julho' },
+      { value: '08', label: 'Agosto' },
+      { value: '09', label: 'Setembro' },
+      { value: '10', label: 'Outubro' },
+      { value: '11', label: 'Novembro' },
+      { value: '12', label: 'Dezembro' }
+    ]);
   };
 
   // Função para carregar dados de teste
@@ -1159,6 +1172,62 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+        
+        {/* Tabela de dados - Collapsible - apenas no Dashboard */}
+        {activeTab === 'dashboard' && filteredData.length > 0 && (
+          <div className={`p-4 sm:p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <h2 className={`text-lg sm:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Histórico de Dados
+              </h2>
+              <div className={`transform transition-transform ${showHistory ? 'rotate-180' : ''}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </button>
+            
+            {showHistory && (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead>
+                    <tr className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <th className={`text-left py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Data</th>
+                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Consumo</th>
+                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Comprado</th>
+                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Vendido</th>
+                      <th className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Gerado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.map((item, index) => (
+                      <tr key={index} className={`border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+                        <td className={`py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {new Date(item.date).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {item.energiaConsumida.toFixed(2)}
+                        </td>
+                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {item.energiaComprada.toFixed(2)}
+                        </td>
+                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {item.energiaVendida.toFixed(2)}
+                        </td>
+                        <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {item.energiaGerada.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
         
