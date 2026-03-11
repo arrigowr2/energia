@@ -561,70 +561,49 @@ export default function Dashboard() {
           continue;
         }
         
-        // Mais dados por mês para atingir ~1500 total
-        let dataCount;
-        if (year === 2023) {
-          dataCount = Math.floor(Math.random() * 15) + 30; // 30-45 dados (2023 tem menos)
-        } else if (year === 2024) {
-          dataCount = Math.floor(Math.random() * 20) + 35; // 35-55 dados (2024 médio)
-        } else if (year === 2025) {
-          dataCount = Math.floor(Math.random() * 25) + 40; // 40-65 dados (2025 bom)
-        } else {
-          dataCount = Math.floor(Math.random() * 30) + 45; // 45-75 dados (2026 excelente)
-        }
+        // Gerar dados para TODOS os dias de cada mês para ter mais dados
+        let dataCount = daysInMonth; // Gerar dados para todos os dias do mês
         
-        // Gerar dias únicos para evitar duplicatas
-        const usedDays = new Set<number>();
-        let attempts = 0;
-        const maxAttempts = dataCount * 2; // Tentativas máximas
-        
-        while (usedDays.size < dataCount && attempts < maxAttempts) {
-          const day = Math.floor(Math.random() * daysInMonth) + 1;
+        // Gerar dados para cada dia do mês (de 1 a daysInMonth)
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           
-          // Só adicionar se o dia ainda não foi usado
-          if (!usedDays.has(day)) {
-            usedDays.add(day);
-            const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            
-            // Valores mais realistas e variados por ano
-            let energiaGerada, energiaConsumida, energiaComprada, energiaVendida;
-            
-            if (year === 2023) {
-              // 2023: Valores mais baixos (sistema mais antigo)
-              energiaGerada = Math.floor(Math.random() * 40) + 10;  // 10-50 kWh
-              energiaConsumida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
-              energiaComprada = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
-              energiaVendida = Math.floor(Math.random() * 20) + 2;  // 2-22 kWh
-            } else if (year === 2024) {
-              // 2024: Valores médios (sistema em crescimento)
-              energiaGerada = Math.floor(Math.random() * 50) + 15;  // 15-65 kWh
-              energiaConsumida = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
-              energiaComprada = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
-              energiaVendida = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
-            } else if (year === 2025) {
-              // 2025: Valores otimizados (sistema maduro)
-              energiaGerada = Math.floor(Math.random() * 60) + 20;  // 20-80 kWh
-              energiaConsumida = Math.floor(Math.random() * 45) + 15; // 15-60 kWh
-              energiaComprada = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
-              energiaVendida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
-            } else {
-              // 2026: Valores mais altos (sistema no pico)
-              energiaGerada = Math.floor(Math.random() * 70) + 25;  // 25-95 kWh
-              energiaConsumida = Math.floor(Math.random() * 50) + 18; // 18-68 kWh
-              energiaComprada = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
-              energiaVendida = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
-            }
-            
-            testData.push({
-              date,
-              energiaGerada,
-              energiaConsumida,
-              energiaComprada,
-              energiaVendida
-            });
+          // Valores mais realistas e variados por ano
+          let energiaGerada, energiaConsumida, energiaComprada, energiaVendida;
+          
+          if (year === 2023) {
+            // 2023: Valores mais baixos (sistema mais antigo)
+            energiaGerada = Math.floor(Math.random() * 40) + 10;  // 10-50 kWh
+            energiaConsumida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+            energiaComprada = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
+            energiaVendida = Math.floor(Math.random() * 20) + 2;  // 2-22 kWh
+          } else if (year === 2024) {
+            // 2024: Valores médios (sistema em crescimento)
+            energiaGerada = Math.floor(Math.random() * 50) + 15;  // 15-65 kWh
+            energiaConsumida = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
+            energiaComprada = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+            energiaVendida = Math.floor(Math.random() * 25) + 5;  // 5-30 kWh
+          } else if (year === 2025) {
+            // 2025: Valores otimizados (sistema maduro)
+            energiaGerada = Math.floor(Math.random() * 60) + 20;  // 20-80 kWh
+            energiaConsumida = Math.floor(Math.random() * 45) + 15; // 15-60 kWh
+            energiaComprada = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
+            energiaVendida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
+          } else {
+            // 2026: Valores mais altos (sistema no pico)
+            energiaGerada = Math.floor(Math.random() * 70) + 25;  // 25-95 kWh
+            energiaConsumida = Math.floor(Math.random() * 50) + 18; // 18-68 kWh
+            energiaComprada = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
+            energiaVendida = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
           }
           
-          attempts++;
+          testData.push({
+            date,
+            energiaGerada,
+            energiaConsumida,
+            energiaComprada,
+            energiaVendida
+          });
         }
       }
     }
