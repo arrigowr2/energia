@@ -364,15 +364,7 @@ export default function Dashboard() {
       maxBars = 15; // Tablet
     }
     
-    // Aplicar agrupamento baseado no chartView
-    switch (chartView) {
-      case 'weekly':
-        return groupByWeek(sortedData);
-      case 'monthly':
-        return groupByMonth(sortedData);
-      default:
-        return sortedData.slice(0, maxBars);
-    }
+    return sortedData.slice(0, maxBars);
   };
   
   // Função para agrupar dados por semana
@@ -942,21 +934,7 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Seletor de visualização - apenas no Dashboard */}
-            {activeTab === 'dashboard' && (
-              <div className="flex gap-1 sm:gap-2">
-                <select
-                  value={chartView}
-                  onChange={(e) => setChartView(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
-                >
-                  <option value="daily">Diário</option>
-                  <option value="weekly">Semanal</option>
-                  <option value="monthly">Mensal</option>
-                </select>
-              </div>
-            )}
-
+            
             {/* Date picker */}
             <input
               type="date"
