@@ -1348,6 +1348,8 @@ export default function Dashboard() {
         {/* Conteúdo da aba Análise */}
         {activeTab === 'analysis' && (
           <div className="space-y-6">
+            {filteredData.length > 0 ? (
+              <>
             {/* Cabeçalho da Análise */}
             <div className="text-center mb-8">
               <h2 className={`text-2xl sm:text-3xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -2325,6 +2327,14 @@ export default function Dashboard() {
                 })()}
               </div>
             </div>
+              </>
+            ) : (
+              <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>Nenhum dado encontrado para análise</p>
+                <p className="text-sm mt-2">Total de dados disponíveis: {data.length} dias</p>
+              </div>
+            )}
           </div>
         )}
       </div>
