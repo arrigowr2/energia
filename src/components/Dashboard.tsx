@@ -1075,7 +1075,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={300}
                     data={optimizeChartData(filteredData).map(item => ({
-                      name: new Date(item.date).getDate().toString(),
+                      name: item.date,
                       energiaGerada: item.energiaGerada,
                       energiaConsumida: item.energiaConsumida
                     }))}
@@ -1125,7 +1125,7 @@ export default function Dashboard() {
                     width={optimizeChartData(filteredData).length > 8 ? Math.max(600, optimizeChartData(filteredData).length * 80) : "100%"}
                     height={320}
                     data={optimizeChartData(filteredData).map((item) => ({
-                      name: new Date(item.date).getDate().toString(),
+                      name: item.date,
                       energiaComprada: item.energiaComprada,
                       energiaVendida: item.energiaVendida
                     }))}
