@@ -217,12 +217,12 @@ export default function Dashboard() {
     console.log('📊 Dados atuais:', data);
     console.log('📅 Filtro selecionado:', dateRange);
     
-    if (data.length === 0) {
-      console.log('📭 Sem dados para filtrar');
-      return;
-    }
+    // Limpar dados removendo datas inválidas
+    const cleanSourceData = cleanData(data);
+    console.log('🧹 Dados limpos:', cleanSourceData.length, 'itens (removidos:', data.length - cleanSourceData.length, 'inválidos)');
+    
+    let filtered = [...cleanSourceData];
 
-    let filtered = [...data];
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -373,6 +373,26 @@ export default function Dashboard() {
     setFilteredData(filtered);
     console.log('📊 Dados filtrados finais:', filtered);
   }, [data, dateRange, customDate, selectedMonth, selectedYear]);
+
+  // Função para limpar dados - remover datas inválidas
+  const cleanData = (data: EnergyData[]) => {
+    return data.filter(item => {
+      if (!item.date || typeof item.date !== 'string') {
+        return false;
+      }
+      // Remover datas com NaN
+      if (item.date.includes('NaN')) {
+        return false;
+      }
+      // Validar formato YYYY-MM-DD
+      const parts = item.date.split('-');
+      if (parts.length !== 3) {
+        return false;
+      }
+      const [year, month, day] = parts;
+      return year.length === 4 && month.length === 2 && day.length === 2;
+    });
+  };
 
   // Função de otimização de dados para gráficos
   const optimizeChartData = (data: EnergyData[]) => {
