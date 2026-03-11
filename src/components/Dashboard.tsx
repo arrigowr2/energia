@@ -401,7 +401,9 @@ export default function Dashboard() {
     
     data.forEach(item => {
       const date = new Date(item.date);
-      const monthKey = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0-11
+      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
       
       if (!months[monthKey]) {
         months[monthKey] = {
@@ -419,7 +421,12 @@ export default function Dashboard() {
       months[monthKey].energiaVendida += item.energiaVendida;
     });
     
-    return Object.values(months).slice(-12); // Últimos 12 meses
+    // Ordenar por data cronológica
+    const sortedMonths = Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, monthData]) => monthData);
+    
+    return sortedMonths.slice(-12); // Últimos 12 meses
   };
 
   // Extrair anos e meses disponíveis dos dados
