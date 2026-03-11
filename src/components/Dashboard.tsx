@@ -235,6 +235,18 @@ export default function Dashboard() {
           filtered = [filtered[0]];
           console.log('📅 Filtro "Último" aplicado:', filtered.length, 'itens - Data:', filtered[0]?.date);
         }
+        break;
+      case 'week':
+        // Mostrar exatamente 7 dias a partir do último dado disponível
+        if (data.length > 0) {
+          // Encontrar a data mais recente
+          const sortedData = [...data].sort((a, b) => new Date(b.date + 'T00:00:00').getTime() - new Date(a.date + 'T00:00:00').getTime());
+          const latestDate = new Date(sortedData[0].date + 'T00:00:00');
+          
+          // Calcular data de 7 dias antes
+          const weekBeforeLatest = new Date(latestDate);
+          weekBeforeLatest.setDate(weekBeforeLatest.getDate() - 6);
+          
           // Filtrar dados do período de 7 dias
           filtered = data.filter(item => {
             const itemDate = new Date(item.date + 'T00:00:00');
