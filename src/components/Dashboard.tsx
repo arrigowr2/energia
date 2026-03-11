@@ -1587,7 +1587,8 @@ export default function Dashboard() {
                         consumo: item.consumo
                       }));
                       
-                      if (chartData.length === 0) {
+                      // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
+                      if (Object.keys(monthlyData).length === 0) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p className="text-center">
@@ -1862,7 +1863,8 @@ export default function Dashboard() {
                         comprado: item.comprado
                       }));
                       
-                      if (chartData.length === 0) {
+                      // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
+                      if (Object.keys(monthlyData).length === 0) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p className="text-center">
