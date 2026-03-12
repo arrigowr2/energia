@@ -368,6 +368,8 @@ export default function Dashboard() {
         });
         
         console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados para', targetYear);
+        console.log('📅 Meses encontrados:', Object.keys(monthlyData));
+        console.log('📅 Valores dos meses:', Object.values(monthlyData).map(m => ({ date: m.date, count: m.count })));
         break;
       case 'custom':
         if (customDate) {
@@ -547,6 +549,11 @@ export default function Dashboard() {
 
   // Função helper para formatar datas no formato mes/ano
   const formatMonthYear = (dateString: string): string => {
+    // Se já está no formato mes/ano, retorna direto
+    if (dateString.includes('/')) {
+      return dateString;
+    }
+    
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
@@ -1683,7 +1690,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={256}>
                       <PieChart>
                         <Pie
                           data={(() => {
@@ -1987,7 +1994,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={256}>
                           <BarChart data={weekData}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
@@ -2131,7 +2138,7 @@ export default function Dashboard() {
                         const consVariation = 0.8 + Math.random() * 0.4;
                         
                         projection.push({
-                          day: futureDate.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' }),
+                          day: `${futureDate.getDate()}/${futureDate.toLocaleDateString('pt-BR', { weekday: 'short' })}`,
                           dayKey: `day-${i}`, // Chave única
                           geracaoPrev: avgGen * genVariation,
                           consumoPrev: avgCons * consVariation
@@ -2139,7 +2146,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={256}>
                           <LineChart data={projection}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
