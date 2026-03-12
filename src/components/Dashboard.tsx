@@ -1408,7 +1408,10 @@ export default function Dashboard() {
                     </select>
                     <select
                       value={selectedYear}
-                      onChange={(e) => setSelectedYear(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedYear(e.target.value);
+                        setDateRange('year'); // Aplicar filtro year quando selecionar ano
+                      }}
                       className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                     >
                       {availableYears.map(year => (
