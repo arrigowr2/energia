@@ -593,6 +593,7 @@ export default function Dashboard() {
     const years = [2023, 2024, 2025, 2026];
     const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     
+    // Garantir que 2026 tenha dados completos para testes
     for (const year of years) {
       for (const month of months) {
         const monthNum = new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1;
@@ -614,8 +615,13 @@ export default function Dashboard() {
         // Gerar dados para TODOS os dias de cada mês para ter mais dados
         let dataCount = daysInMonth; // Gerar dados para todos os dias do mês
         
+        // Para 2026, garantir dados completos para testes
+        if (year === 2026) {
+          dataCount = daysInMonth; // Todos os dias do mês
+        }
+        
         // Gerar dados para cada dia do mês (de 1 a daysInMonth)
-        for (let day = 1; day <= daysInMonth; day++) {
+        for (let day = 1; day <= dataCount; day++) {
           const date = `${year}-${String(monthNum).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           
           // Valores mais realistas e variados por ano
@@ -640,7 +646,7 @@ export default function Dashboard() {
             energiaComprada = Math.floor(Math.random() * 35) + 10; // 10-45 kWh
             energiaVendida = Math.floor(Math.random() * 30) + 8;  // 8-38 kWh
           } else {
-            // 2026: Valores mais altos (sistema no pico)
+            // 2026: Valores mais altos (sistema no pico) - dados completos para testes
             energiaGerada = Math.floor(Math.random() * 70) + 25;  // 25-95 kWh
             energiaConsumida = Math.floor(Math.random() * 50) + 18; // 18-68 kWh
             energiaComprada = Math.floor(Math.random() * 40) + 12; // 12-52 kWh
@@ -1166,7 +1172,15 @@ export default function Dashboard() {
                   const [year, month, day] = item.date.split('-');
                   return { name: `Dia ${day}/${month}/${year}`, energiaGerada: item.energiaGerada, energiaConsumida: item.energiaConsumida };
                 });
-                const tickFmt = (value: string) => { if (value.includes('Dia ')) { const parts = value.split(' ')[1].split('/'); return `${parts[0]}/${parts[1]}`; } return value; };
+                const tickFmt = (value: string) => { 
+                  if (value && value.includes('Dia ')) { 
+                    const parts = value.split(' ')[1].split('/');
+                    if (parts && parts.length >= 2) {
+                      return `${parts[0]}/${parts[1]}`;
+                    }
+                  }
+                  return value || '';
+                };
                 const chartContent = (
                   <BarChart data={formattedData1} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                     {...(needsScroll1 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth1), height: 300 } : {})}
@@ -1213,7 +1227,15 @@ export default function Dashboard() {
                   const [year, month, day] = item.date.split('-');
                   return { name: `Dia ${day}/${month}/${year}`, energiaComprada: item.energiaComprada, energiaVendida: item.energiaVendida };
                 });
-                const tickFmt2 = (value: string) => { if (value.includes('Dia ')) { const parts = value.split(' ')[1].split('/'); return `${parts[0]}/${parts[1]}`; } return value; };
+                const tickFmt2 = (value: string) => { 
+                  if (value && value.includes('Dia ')) { 
+                    const parts = value.split(' ')[1].split('/');
+                    if (parts && parts.length >= 2) {
+                      return `${parts[0]}/${parts[1]}`;
+                    }
+                  }
+                  return value || '';
+                };
                 const chartContent2 = (
                   <BarChart data={formattedData2} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                     {...(needsScroll2 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth2), height: 320 } : {})}
@@ -1437,8 +1459,16 @@ export default function Dashboard() {
                     if (filteredData.length < 2) return '--';
                     const recent = filteredData.slice(-7);
                     const older = filteredData.slice(-14, -7);
+                    
+                    // Verificar se há dados suficientes para comparação
+                    if (recent.length === 0 || older.length === 0) return '--';
+                    
                     const recentAvg = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
                     const olderAvg = older.reduce((sum, d) => sum + d.energiaGerada, 0) / older.length;
+                    
+                    // Evitar divisão por zero
+                    if (olderAvg === 0) return '--';
+                    
                     const trend = parseFloat(((recentAvg - olderAvg) / olderAvg * 100).toFixed(1));
                     return `${trend > 0 ? '+' : ''}${trend}%`;
                   })()}
@@ -2216,12 +2246,13 @@ export default function Dashboard() {
                   </div>
                   <div className="h-64">
                     {(() => {
-                      if (filteredData.length < 7) {
+                      // Previsões sempre baseadas nos dados mais recentes, independentemente do filtro
+                      if (data.length < 7) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p className="text-center">
                               📊<br />
-                              Precisa de mais dados para previsões (mínimo 7 dias) - atual: {filteredData.length} dias
+                              Precisa de mais dados para previsões (mínimo 7 dias) - atual: {data.length} dias
                             </p>
                           </div>
                         );
