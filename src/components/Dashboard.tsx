@@ -547,12 +547,19 @@ export default function Dashboard() {
 
   // Função helper para formatar datas no formato mes/ano
   const formatMonthYear = (dateString: string): string => {
-    const date = new Date(dateString);
-    const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear().toString().slice(-2); // Últimos 2 dígitos
-    return `${month}/${year}`;
-  };
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Retorna original se for inválida
+      }
+      const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      const month = monthNames[date.getMonth()];
+      const year = date.getFullYear().toString().slice(-2); // Últimos 2 dígitos
+      return `${month}/${year}`;
+    } catch (error) {
+      return dateString; // Retorna original se houver erro
+    }
+  }; // Função otimizada para evitar undefined nas legendas
 
   // Função para carregar dados de teste
   const loadTestData = async () => {
