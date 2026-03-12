@@ -1543,8 +1543,8 @@ export default function Dashboard() {
                 </div>
                 <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {(() => {
-                    if (filteredData.length < 7) return '--';
-                    const recent = filteredData.slice(-7);
+                    if (data.length < 7) return '--';
+                    const recent = data.slice(-7);
                     const avgGeneration = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
                     return `${avgGeneration.toFixed(1)}`;
                   })()}
@@ -2337,15 +2337,15 @@ export default function Dashboard() {
                   </h4>
                   <div className="space-y-3">
                     {(() => {
-                      if (filteredData.length < 7) return (
+                      if (data.length < 7) return (
                         <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                           <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            📊 Precisa de mais dados para previsões (mínimo 7 dias) - atual: {filteredData.length} dias
+                            📊 Precisa de mais dados para previsões (mínimo 7 dias) - atual: {data.length} dias
                           </p>
                         </div>
                       );
 
-                      const recent = filteredData.slice(-7);
+                      const recent = data.slice(-7);
                       const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
                       const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
                       
