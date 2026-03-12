@@ -104,6 +104,23 @@ Sistema inteligente para monitoramento automático de dados energéticos atravé
    - Reconfiguração de e-mail
    - Modo escuro/claro
    - Interface responsiva
+   - Dados de teste integrados (1.500+ registros)
+   - Exportação de relatórios
+
+## 🧪 Testes e Dados
+
+### Dados de Teste
+O sistema inclui **1.500+ registros de teste** distribuídos entre 2023-2026 para:
+- Testar todos os filtros e funcionalidades
+- Validar renderização dos gráficos
+- Demonstrar capacidades de análise
+- Simular diferentes cenários de consumo
+
+### Como Usar
+1. **Sem configurar e-mail**: Clique em "Carregar Dados de Teste"
+2. **Com e-mail configurado**: Dados reais + opção de teste
+3. **Filtros**: Teste todos os períodos para validar
+4. **Análise**: Explore insights e projeções
 
 ## 🆕 Atualizações Recentes
 
@@ -113,6 +130,8 @@ Sistema inteligente para monitoramento automático de dados energéticos atravé
 - **Interface Limpa**: Remoção de mensagens desnecessárias
 - **Botão Voltar**: Navegação facilitada quando não há dados
 - **Gráficos Corrigidos**: Renderização correta mesmo com poucos dados
+- **Tooltips Informativos**: Ícones de ajuda em cada gráfico
+- **Modo Escuro**: Interface adaptável para diferentes ambientes
 
 ### Correções de Bugs
 - **Tamanho dos Gráficos**: Corrigido erro de renderização
