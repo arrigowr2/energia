@@ -1336,11 +1336,20 @@ export default function Dashboard() {
                               return 'Data inválida';
                             }
                             const parts = item.date.split('-');
-                            if (parts.length !== 3 || parts.some(part => !part || part === 'NaN')) {
+                            if (parts.length < 2 || parts.some(part => !part || part === 'NaN')) {
                               return 'Data inválida';
                             }
-                            const [year, month, day] = parts;
-                            return `${day}/${month}/${year}`;
+                            
+                            // Verificar se é formato YYYY-MM (filtro Ano) ou YYYY-MM-DD (outros)
+                            if (parts.length === 2) {
+                              // Formato YYYY-MM (ex: 2026-12)
+                              const [year, month] = parts;
+                              return `${month}/${year}`;
+                            } else {
+                              // Formato YYYY-MM-DD (ex: 2026-12-15)
+                              const [year, month, day] = parts;
+                              return `${day}/${month}/${year}`;
+                            }
                           })()}
                         </td>
                         <td className={`text-right py-3 px-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
