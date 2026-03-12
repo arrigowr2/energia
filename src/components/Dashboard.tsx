@@ -660,6 +660,11 @@ export default function Dashboard() {
             energiaComprada,
             energiaVendida
           });
+          
+          // Debug para 2026 (primeiro mês)
+          if (year === 2026 && monthNum === 1 && day <= 3) {
+            console.log(`🔍 Debug 2026-${monthNum}-${day}:`, { energiaGerada, energiaConsumida, energiaComprada, energiaVendida });
+          }
         }
       }
     }
@@ -678,6 +683,15 @@ export default function Dashboard() {
       '2025': testData.filter(d => d.date.startsWith('2025')).length,
       '2026': testData.filter(d => d.date.startsWith('2026')).length
     });
+    
+    // Verificar meses específicos
+    console.log('📅 Meses em 2026:', [
+      ...new Set(testData.filter(d => d.date.startsWith('2026')).map(d => d.date.substring(0, 7)))
+    ].sort());
+    
+    // Verificar primeiro e último dados
+    console.log('📅 Primeiro dado:', testData[testData.length - 1]);
+    console.log('📅 Último dado:', testData[0]);
     
     // Simular delay final
     await new Promise(resolve => setTimeout(resolve, 300));
