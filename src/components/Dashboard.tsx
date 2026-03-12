@@ -1536,6 +1536,55 @@ export default function Dashboard() {
                   </div>
                   <div className="h-64">
                     {(() => {
+                      if (dateRange === 'selected-month') {
+                        // Mostrar dados diários do mês selecionado
+                        const chartData = filteredData.map(item => ({
+                          month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+                          monthKey: item.date,
+                          geracao: item.energiaGerada,
+                          consumo: item.energiaConsumida
+                        }));
+                        
+                        if (chartData.length === 0) {
+                          return (
+                            <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <p className="text-center">
+                                📊<br />
+                                Sem dados para o mês selecionado
+                              </p>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                              <XAxis 
+                                dataKey="month" 
+                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={60}
+                              />
+                              <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <Legend />
+                              <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
+                              <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        );
+                      }
+                      
+
+                      // Para outros filtros, mostrar dados mensais agregados
                       const monthlyData: { [key: string]: any } = {};
                       filteredData.forEach(item => {
                         const monthKey = item.date.substring(0, 7); // YYYY-MM
@@ -1547,7 +1596,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: formatMonthYear(item.month + '-01'),
+                        month: formatMonthYear(item.month),
                         monthKey: item.month, // Adicionar chave única para evitar duplicatas
                         geracao: item.geracao,
                         consumo: item.consumo
@@ -1828,7 +1877,7 @@ export default function Dashboard() {
                       });
                       
                       const chartData = Object.values(monthlyData).slice(-12).map(item => ({
-                        month: formatMonthYear(item.month + '-01'),
+                        month: formatMonthYear(item.month),
                         monthKey: item.month, // Adicionar chave única
                         vendido: item.vendido,
                         comprado: item.comprado
