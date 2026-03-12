@@ -334,7 +334,14 @@ export default function Dashboard() {
         filtered = data.filter(item => {
           const itemDate = new Date(item.date + 'T00:00:00Z');
           const year = itemDate.getFullYear();
-          if (year !== targetYear) return false;
+          
+          // Debug detalhado
+          console.log(`🔍 [FILTRO ANO] item.date: ${item.date} -> itemDate: ${itemDate} -> year: ${year} (targetYear: ${targetYear})`);
+          
+          if (year !== targetYear) {
+            console.log(`❌ [FILTRO ANO] Rejeitado: year ${year} !== targetYear ${targetYear}`);
+            return false;
+          }
           
           // Agrupar por mês
           const monthKey = item.date.substring(0, 7); // YYYY-MM
