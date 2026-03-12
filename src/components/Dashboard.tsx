@@ -1189,24 +1189,38 @@ export default function Dashboard() {
                 const needsScroll1 = (isMobile && chartData1.length > 7) || chartData1.length > 8;
                 const scrollWidth1 = chartData1.length * (isMobile ? 60 : 80);
                 const formattedData1 = chartData1.map(item => {
-                  const [year, month, day] = item.date.split('-');
-                  return { name: `Dia ${day}/${month}/${year}`, energiaGerada: item.energiaGerada, energiaConsumida: item.energiaConsumida };
+                  const parts = item.date.split('-');
+                  if (parts.length === 2) {
+                    // Formato YYYY-MM (filtro Ano)
+                    const [year, month] = parts;
+                    return { name: `${month}/${year}`, energiaGerada: item.energiaGerada, energiaConsumida: item.energiaConsumida };
+                  } else {
+                    // Formato YYYY-MM-DD (outros filtros)
+                    const [year, month, day] = parts;
+                    return { name: `${day}/${month}`, energiaGerada: item.energiaGerada, energiaConsumida: item.energiaConsumida };
+                  }
                 });
                 const tickFmt = (value: string) => { 
-                  if (value && value.includes('Dia ')) { 
+                  if (!value) return '';
+                  // Se já está no formato MM/YYYY ou DD/MM, retorna direto
+                  if (value.includes('/')) {
+                    return value;
+                  }
+                  // Se tem formato "Dia DD/MM/YYYY", extrai DD/MM
+                  if (value.includes('Dia ')) { 
                     const parts = value.split(' ')[1].split('/');
                     if (parts && parts.length >= 2) {
                       return `${parts[0]}/${parts[1]}`;
                     }
                   }
-                  return value || '';
+                  return value;
                 };
                 const chartContent = (
                   <BarChart data={formattedData1} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                     {...(needsScroll1 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth1), height: 300 } : {})}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? 'end' : 'middle'} height={isMobile ? 80 : 60} interval={isMobile ? 1 : 0} tickFormatter={tickFmt} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} interval={0} tickFormatter={tickFmt} />
                     <YAxis tick={{ fontSize: 12 }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
                     <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1f2937' : '#ffffff', border: '1px solid ' + (isDarkMode ? '#374151' : '#e5e7eb'), borderRadius: '8px' }} />
                     <Legend />
@@ -1244,24 +1258,38 @@ export default function Dashboard() {
                 const needsScroll2 = (isMobile && chartData2.length > 7) || chartData2.length > 8;
                 const scrollWidth2 = chartData2.length * (isMobile ? 60 : 80);
                 const formattedData2 = chartData2.map(item => {
-                  const [year, month, day] = item.date.split('-');
-                  return { name: `Dia ${day}/${month}/${year}`, energiaComprada: item.energiaComprada, energiaVendida: item.energiaVendida };
+                  const parts = item.date.split('-');
+                  if (parts.length === 2) {
+                    // Formato YYYY-MM (filtro Ano)
+                    const [year, month] = parts;
+                    return { name: `${month}/${year}`, energiaComprada: item.energiaComprada, energiaVendida: item.energiaVendida };
+                  } else {
+                    // Formato YYYY-MM-DD (outros filtros)
+                    const [year, month, day] = parts;
+                    return { name: `${day}/${month}`, energiaComprada: item.energiaComprada, energiaVendida: item.energiaVendida };
+                  }
                 });
                 const tickFmt2 = (value: string) => { 
-                  if (value && value.includes('Dia ')) { 
+                  if (!value) return '';
+                  // Se já está no formato MM/YYYY ou DD/MM, retorna direto
+                  if (value.includes('/')) {
+                    return value;
+                  }
+                  // Se tem formato "Dia DD/MM/YYYY", extrai DD/MM
+                  if (value.includes('Dia ')) { 
                     const parts = value.split(' ')[1].split('/');
                     if (parts && parts.length >= 2) {
                       return `${parts[0]}/${parts[1]}`;
                     }
                   }
-                  return value || '';
+                  return value;
                 };
                 const chartContent2 = (
                   <BarChart data={formattedData2} margin={{ top: 20, right: 30, left: 60, bottom: 40 }}
                     {...(needsScroll2 ? { width: Math.max(isMobile ? 400 : 600, scrollWidth2), height: 320 } : {})}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                    <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} angle={isMobile ? -45 : 0} textAnchor={isMobile ? 'end' : 'middle'} height={isMobile ? 80 : 60} interval={isMobile ? 1 : 0} tickFormatter={tickFmt2} />
+                    <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} angle={-45} textAnchor="end" height={80} interval={0} tickFormatter={tickFmt2} />
                     <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
                     <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, borderRadius: '8px', color: isDarkMode ? '#F3F4F6' : '#111827' }} formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />
