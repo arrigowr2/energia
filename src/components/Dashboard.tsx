@@ -360,11 +360,8 @@ export default function Dashboard() {
         
         // Converter para array ordenado por mês
         filtered = Object.values(monthlyData).sort((a, b) => {
-          const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 
-                           'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-          const monthA = a.date.split('/')[0].toLowerCase();
-          const monthB = b.date.split('/')[0].toLowerCase();
-          return monthOrder.indexOf(monthA) - monthOrder.indexOf(monthB);
+          // Ordenar por data YYYY-MM diretamente
+          return a.date.localeCompare(b.date);
         });
         
         console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados para', targetYear);
@@ -1116,8 +1113,16 @@ export default function Dashboard() {
             <div className="mb-4">
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 Último Dado ({filteredData[0]?.date ? (() => {
-                  const [year, month, day] = filteredData[0].date.split('-');
-                  return `${day}/${month}/${year}`;
+                  const parts = filteredData[0].date.split('-');
+                  if (parts.length === 2) {
+                    // Formato YYYY-MM (filtro Ano)
+                    const [year, month] = parts;
+                    return `${month}/${year}`;
+                  } else {
+                    // Formato YYYY-MM-DD (outros filtros)
+                    const [year, month, day] = parts;
+                    return `${day}/${month}/${year}`;
+                  }
                 })() : ''})
               </h2>
               {data.length > 0 && (
