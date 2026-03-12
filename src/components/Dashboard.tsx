@@ -337,7 +337,7 @@ export default function Dashboard() {
           if (year !== targetYear) return false;
           
           // Agrupar por mês
-          const monthKey = formatMonthYear(item.date);
+          const monthKey = item.date.substring(0, 7); // YYYY-MM
           if (!monthlyData[monthKey]) {
             monthlyData[monthKey] = {
               energiaGerada: 0,
@@ -1393,7 +1393,7 @@ export default function Dashboard() {
                   </button>
                 </div>
                 
-                {dateRange === 'selected-month' && (
+                {(dateRange === 'selected-month' || dateRange === 'year') && (
                   <div className="flex gap-2 items-center">
                     <select
                       value={selectedMonth}
@@ -1541,12 +1541,14 @@ export default function Dashboard() {
                     {(() => {
                       if (dateRange === 'selected-month') {
                         // Mostrar dados diários do mês selecionado
-                        const chartData = filteredData.map(item => ({
-                          month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
-                          monthKey: item.date,
-                          geracao: item.energiaGerada,
-                          consumo: item.energiaConsumida
-                        }));
+                        const chartData = filteredData
+                          .sort((a, b) => a.date.localeCompare(b.date)) // Ordenar por data crescente
+                          .map(item => ({
+                            month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+                            monthKey: item.date,
+                            geracao: item.energiaGerada,
+                            consumo: item.energiaConsumida
+                          }));
                         
                         if (chartData.length === 0) {
                           return (
@@ -1598,7 +1600,7 @@ export default function Dashboard() {
                         monthlyData[monthKey].consumo += item.energiaConsumida;
                       });
                       
-                      const chartData = Object.values(monthlyData).slice(-12).map(item => ({
+                      const chartData = Object.values(monthlyData).map(item => ({
                         month: formatMonthYear(item.month),
                         monthKey: item.month, // Adicionar chave única para evitar duplicatas
                         geracao: item.geracao,
@@ -1625,6 +1627,9 @@ export default function Dashboard() {
                             <XAxis 
                               dataKey="month" 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
                               interval={0} // Mostrar todas as legendas sem duplicar
                             />
                             <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
@@ -1869,6 +1874,56 @@ export default function Dashboard() {
                   </div>
                   <div className="h-64">
                     {(() => {
+                      if (dateRange === 'selected-month') {
+                        // Mostrar dados diários do mês selecionado
+                        const chartData = filteredData
+                          .sort((a, b) => a.date.localeCompare(b.date)) // Ordenar por data crescente
+                          .map(item => ({
+                            month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+                            monthKey: item.date,
+                            vendido: item.energiaVendida,
+                            comprado: item.energiaComprada
+                          }));
+                        
+                        if (chartData.length === 0) {
+                          return (
+                            <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <p className="text-center">
+                                📊<br />
+                                Sem dados para o mês selecionado
+                              </p>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                              <XAxis 
+                                dataKey="month" 
+                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={60}
+                              />
+                              <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <Legend />
+                              <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
+                              <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      }
+                      
+                      // Para outros filtros, mostrar dados mensais agregados
                       const monthlyData: { [key: string]: any } = {};
                       filteredData.forEach(item => {
                         const monthKey = item.date.substring(0, 7);
@@ -1879,7 +1934,7 @@ export default function Dashboard() {
                         monthlyData[monthKey].comprado += item.energiaComprada;
                       });
                       
-                      const chartData = Object.values(monthlyData).slice(-12).map(item => ({
+                      const chartData = Object.values(monthlyData).map(item => ({
                         month: formatMonthYear(item.month),
                         monthKey: item.month, // Adicionar chave única
                         vendido: item.vendido,
@@ -2049,7 +2104,7 @@ export default function Dashboard() {
                         <ResponsiveContainer width="100%" height={256}>
                           <BarChart data={weekData}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                            <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} angle={-45} textAnchor="end" height={60} />
                             <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
                             <Tooltip 
                               contentStyle={{ 
@@ -2172,8 +2227,8 @@ export default function Dashboard() {
                         );
                       }
                       
-                      // Calcular média móvel e projeção simples
-                      const recent = filteredData.slice(-7);
+                      // Calcular média móvel e projeção simples - sempre usar dados mais recentes
+                      const recent = data.slice(-7); // Usar data original, não filteredData
                       const avgGen = recent.reduce((sum, d) => sum + d.energiaGerada, 0) / recent.length;
                       const avgCons = recent.reduce((sum, d) => sum + d.energiaConsumida, 0) / recent.length;
                       
