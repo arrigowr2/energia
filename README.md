@@ -91,10 +91,33 @@ Sistema inteligente para monitoramento automático de dados energéticos atravé
    - Balanço energético
    - Tabela detalhada
 
-3. **Recursos**
+3. **Análise Avançada**
+   - Aba dedicada com insights inteligentes
+   - Análise de tendências mensais
+   - Comparação de eficiência energética
+   - Projeções e padrões de consumo
+   - Filtros por período específico
+
+4. **Recursos**
    - Filtros por período (7 dias, 30 dias, todo)
    - Atualização manual dos dados
    - Reconfiguração de e-mail
+   - Modo escuro/claro
+   - Interface responsiva
+
+## 🆕 Atualizações Recentes
+
+### Melhorias na Análise de Dados
+- **Legendas Otimizadas**: Formato `mes/ano` para melhor legibilidade
+- **Filtros Inteligentes**: Dropdown mostra apenas meses com dados disponíveis
+- **Interface Limpa**: Remoção de mensagens desnecessárias
+- **Botão Voltar**: Navegação facilitada quando não há dados
+- **Gráficos Corrigidos**: Renderização correta mesmo com poucos dados
+
+### Correções de Bugs
+- **Tamanho dos Gráficos**: Corrigido erro de renderização
+- **Filtros**: Funcionamento correto em todos os períodos
+- **Formato de Datas**: Consistência em toda a aplicação
 
 ## 🔧 Configuração do Parser
 
