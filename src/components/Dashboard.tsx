@@ -327,23 +327,26 @@ export default function Dashboard() {
         }
         break;
       case 'year':
-        // Agrupar dados por mês para o gráfico anual
-        const monthlyData: { [key: string]: any } = {};
-        const targetYear = parseInt(selectedYear) || now.getFullYear(); // Usar ano selecionado ou atual
+        // Adicionar logs detalhados para debug
+        console.log(`🔍 [FILTRO ANO] Iniciando filtro para ano: ${selectedYear}`);
+        console.log(`🔍 [FILTRO ANO] Total de itens antes do filtro: ${data.length}`);
         
-        filtered = data.filter(item => {
-          const itemDate = new Date(item.date + 'T00:00:00Z');
-          const year = itemDate.getFullYear();
+        const yearFiltered = data.filter(item => {
+          // Extrair ano diretamente da string para evitar problemas de fuso horário
+          const itemYear = item.date.substring(0, 4); // Pega os 4 primeiros caracteres: '2023' de '2023-01-01'
+          const isTargetYear = itemYear === selectedYear;
           
-          // Debug detalhado
-          console.log(`🔍 [FILTRO ANO] item.date: ${item.date} -> itemDate: ${itemDate} -> year: ${year} (targetYear: ${targetYear})`);
-          
-          if (year !== targetYear) {
-            console.log(`❌ [FILTRO ANO] Rejeitado: year ${year} !== targetYear ${targetYear}`);
-            return false;
+          console.log(`🔍 [FILTRO ANO] item.date: ${item.date} -> itemYear: ${itemYear} (targetYear: ${selectedYear})`);
+          if (!isTargetYear) {
+            console.log(`❌ [FILTRO ANO] Rejeitado: itemYear ${itemYear} !== targetYear ${selectedYear}`);
           }
           
-          // Agrupar por mês
+          return isTargetYear;
+        });
+        
+        // Agrupar por mês
+        const monthlyData: { [key: string]: any } = {};
+        yearFiltered.forEach(item => {
           const monthKey = item.date.substring(0, 7); // YYYY-MM
           if (!monthlyData[monthKey]) {
             monthlyData[monthKey] = {
@@ -371,7 +374,7 @@ export default function Dashboard() {
           return a.date.localeCompare(b.date);
         });
         
-        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados para', targetYear);
+        console.log('📅 Filtro "Ano" aplicado:', filtered.length, 'meses agrupados para', selectedYear);
         console.log('📅 Meses encontrados:', Object.keys(monthlyData));
         console.log('📅 Valores dos meses:', Object.values(monthlyData).map(m => ({ date: m.date, count: m.count })));
         break;
