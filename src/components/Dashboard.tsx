@@ -593,10 +593,16 @@ export default function Dashboard() {
     const years = [2023, 2024, 2025, 2026];
     const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     
+    // Mapeamento de meses para números (correção do Date.parse)
+    const monthMap: { [key: string]: number } = {
+      'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5,
+      'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11
+    };
+    
     // Garantir que 2026 tenha dados completos para testes
     for (const year of years) {
       for (const month of months) {
-        const monthNum = new Date(Date.parse(`${month} 1, ${year}`)).getMonth() + 1;
+        const monthNum = monthMap[month] + 1; // Usar mapeamento direto
         
         // Validar monthNum para evitar NaN
         if (isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
