@@ -2287,13 +2287,21 @@ export default function Dashboard() {
                       const projection = [];
                       const today = new Date();
                       
+                      // Usar semente fixa para variação (baseada na data atual)
+                      const seed = today.getDate() + today.getMonth() + today.getFullYear();
+                      const random = (index: number) => {
+                        // Função pseudo-aleatória determinística
+                        const x = Math.sin(seed + index) * 10000;
+                        return x - Math.floor(x);
+                      };
+                      
                       for (let i = 1; i <= 7; i++) {
                         const futureDate = new Date(today);
                         futureDate.setDate(today.getDate() + i);
                         
-                        // Adicionar alguma variação aleatória (+/- 20%)
-                        const genVariation = 0.8 + Math.random() * 0.4; // 0.8 a 1.2
-                        const consVariation = 0.8 + Math.random() * 0.4;
+                        // Adicionar variação determinística (+/- 20%)
+                        const genVariation = 0.8 + random(i * 2) * 0.4; // 0.8 a 1.2
+                        const consVariation = 0.8 + random(i * 2 + 1) * 0.4; // 0.8 a 1.2
                         
                         projection.push({
                           day: `${futureDate.getDate()}/${futureDate.toLocaleDateString('pt-BR', { weekday: 'short' })}`,
