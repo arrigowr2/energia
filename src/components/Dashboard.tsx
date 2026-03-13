@@ -1687,7 +1687,7 @@ export default function Dashboard() {
                         
                         return (
                           <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`evolution-chart-${isDarkMode ? 'dark' : 'light'}`}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
                                 dataKey="month" 
@@ -1746,7 +1746,7 @@ export default function Dashboard() {
                       
                       return (
                         <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
-                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`trends-chart-${isDarkMode ? 'dark' : 'light'}`}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
                               dataKey="month" 
@@ -2401,7 +2401,7 @@ export default function Dashboard() {
                       
                       return (
                         <ResponsiveContainer width="100%" height={256}>
-                          <LineChart data={projection}>
+                          <LineChart data={projection} key={`forecast-chart-${isDarkMode ? 'dark' : 'light'}`}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
                               dataKey="day" 
