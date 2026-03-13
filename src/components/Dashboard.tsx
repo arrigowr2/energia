@@ -1567,20 +1567,26 @@ export default function Dashboard() {
 
               <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-2xl">⚡</span>
-                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Eficiência</span>
+                  <span className="text-2xl">🏆</span>
+                  <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Melhor Dia</span>
                 </div>
                 <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   {(() => {
                     if (filteredData.length === 0) return '--';
-                    const totalGenerated = filteredData.reduce((sum, d) => sum + d.energiaGerada, 0);
-                    const totalConsumed = filteredData.reduce((sum, d) => sum + d.energiaConsumida, 0);
-                    const efficiency = totalGenerated > 0 ? (totalGenerated / (totalGenerated + totalConsumed) * 100) : 0;
-                    return `${efficiency.toFixed(1)}%`;
+                    const bestDay = filteredData.reduce((best, current) => 
+                      current.energiaGerada > best.energiaGerada ? current : best
+                    );
+                    return `${bestDay.energiaGerada.toFixed(1)} kWh`;
                   })()}
                 </div>
                 <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  taxa de aproveitamento
+                  {(() => {
+                    if (filteredData.length === 0) return '--';
+                    const bestDay = filteredData.reduce((best, current) => 
+                      current.energiaGerada > best.energiaGerada ? current : best
+                    );
+                    return `em ${new Date(bestDay.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`;
+                  })()}
                 </div>
               </div>
 
