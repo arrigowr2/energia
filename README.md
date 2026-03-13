@@ -8,6 +8,7 @@ Sistema inteligente para monitoramento automático de dados energéticos atravé
 - **Processamento Automático**: Extração automática de dados de e-mails diários
 - **Dashboard Interativo**: Visualização completa com gráficos e estatísticas
 - **Armazenamento Local**: Dados salvos localmente no navegador
+- **Deploy Automático**: Sistema atualizado e funcionando em produção
 - **Análise de Tendências**: Monitoramento de evolução temporal dos dados
 - **Paginação Inteligente**: Carregamento eficiente de grandes volumes de e-mails
 
