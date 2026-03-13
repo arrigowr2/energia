@@ -30,7 +30,8 @@ import {
   Line,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  ReferenceLine
 } from 'recharts';
 import OAuthLogin from './OAuthLogin';
 
@@ -2051,7 +2052,7 @@ export default function Dashboard() {
                               stroke="#10B981" 
                               strokeDasharray="5 5" 
                               strokeWidth={1}
-                              label={{ value: "100% Autossuficiente", position: "topRight", fill: '#10B981' }}
+                              label={{ value: "100% Autossuficiente", position: "top", fill: '#10B981' }}
                             />
                           </LineChart>
                         </ResponsiveContainer>
