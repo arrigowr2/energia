@@ -2035,18 +2035,6 @@ export default function Dashboard() {
                       
                       const chartData = calculateEfficiency(filteredData);
                       
-                      // Debug detalhado para identificar problemas na linha
-                      console.log('🔍 [EFICIÊNCIA] Dados do gráfico:', chartData.length, 'pontos');
-                      console.log('🔍 [EFICIÊNCIA] Amostra completa:', chartData.slice(0, 10).map((d, i) => ({
-                        index: i,
-                        period: d.period,
-                        eficiencia: d.eficiencia,
-                        isNull: d.eficiencia === null,
-                        isUndefined: d.eficiencia === undefined,
-                        isNaN: isNaN(d.eficiencia),
-                        isFinite: isFinite(d.eficiencia)
-                      })));
-                      
                       if (chartData.length === 0) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -2092,8 +2080,7 @@ export default function Dashboard() {
                               strokeWidth={2}
                               name="Eficiência Energética"
                               dot={{ fill: '#10B981', r: 3 }}
-                              connectNulls={false}
-                              strokeDasharray={undefined}
+                              connectNulls={true}
                             />
                             {/* Linha de referência em 100% */}
                             <ReferenceLine 
