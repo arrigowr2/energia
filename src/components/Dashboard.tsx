@@ -1942,18 +1942,18 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Seção 3: Economia */}
+            {/* Seção 3: Eficiência Energética */}
             <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                💰 Análise Econômica
+                ⚡ Eficiência Energética
               </h3>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Gráfico Econômico */}
+                {/* Gráfico de Eficiência */}
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h4 className={`text-lg font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                      Fluxo de Energia
+                      Autossuficiência Energética
                     </h4>
                     <div className="relative group">
                       <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
@@ -1961,95 +1961,50 @@ export default function Dashboard() {
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
                         <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          <strong>💰 O que mostra:</strong><br/>
-                          • Barras <span className="text-amber-500">laranjas</span>: Energia vendida para a rede<br/>
-                          • Barras <span className="text-red-500">vermelhas</span>: Energia comprada da rede<br/>
-                          • Eixo X: Meses do período<br/>
-                          • Eixo Y: Total em kWh<br/><br/>
+                          <strong>⚡ O que mostra:</strong><br/>
+                          • <span className="text-green-500">Verde</span>: Dias 100% autossuficientes<br/>
+                          • <span className="text-blue-500">Azul</span>: Dias parcialmente autossuficientes<br/>
+                          • <span className="text-red-500">Vermelho</span>: Dias que precisou comprar energia<br/>
+                          • Eixo X: Período analisado<br/>
+                          • Eixo Y: Percentual de autossuficiência<br/><br/>
                           <strong>💡 Como interpretar:</strong><br/>
-                          • Mais laranja que vermelho = Lucro líquido<br/>
-                          • Mais vermelho que laranja = Déficit energético<br/>
-                          • Altura das barras = Volume de transação
+                          • <strong>100%</strong>: Gerou tudo o que consumiu<br/>
+                          • <strong>50%</strong>: Metade veio dos painéis<br/>
+                          • <strong>0%</strong>: Tudo veio da rede elétrica<br/>
+                          • <strong>&gt;100%</strong>: Gerou mais do que consumiu
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="h-64">
                     {(() => {
-                      if (dateRange === 'selected-month') {
-                        // Mostrar dados diários do mês selecionado
-                        const chartData = filteredData
-                          .sort((a, b) => a.date.localeCompare(b.date)) // Ordenar por data crescente
-                          .map(item => ({
-                            month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
-                            monthKey: item.date,
-                            vendido: item.energiaVendida,
-                            comprado: item.energiaComprada
-                          }));
-                        
-                        if (chartData.length === 0) {
-                          return (
-                            <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                              <p className="text-center">
-                                📊<br />
-                                Sem dados para o mês selecionado
-                              </p>
-                            </div>
-                          );
-                        }
-                        
-                        return (
-                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
-                            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                              <XAxis 
-                                dataKey="month" 
-                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                                angle={-45}
-                                textAnchor="end"
-                                height={60}
-                              />
-                              <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                              <Tooltip 
-                                contentStyle={{ 
-                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                  borderRadius: '8px'
-                                }}
-                              />
-                              <Legend />
-                              <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
-                              <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        );
-                      }
+                      // Calcular eficiência para cada período
+                      const calculateEfficiency = (data: any[]) => {
+                        return data.map(item => {
+                          const gerada = item.energiaGerada || 0;
+                          const consumida = item.energiaConsumida || 0;
+                          const efficiency = consumida > 0 ? Math.min((gerada / consumida) * 100, 200) : 0; // Limitar a 200% para visualização
+                          
+                          return {
+                            period: dateRange === 'selected-month' 
+                              ? new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+                              : formatMonthYear(item.date.substring(0, 7)),
+                            periodKey: item.date,
+                            eficiencia: Number(efficiency.toFixed(1)),
+                            gerada,
+                            consumida
+                          };
+                        });
+                      };
                       
-                      // Para outros filtros, mostrar dados mensais agregados
-                      const monthlyData: { [key: string]: any } = {};
-                      filteredData.forEach(item => {
-                        const monthKey = item.date.substring(0, 7);
-                        if (!monthlyData[monthKey]) {
-                          monthlyData[monthKey] = { month: monthKey, vendido: 0, comprado: 0 };
-                        }
-                        monthlyData[monthKey].vendido += item.energiaVendida;
-                        monthlyData[monthKey].comprado += item.energiaComprada;
-                      });
+                      const chartData = calculateEfficiency(filteredData);
                       
-                      const chartData = Object.values(monthlyData).map(item => ({
-                        month: formatMonthYear(item.month),
-                        monthKey: item.month, // Adicionar chave única
-                        vendido: item.vendido,
-                        comprado: item.comprado
-                      }));
-                      
-                      // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
-                      if (Object.keys(monthlyData).length === 0) {
+                      if (chartData.length === 0) {
                         return (
                           <div className={`h-full flex items-center justify-center ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p className="text-center">
-                              📊<br />
-                              Sem dados suficientes para o gráfico
+                              ⚡<br />
+                              Sem dados para calcular eficiência
                             </p>
                           </div>
                         );
@@ -2057,82 +2012,126 @@ export default function Dashboard() {
                       
                       return (
                         <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
-                          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
-                              dataKey="month" 
+                              dataKey="period" 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              interval={0} // Evitar duplicatas
+                              angle={dateRange === 'selected-month' ? -45 : 0}
+                              textAnchor={dateRange === 'selected-month' ? 'end' : 'middle'}
+                              height={dateRange === 'selected-month' ? 60 : 40}
                             />
-                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                            <YAxis 
+                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              domain={[0, 200]}
+                              ticks={[0, 25, 50, 75, 100, 125, 150, 175, 200]}
+                              tickFormatter={(value) => `${value}%`}
+                            />
                             <Tooltip 
                               contentStyle={{ 
                                 backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                 border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
                                 borderRadius: '8px'
                               }}
+                              formatter={(value: any) => [`${value}%`, 'Eficiência']}
+                              labelFormatter={(label) => `Período: ${label}`}
                             />
                             <Legend />
-                            <Bar dataKey="vendido" fill="#F59E0B" name="Vendido" />
-                            <Bar dataKey="comprado" fill="#EF4444" name="Comprado" />
-                          </BarChart>
+                            <Line 
+                              type="monotone" 
+                              dataKey="eficiencia" 
+                              stroke="#10B981" 
+                              strokeWidth={2}
+                              name="Eficiência Energética"
+                              dot={{ fill: '#10B981', r: 3 }}
+                            />
+                            {/* Linha de referência em 100% */}
+                            <ReferenceLine 
+                              y={100} 
+                              stroke="#10B981" 
+                              strokeDasharray="5 5" 
+                              strokeWidth={1}
+                              label={{ value: "100% Autossuficiente", position: "topRight", fill: '#10B981' }}
+                            />
+                          </LineChart>
                         </ResponsiveContainer>
                       );
                     })()}
                   </div>
                 </div>
 
-                {/* Análise Financeira */}
+                {/* Análise de Eficiência */}
                 <div>
                   <h4 className={`text-lg font-medium mb-4 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                    Resumo Financeiro
+                    Resumo de Eficiência
                   </h4>
                   <div className="space-y-3">
                     {(() => {
-                      const totalSold = filteredData.reduce((sum, d) => sum + d.energiaVendida, 0);
-                      const totalBought = filteredData.reduce((sum, d) => sum + d.energiaComprada, 0);
-                      const netBalance = totalSold - totalBought;
+                      const totalGerado = filteredData.reduce((sum, d) => sum + (d.energiaGerada || 0), 0);
+                      const totalConsumido = filteredData.reduce((sum, d) => sum + (d.energiaConsumida || 0), 0);
+                      const eficienciaMedia = totalConsumido > 0 ? Math.min((totalGerado / totalConsumido) * 100, 200) : 0;
                       
-                      // Preços estimados (poderiam vir de configuração)
-                      const sellPrice = 0.50; // R$ 0.50/kWh vendido
-                      const buyPrice = 0.80;  // R$ 0.80/kWh comprado
+                      // Classificar períodos por eficiência
+                      const periodosEficientes = filteredData.filter(d => {
+                        const gerada = d.energiaGerada || 0;
+                        const consumida = d.energiaConsumida || 0;
+                        return consumida > 0 && (gerada / consumida) >= 1;
+                      }).length;
                       
-                      const revenue = totalSold * sellPrice;
-                      const cost = totalBought * buyPrice;
-                      const netProfit = revenue - cost;
+                      const periodosParciais = filteredData.filter(d => {
+                        const gerada = d.energiaGerada || 0;
+                        const consumida = d.energiaConsumida || 0;
+                        return consumida > 0 && (gerada / consumida) >= 0.5 && (gerada / consumida) < 1;
+                      }).length;
+                      
+                      const periodosBaixos = filteredData.filter(d => {
+                        const gerada = d.energiaGerada || 0;
+                        const consumida = d.energiaConsumida || 0;
+                        return consumida > 0 && (gerada / consumida) < 0.5;
+                      }).length;
+                      
+                      const totalPeriodos = filteredData.length;
 
                       return (
                         <>
                           <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                             <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              💵 Receita (Vendas)
+                              ⚡ Eficiência Média
                             </p>
                             <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              R$ {revenue.toFixed(2)} ({totalSold.toFixed(1)} kWh × R$ {sellPrice})
+                              {eficienciaMedia.toFixed(1)}% de autossuficiência
                             </p>
                           </div>
                           <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                             <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              💸 Custo (Compras)
+                              📊 Períodos 100% Autossuficientes
                             </p>
                             <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              R$ {cost.toFixed(2)} ({totalBought.toFixed(1)} kWh × R$ {buyPrice})
-                            </p>
-                          </div>
-                          <div className={`p-3 rounded-lg ${netProfit >= 0 ? 'bg-green-900/20 border border-green-700' : 'bg-red-900/20 border border-red-700'}`}>
-                            <p className={`text-sm font-medium ${netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                              {netProfit >= 0 ? '📈 Lucro Líquido' : '📉 Prejuízo Líquido'}
-                            </p>
-                            <p className={`text-sm mt-1 ${netProfit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                              R$ {Math.abs(netProfit).toFixed(2)}
+                              {periodosEficientes} de {totalPeriodos} dias ({totalPeriodos > 0 ? ((periodosEficientes / totalPeriodos) * 100).toFixed(1) : 0}%)
                             </p>
                           </div>
                           <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                             <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                              ⚖️ Balanço Energético
+                              🔄 Períodos Parciais (50-99%)
                             </p>
                             <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              {netBalance >= 0 ? `Excedente de ${netBalance.toFixed(1)} kWh` : `Déficit de ${Math.abs(netBalance).toFixed(1)} kWh`}
+                              {periodosParciais} de {totalPeriodos} dias ({totalPeriodos > 0 ? ((periodosParciais / totalPeriodos) * 100).toFixed(1) : 0}%)
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                            <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              🔌 Períodos Baixa Eficiência (&lt;50%)
+                            </p>
+                            <p className={`text-sm mt-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {periodosBaixos} de {totalPeriodos} dias ({totalPeriodos > 0 ? ((periodosBaixos / totalPeriodos) * 100).toFixed(1) : 0}%)
+                            </p>
+                          </div>
+                          <div className={`p-3 rounded-lg ${eficienciaMedia >= 75 ? 'bg-green-900/20 border border-green-700' : eficienciaMedia >= 50 ? 'bg-yellow-900/20 border border-yellow-700' : 'bg-red-900/20 border border-red-700'}`}>
+                            <p className={`text-sm font-medium ${eficienciaMedia >= 75 ? 'text-green-400' : eficienciaMedia >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
+                              {eficienciaMedia >= 75 ? '🌟 Excelente!' : eficienciaMedia >= 50 ? '👍 Bom' : '⚠️ Precisa Melhorar'}
+                            </p>
+                            <p className={`text-sm mt-1 ${eficienciaMedia >= 75 ? 'text-green-300' : eficienciaMedia >= 50 ? 'text-yellow-300' : 'text-red-300'}`}>
+                              Seu sistema tem {eficienciaMedia.toFixed(1)}% de eficiência média
                             </p>
                           </div>
                         </>
