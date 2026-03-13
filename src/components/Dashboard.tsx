@@ -2419,6 +2419,9 @@ export default function Dashboard() {
                             <XAxis 
                               dataKey="day" 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
                               interval={0} // Evitar duplicatas
                             />
                             <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
