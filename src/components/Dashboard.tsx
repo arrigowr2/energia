@@ -2021,9 +2021,9 @@ export default function Dashboard() {
                           }
                           
                           return {
-                            period: dateRange === 'selected-month' 
+                            period: dateRange === 'selected-month' || dateRange === 'month' || dateRange === 'week' || dateRange === 'latest'
                               ? `${item.date.substring(8, 10)}/${item.date.substring(5, 7).replace('01', 'jan').replace('02', 'fev').replace('03', 'mar').replace('04', 'abr').replace('05', 'mai').replace('06', 'jun').replace('07', 'jul').replace('08', 'ago').replace('09', 'set').replace('10', 'out').replace('11', 'nov').replace('12', 'dez')}`
-                              : formatMonthYear(item.date.substring(0, 7)), // Já está sem timezone
+                              : formatMonthYear(item.date.substring(0, 7)), // Apenas para filtro 'year'
                             periodKey: item.date,
                             eficiencia: efficiency,
                             gerada,
