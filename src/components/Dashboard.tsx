@@ -87,7 +87,7 @@ export default function Dashboard() {
   
   // Labels para os filtros de data
   const dateRangeLabels: { [key: string]: string } = {
-    'latest': 'Último Dado',
+    'latest': 'Último Registro',
     'week': 'Últimos 7 Dias',
     'month': 'Últimos 30 Dias',
     'year': 'Ano Inteiro',
@@ -1159,7 +1159,7 @@ export default function Dashboard() {
           <>
             <div className="mb-4">
               <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Último Dado ({filteredData[0]?.date ? (() => {
+                Último Registro ({filteredData[0]?.date ? (() => {
                   const parts = filteredData[0].date.split('-');
                   if (parts.length === 2) {
                     // Formato YYYY-MM (filtro Ano)
@@ -1238,7 +1238,7 @@ export default function Dashboard() {
               {/* Scroll horizontal para mobile quando tiver muitas barras */}
               {(() => {
                 const chartData1 = optimizeChartData(filteredData);
-                const needsScroll1 = (isMobile && chartData1.length > 7) || chartData1.length > 8;
+                const needsScroll1 = (isMobile && chartData1.length > 12) || chartData1.length > 15;
                 const scrollWidth1 = chartData1.length * (isMobile ? 60 : 80);
                 const formattedData1 = chartData1.map(item => {
                   const parts = item.date.split('-');
@@ -1302,12 +1302,13 @@ export default function Dashboard() {
                 {dateRange === 'year' && 'Comparativo Anual (12 meses)'}
                 {dateRange === 'latest' && 'Energia Comprada vs Vendida'}
                 {dateRange === 'custom' && 'Energia Comprada vs Vendida'}
+                {dateRange === 'selected-month' && selectedMonth && `Comparativo Mensal (${new Date(selectedMonth + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })})`}
               </h3>
               
               {/* Scroll horizontal para mobile quando tiver muitas barras */}
               {(() => {
                 const chartData2 = optimizeChartData(filteredData);
-                const needsScroll2 = (isMobile && chartData2.length > 7) || chartData2.length > 8;
+                const needsScroll2 = (isMobile && chartData2.length > 12) || chartData2.length > 15;
                 const scrollWidth2 = chartData2.length * (isMobile ? 60 : 80);
                 const formattedData2 = chartData2.map(item => {
                   const parts = item.date.split('-');
@@ -1343,7 +1344,14 @@ export default function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                     <XAxis dataKey="name" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} angle={-45} textAnchor="end" height={80} interval={0} tickFormatter={tickFmt2} />
                     <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280', fontSize: 12 }} axisLine={{ stroke: isDarkMode ? '#4B5563' : '#E5E7EB' }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
-                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, borderRadius: '8px', color: isDarkMode ? '#F3F4F6' : '#111827' }} formatter={(value: any) => [`${value.toFixed(1)} kWh`, '']} />
+                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, borderRadius: '8px', color: isDarkMode ? '#F3F4F6' : '#111827' }} formatter={(value: any, name: any) => {
+  if (name === 'Comprada') {
+    return [`Comprada: ${value.toFixed(1)} kWh`, ''];
+  } else if (name === 'Vendida') {
+    return [`Vendida: ${value.toFixed(1)} kWh`, ''];
+  }
+  return [`${value.toFixed(1)} kWh`, name];
+}} />
                     <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="rect" />
                     <Bar dataKey="energiaComprada" fill="#EF4444" name="Comprada" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     <Bar dataKey="energiaVendida" fill="#EAB308" name="Vendida" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -1480,7 +1488,7 @@ export default function Dashboard() {
                         : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Último Dado
+                    Último Registro
                   </button>
                   <button
                     onClick={() => setDateRange('week')}
@@ -2096,7 +2104,7 @@ export default function Dashboard() {
                                   borderRadius: '8px'
                                 }}
                                 formatter={(value: any) => [`${value}%`, 'Eficiência']}
-                                labelFormatter={(label) => `Período: ${label}`}
+                                labelFormatter={(label) => `<span style="color: ${isDarkMode ? '#ffffff' : '#000000'}">Período: ${label}</span>`}
                               />
                               <Legend />
                               <Line 
@@ -2598,7 +2606,7 @@ export default function Dashboard() {
                       : 'bg-blue-500 text-white hover:bg-blue-600'
                   }`}
                 >
-                  Voltar para Último Dado
+                  Voltar para Último Registro
                 </button>
               </div>
             )}
