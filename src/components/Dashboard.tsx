@@ -320,22 +320,11 @@ export default function Dashboard() {
       case 'selected-month':
         // Filtrar por mês selecionado no dropdown (formato: YYYY-MM)
         if (selectedMonth) {
-          console.log(`🔍 [SELECTED-MONTH] Filtrando para: ${selectedMonth}`);
-          console.log(`🔍 [SELECTED-MONTH] Amostra dos dados antes do filtro:`, data.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
-          
           filtered = data.filter(item => {
             // Usar comparação de strings para evitar timezone
             const itemMonth = item.date.substring(0, 7); // YYYY-MM
-            const matches = itemMonth === selectedMonth;
-            
-            if (!matches) {
-              console.log(`❌ [SELECTED-MONTH] Item rejeitado: ${item.date} (mês: ${itemMonth}) != ${selectedMonth}`);
-            }
-            
-            return matches;
+            return itemMonth === selectedMonth;
           });
-          
-          console.log(`🔍 [SELECTED-MONTH] Amostra dos dados depois do filtro:`, filtered.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
           console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', selectedMonth);
         }
         break;
@@ -2046,25 +2035,8 @@ export default function Dashboard() {
                       
                       const chartData = calculateEfficiency(filteredData);
                       
-                      // Debug para identificar problemas
+                      // Debug para identificar problemas (apenas quantidade)
                       console.log('🔍 [EFICIÊNCIA] Dados do gráfico:', chartData.length, 'pontos');
-                      console.log('🔍 [EFICIÊNCIA] Amostra:', chartData.slice(0, 5).map(d => ({
-                        period: d.period,
-                        eficiencia: d.eficiencia,
-                        gerada: d.gerada,
-                        consumida: d.consumida
-                      })));
-                      
-                      // Verificar se há valores nulos ou inválidos
-                      const invalidPoints = chartData.filter(d => 
-                        d.eficiencia === null || 
-                        d.eficiencia === undefined || 
-                        isNaN(d.eficiencia) ||
-                        !isFinite(d.eficiencia)
-                      );
-                      if (invalidPoints.length > 0) {
-                        console.log('❌ [EFICIÊNCIA] Pontos inválidos encontrados:', invalidPoints);
-                      }
                       
                       if (chartData.length === 0) {
                         return (
@@ -2084,7 +2056,7 @@ export default function Dashboard() {
                             <XAxis 
                               dataKey="period" 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              angle={45}
+                              angle={-45}
                               textAnchor="end"
                               height={60}
                             />
