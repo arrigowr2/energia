@@ -555,7 +555,7 @@ export default function Dashboard() {
     console.log('📅 Exemplo de dados:', data.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
   };
 
-  // Função helper para formatar datas no formato mes/ano
+  // Função helper para formatar datas no formato mes/ano (SEM FUSO HORÁRIO)
   const formatMonthYear = (dateString: string): string => {
     // Se já está no formato mes/ano, retorna direto
     if (dateString.includes('/')) {
@@ -563,18 +563,32 @@ export default function Dashboard() {
     }
     
     try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return dateString; // Retorna original se for inválida
+      // Extrair mês e ano diretamente da string para evitar problemas de fuso horário
+      // Formato esperado: YYYY-MM
+      if (dateString.length >= 7 && dateString.includes('-')) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(5, 7);
+        const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        const monthName = monthNames[parseInt(month) - 1] || '???';
+        const yearShort = year.slice(-2); // Últimos 2 dígitos
+        return `${monthName}/${yearShort}`;
       }
-      const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-      const month = monthNames[date.getMonth()];
-      const year = date.getFullYear().toString().slice(-2); // Últimos 2 dígitos
-      return `${month}/${year}`;
+      
+      // Fallback para formato completo (YYYY-MM-DD)
+      if (dateString.length >= 10 && dateString.includes('-')) {
+        const year = dateString.substring(0, 4);
+        const month = dateString.substring(5, 7);
+        const monthNames = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        const monthName = monthNames[parseInt(month) - 1] || '???';
+        const yearShort = year.slice(-2); // Últimos 2 dígitos
+        return `${monthName}/${yearShort}`;
+      }
+      
+      return dateString; // Retorna original se não conseguir processar
     } catch (error) {
       return dateString; // Retorna original se houver erro
     }
-  }; // Função otimizada para evitar undefined nas legendas
+  }; // Função otimizada para evitar undefined nas legendas e problemas de fuso horário
 
   // Função para carregar dados de teste
   const loadTestData = async () => {
@@ -1665,7 +1679,7 @@ export default function Dashboard() {
                         }
                         
                         return (
-                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
                             <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
@@ -1724,7 +1738,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
                           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
@@ -2012,7 +2026,7 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
                           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                             <XAxis 
