@@ -320,10 +320,22 @@ export default function Dashboard() {
       case 'selected-month':
         // Filtrar por mês selecionado no dropdown (formato: YYYY-MM)
         if (selectedMonth) {
+          console.log(`🔍 [SELECTED-MONTH] Filtrando para: ${selectedMonth}`);
+          console.log(`🔍 [SELECTED-MONTH] Amostra dos dados antes do filtro:`, data.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
+          
           filtered = data.filter(item => {
             // Usar comparação de strings para evitar timezone
-            return item.date.startsWith(selectedMonth);
+            const itemMonth = item.date.substring(0, 7); // YYYY-MM
+            const matches = itemMonth === selectedMonth;
+            
+            if (!matches) {
+              console.log(`❌ [SELECTED-MONTH] Item rejeitado: ${item.date} (mês: ${itemMonth}) != ${selectedMonth}`);
+            }
+            
+            return matches;
           });
+          
+          console.log(`🔍 [SELECTED-MONTH] Amostra dos dados depois do filtro:`, filtered.slice(0, 3).map(d => ({ date: d.date, geracao: d.energiaGerada })));
           console.log('📅 Filtro "Mês Selecionado" aplicado:', filtered.length, 'itens para', selectedMonth);
         }
         break;
