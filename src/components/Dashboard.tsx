@@ -67,10 +67,23 @@ export default function Dashboard() {
   // Estado para forçar re-renderização dos gráficos quando o tema mudar
   const [chartRenderKey, setChartRenderKey] = useState(0);
   
+  // Estado para forçar renderização inicial após carregamento dos dados
+  const [initialRenderKey, setInitialRenderKey] = useState(0);
+  
   // Forçar re-renderização dos gráficos quando o tema mudar
   useEffect(() => {
     setChartRenderKey(prev => prev + 1);
   }, [isDarkMode]);
+  
+  // Forçar renderização inicial quando os dados mudarem
+  useEffect(() => {
+    if (filteredData.length > 0) {
+      const timer = setTimeout(() => {
+        setInitialRenderKey(prev => prev + 1);
+      }, 100); // Pequeno delay para garantir que os dados estejam prontos
+      return () => clearTimeout(timer);
+    }
+  }, [filteredData.length, dateRange, selectedMonth]);
   
   // Labels para os filtros de data
   const dateRangeLabels: { [key: string]: string } = {
@@ -2060,8 +2073,8 @@ export default function Dashboard() {
                       
                       return (
                         <div style={{ width: '100%', height: '256px' }}>
-                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}`}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}`}>
+                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}`}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
                                 dataKey="period" 
