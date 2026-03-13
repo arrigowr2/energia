@@ -2022,8 +2022,8 @@ export default function Dashboard() {
                           
                           return {
                             period: dateRange === 'selected-month' 
-                              ? new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-                              : formatMonthYear(item.date.substring(0, 7)),
+                              ? `${item.date.substring(8, 10)}/${item.date.substring(5, 7).replace('01', 'jan').replace('02', 'fev').replace('03', 'mar').replace('04', 'abr').replace('05', 'mai').replace('06', 'jun').replace('07', 'jul').replace('08', 'ago').replace('09', 'set').replace('10', 'out').replace('11', 'nov').replace('12', 'dez')}`
+                              : formatMonthYear(item.date.substring(0, 7)), // Já está sem timezone
                             periodKey: item.date,
                             eficiencia: efficiency,
                             gerada,
@@ -2072,9 +2072,9 @@ export default function Dashboard() {
                             <XAxis 
                               dataKey="period" 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              angle={dateRange === 'selected-month' ? -45 : 0}
-                              textAnchor={dateRange === 'selected-month' ? 'end' : 'middle'}
-                              height={dateRange === 'selected-month' ? 60 : 40}
+                              angle={45}
+                              textAnchor="end"
+                              height={60}
                             />
                             <YAxis 
                               tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
