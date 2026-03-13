@@ -1686,29 +1686,31 @@ export default function Dashboard() {
                         }
                         
                         return (
-                          <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`evolution-chart-${isDarkMode ? 'dark' : 'light'}`}>
-                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                              <XAxis 
-                                dataKey="month" 
-                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                                angle={-45}
-                                textAnchor="end"
-                                height={60}
-                              />
-                              <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                              <Tooltip 
-                                contentStyle={{ 
-                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                  borderRadius: '8px'
-                                }}
-                              />
-                              <Legend />
-                              <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
-                              <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
-                            </LineChart>
-                          </ResponsiveContainer>
+                          <div style={{ width: '100%', height: '256px' }}>
+                            <ResponsiveContainer width="100%" height={256} key={`evolution-container-${isDarkMode ? 'dark' : 'light'}`}>
+                              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`evolution-chart-${isDarkMode ? 'dark' : 'light'}`}>
+                                <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                                <XAxis 
+                                  dataKey="month" 
+                                  tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                  angle={-45}
+                                  textAnchor="end"
+                                  height={60}
+                                />
+                                <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                                <Tooltip 
+                                  contentStyle={{ 
+                                    backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                    border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                    borderRadius: '8px'
+                                  }}
+                                />
+                                <Legend />
+                                <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
+                                <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
                         );
                       }
                       
@@ -1745,30 +1747,32 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
-                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`trends-chart-${isDarkMode ? 'dark' : 'light'}`}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                            <XAxis 
-                              dataKey="month" 
-                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              angle={-45}
-                              textAnchor="end"
-                              height={60}
-                              interval={0} // Mostrar todas as legendas sem duplicar
-                            />
-                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                borderRadius: '8px'
-                              }}
-                            />
-                            <Legend />
-                            <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
-                            <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
-                          </LineChart>
-                        </ResponsiveContainer>
+                        <div style={{ width: '100%', height: '256px' }}>
+                          <ResponsiveContainer width="100%" height={256} key={`trends-container-${isDarkMode ? 'dark' : 'light'}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`trends-chart-${isDarkMode ? 'dark' : 'light'}`}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                              <XAxis 
+                                dataKey="month" 
+                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={60}
+                                interval={0} // Mostrar todas as legendas sem duplicar
+                              />
+                              <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                  borderRadius: '8px'
+                                }}
+                              />
+                              <Legend />
+                              <Line type="monotone" dataKey="geracao" stroke="#10B981" strokeWidth={2} name="Geração" />
+                              <Line type="monotone" dataKey="consumo" stroke="#3B82F6" strokeWidth={2} name="Consumo" />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
                       );
                     })()}
                   </div>
@@ -2047,51 +2051,53 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
-                          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}`}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                            <XAxis 
-                              dataKey="period" 
-                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              angle={-45}
-                              textAnchor="end"
-                              height={60}
-                            />
-                            <YAxis 
-                              tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
-                              domain={[0, 200]}
-                              ticks={[0, 25, 50, 75, 100, 125, 150, 175, 200]}
-                              tickFormatter={(value) => `${value}%`}
-                            />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                borderRadius: '8px'
-                              }}
-                              formatter={(value: any) => [`${value}%`, 'Eficiência']}
-                              labelFormatter={(label) => `Período: ${label}`}
-                            />
-                            <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="eficiencia" 
-                              stroke="#10B981" 
-                              strokeWidth={2}
-                              name="Eficiência Energética"
-                              dot={{ fill: '#10B981', r: 3 }}
-                              connectNulls={true}
-                            />
-                            {/* Linha de referência em 100% */}
-                            <ReferenceLine 
-                              y={100} 
-                              stroke="#10B981" 
-                              strokeDasharray="5 5" 
-                              strokeWidth={1}
-                              label={{ value: "100% Autossuficiente", position: "top", fill: '#10B981' }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
+                        <div style={{ width: '100%', height: '256px' }}>
+                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}`}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                              <XAxis 
+                                dataKey="period" 
+                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                angle={-45}
+                                textAnchor="end"
+                                height={60}
+                              />
+                              <YAxis 
+                                tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }}
+                                domain={[0, 200]}
+                                ticks={[0, 25, 50, 75, 100, 125, 150, 175, 200]}
+                                tickFormatter={(value) => `${value}%`}
+                              />
+                              <Tooltip 
+                                contentStyle={{ 
+                                  backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
+                                  border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
+                                  borderRadius: '8px'
+                                }}
+                                formatter={(value: any) => [`${value}%`, 'Eficiência']}
+                                labelFormatter={(label) => `Período: ${label}`}
+                              />
+                              <Legend />
+                              <Line 
+                                type="monotone" 
+                                dataKey="eficiencia" 
+                                stroke="#10B981" 
+                                strokeWidth={2}
+                                name="Eficiência Energética"
+                                dot={{ fill: '#10B981', r: 3 }}
+                                connectNulls={true}
+                              />
+                              {/* Linha de referência em 100% */}
+                              <ReferenceLine 
+                                y={100} 
+                                stroke="#10B981" 
+                                strokeDasharray="5 5" 
+                                strokeWidth={1}
+                                label={{ value: "100% Autossuficiente", position: "top", fill: '#10B981' }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
                       );
                     })()}
                   </div>
