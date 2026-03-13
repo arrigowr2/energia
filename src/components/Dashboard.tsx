@@ -2002,16 +2002,30 @@ export default function Dashboard() {
                       // Calcular eficiência para cada período
                       const calculateEfficiency = (data: any[]) => {
                         return data.map(item => {
-                          const gerada = item.energiaGerada || 0;
-                          const consumida = item.energiaConsumida || 0;
-                          const efficiency = consumida > 0 ? Math.min((gerada / consumida) * 100, 200) : 0; // Limitar a 200% para visualização
+                          const gerada = Number(item.energiaGerada) || 0;
+                          const consumida = Number(item.energiaConsumida) || 0;
+                          
+                          // Garantir que não tenhamos valores NaN ou undefined
+                          let efficiency = 0;
+                          if (consumida > 0 && !isNaN(gerada) && !isNaN(consumida)) {
+                            efficiency = Math.min((gerada / consumida) * 100, 200);
+                          } else if (consumida === 0 && gerada > 0) {
+                            // Se não consumiu nada mas gerou energia, é 200% (excedente máximo)
+                            efficiency = 200;
+                          }
+                          
+                          // Garantir que efficiency seja um número válido
+                          efficiency = Number(efficiency.toFixed(1));
+                          if (isNaN(efficiency) || !isFinite(efficiency)) {
+                            efficiency = 0;
+                          }
                           
                           return {
                             period: dateRange === 'selected-month' 
                               ? new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
                               : formatMonthYear(item.date.substring(0, 7)),
                             periodKey: item.date,
-                            eficiencia: Number(efficiency.toFixed(1)),
+                            eficiencia: efficiency,
                             gerada,
                             consumida
                           };
@@ -2019,6 +2033,26 @@ export default function Dashboard() {
                       };
                       
                       const chartData = calculateEfficiency(filteredData);
+                      
+                      // Debug para identificar problemas
+                      console.log('🔍 [EFICIÊNCIA] Dados do gráfico:', chartData.length, 'pontos');
+                      console.log('🔍 [EFICIÊNCIA] Amostra:', chartData.slice(0, 5).map(d => ({
+                        period: d.period,
+                        eficiencia: d.eficiencia,
+                        gerada: d.gerada,
+                        consumida: d.consumida
+                      })));
+                      
+                      // Verificar se há valores nulos ou inválidos
+                      const invalidPoints = chartData.filter(d => 
+                        d.eficiencia === null || 
+                        d.eficiencia === undefined || 
+                        isNaN(d.eficiencia) ||
+                        !isFinite(d.eficiencia)
+                      );
+                      if (invalidPoints.length > 0) {
+                        console.log('❌ [EFICIÊNCIA] Pontos inválidos encontrados:', invalidPoints);
+                      }
                       
                       if (chartData.length === 0) {
                         return (
@@ -2065,6 +2099,7 @@ export default function Dashboard() {
                               strokeWidth={2}
                               name="Eficiência Energética"
                               dot={{ fill: '#10B981', r: 3 }}
+                              connectNulls={true}
                             />
                             {/* Linha de referência em 100% */}
                             <ReferenceLine 
