@@ -64,6 +64,14 @@ export default function Dashboard() {
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [availableMonths, setAvailableMonths] = useState<{value: string, label: string}[]>([]);
   
+  // Estado para forçar re-renderização dos gráficos quando o tema mudar
+  const [chartRenderKey, setChartRenderKey] = useState(0);
+  
+  // Forçar re-renderização dos gráficos quando o tema mudar
+  useEffect(() => {
+    setChartRenderKey(prev => prev + 1);
+  }, [isDarkMode]);
+  
   // Labels para os filtros de data
   const dateRangeLabels: { [key: string]: string } = {
     'latest': 'Último Dado',
@@ -2052,8 +2060,8 @@ export default function Dashboard() {
                       
                       return (
                         <div style={{ width: '100%', height: '256px' }}>
-                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}`}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}`}>
+                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}`}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
                                 dataKey="period" 
