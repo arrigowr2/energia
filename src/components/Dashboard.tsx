@@ -1760,8 +1760,8 @@ export default function Dashboard() {
                       
                       return (
                         <div style={{ width: '100%', height: '256px' }}>
-                          <ResponsiveContainer width="100%" height={256} key={`trends-container-${isDarkMode ? 'dark' : 'light'}`}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`trends-chart-${isDarkMode ? 'dark' : 'light'}`}>
+                          <ResponsiveContainer width="100%" height={256} key={`trends-container-${isDarkMode ? 'dark' : 'light'}-${dateRange}-${selectedYear}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`trends-chart-${isDarkMode ? 'dark' : 'light'}-${dateRange}-${selectedYear}`}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
                                 dataKey="month" 
