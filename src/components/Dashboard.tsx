@@ -1475,7 +1475,7 @@ export default function Dashboard() {
             {/* Controles de Filtro para Análise */}
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <div className={`text-sm mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                1461 e-mails encontrados no total
+                📧 1461 e-mails encontrados no total
               </div>
               <div className="flex flex-wrap gap-2 items-center justify-between">
                 <div className="flex flex-wrap gap-2">
@@ -1509,57 +1509,41 @@ export default function Dashboard() {
                   >
                     30 Dias
                   </button>
-                  <button
-                    onClick={() => setDateRange('year')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      dateRange === 'year' 
-                        ? 'bg-blue-600 text-white' 
-                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    Ano
-                  </button>
-                  <button
-                    onClick={() => setDateRange('selected-month')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      dateRange === 'selected-month' 
-                        ? 'bg-blue-600 text-white' 
-                        : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    Mês Específico
-                  </button>
                 </div>
                 
-                {(dateRange === 'selected-month' || dateRange === 'year') && (
-                  <div className="flex gap-2 items-center">
-                    <select
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(e.target.value)}
-                      className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                    >
-                      {availableMonths.map(month => (
-                        <option key={month.value} value={month.value}>
-                          {month.label}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => {
-                        setSelectedYear(e.target.value);
-                        setDateRange('year'); // Aplicar filtro year quando selecionar ano
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                    >
-                      {availableYears.map(year => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                {/* Selects de Mês e Ano sempre visíveis */}
+                <div className="flex gap-2 items-center">
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => {
+                      setSelectedMonth(e.target.value);
+                      // Forçar re-renderização dos gráficos
+                      setDateRange('selected-month');
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                  >
+                    {availableMonths.map(month => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => {
+                      setSelectedYear(e.target.value);
+                      // Forçar re-renderização dos gráficos
+                      setDateRange('year');
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
