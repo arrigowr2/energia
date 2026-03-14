@@ -2064,8 +2064,8 @@ export default function Dashboard() {
                       
                       return (
                         <div style={{ width: '100%', height: '256px' }}>
-                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}`}>
-                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}`}>
+                          <ResponsiveContainer width="100%" height={256} key={`efficiency-container-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}-${dateRange}-${selectedYear}`}>
+                            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }} key={`efficiency-chart-${isDarkMode ? 'dark' : 'light'}-${chartRenderKey}-${initialRenderKey}-${dateRange}-${selectedYear}`}>
                               <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
                               <XAxis 
                                 dataKey="period" 
