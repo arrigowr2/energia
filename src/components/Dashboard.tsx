@@ -1219,10 +1219,6 @@ export default function Dashboard() {
         </>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className={`col-span-full text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <p>Selecione um período com dados para visualizar as estatísticas</p>
-              <p className="text-sm mt-1">Total disponível: {data.length} dias</p>
-            </div>
           </div>
         )}
 
@@ -1478,6 +1474,9 @@ export default function Dashboard() {
 
             {/* Controles de Filtro para Análise */}
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`text-sm mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                1461 e-mails encontrados no total
+              </div>
               <div className="flex flex-wrap gap-2 items-center justify-between">
                 <div className="flex flex-wrap gap-2">
                   <button
