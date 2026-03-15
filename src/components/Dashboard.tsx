@@ -1590,7 +1590,7 @@ export default function Dashboard() {
                 Insights inteligentes sobre seu sistema de energia
               </p>
               <div className={`text-sm mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                📧 {filteredData.length} dados encontrados no total
+                📧 {data.length} dados encontrados no total
               </div>
                           </div>
 
