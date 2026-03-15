@@ -227,6 +227,11 @@ export default function Dashboard() {
       setShowLogin(true);
     }
     
+    // Definir handleStorageChange antes de usar
+    const handleStorageChange = () => {
+      console.log('🔄 localStorage mudou:', localStorage.getItem('energyData'));
+    };
+    
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
@@ -242,19 +247,6 @@ export default function Dashboard() {
       localStorage.setItem('dataTimestamp', Date.now().toString());
     }
   }, [data]);
-
-  // Adicionar log para monitorar localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      console.log('🔄 localStorage mudou:', localStorage.getItem('energyData'));
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
 
   // Função para atualizar dados quando login é feito
   const handleDataUpdate = (newData: any[], apiResponseInfo?: any) => {
