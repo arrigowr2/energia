@@ -1270,7 +1270,7 @@ export default function Dashboard() {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} interval={0} tickFormatter={tickFmt} />
                     <YAxis tick={{ fontSize: 12 }} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fill: isDarkMode ? '#9CA3AF' : '#6B7280' } }} />
-                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1f2937' : '#ffffff', border: '1px solid ' + (isDarkMode ? '#374151' : '#e5e7eb'), borderRadius: '8px' }} />
+                    <Tooltip contentStyle={{ backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, borderRadius: '8px', color: isDarkMode ? '#F3F4F6' : '#111827' }} />
                     <Legend />
                     <Bar dataKey="energiaGerada" fill="#10b981" name="Produzido" radius={[4, 4, 0, 0]} maxBarSize={40} />
                     <Bar dataKey="energiaConsumida" fill="#3b82f6" name="Consumido" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -1714,7 +1714,8 @@ export default function Dashboard() {
                                   contentStyle={{ 
                                     backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                     border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                    borderRadius: '8px'
+                                    borderRadius: '8px',
+                                    color: isDarkMode ? '#F3F4F6' : '#111827'
                                   }}
                                 />
                                 <Legend />
@@ -1776,7 +1777,8 @@ export default function Dashboard() {
                                 contentStyle={{ 
                                   backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                   border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                  borderRadius: '8px'
+                                  borderRadius: '8px',
+                                  color: isDarkMode ? '#F3F4F6' : '#111827'
                                 }}
                               />
                               <Legend />
@@ -2084,7 +2086,8 @@ export default function Dashboard() {
                                 contentStyle={{ 
                                   backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                   border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                  borderRadius: '8px'
+                                  borderRadius: '8px',
+                                  color: isDarkMode ? '#F3F4F6' : '#111827'
                                 }}
                                 formatter={(value: any) => [`${value}%`, 'Eficiência']}
                                 labelFormatter={(label) => `<span style="color: ${isDarkMode ? '#ffffff' : '#000000'}">Período: ${label}</span>`}
@@ -2434,7 +2437,8 @@ export default function Dashboard() {
                               contentStyle={{ 
                                 backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                 border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                borderRadius: '8px'
+                                borderRadius: '8px',
+                                color: isDarkMode ? '#F3F4F6' : '#111827'
                               }}
                             />
                             <Legend />
