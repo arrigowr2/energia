@@ -2051,7 +2051,7 @@ export default function Dashboard() {
                         });
                       };
                       
-                      const chartData = calculateEfficiency(filteredData);
+                      const chartData = calculateEfficiency(filteredData).sort((a, b) => a.period.localeCompare(b.period));
                       
                       if (chartData.length === 0) {
                         return (
@@ -2108,7 +2108,6 @@ export default function Dashboard() {
                                 stroke="#10B981" 
                                 strokeDasharray="5 5" 
                                 strokeWidth={1}
-                                label={{ value: "100% Autossuficiente", position: "top", fill: '#10B981' }}
                               />
                             </LineChart>
                           </ResponsiveContainer>
@@ -2269,7 +2268,8 @@ export default function Dashboard() {
                               contentStyle={{ 
                                 backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
                                 border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                borderRadius: '8px'
+                                borderRadius: '8px',
+                                color: isDarkMode ? '#F3F4F6' : '#111827'
                               }}
                             />
                             <Legend />
