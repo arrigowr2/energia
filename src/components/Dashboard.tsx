@@ -15,7 +15,8 @@ import {
   LogIn,
   TestTube,
   X,
-  HelpCircle
+  HelpCircle,
+  Lock
 } from 'lucide-react';
 import {
   BarChart,
@@ -1519,7 +1520,8 @@ export default function Dashboard() {
         {/* Conteúdo da aba Análise */}
         {activeTab === 'analysis' && (
           <div className="space-y-6">
-            {filteredData.length > 0 ? (
+            {/* Verificação de acesso à aba Análise */}
+            {(status === 'authenticated' && filteredData.length > 0) || filteredData.length > 0 ? (
               <>
             {/* Cabeçalho da Análise */}
             <div className="text-center mb-8">
@@ -1530,7 +1532,7 @@ export default function Dashboard() {
                 Insights inteligentes sobre seu sistema de energia
               </p>
               <div className={`text-sm mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                📧 1461 e-mails encontrados no total
+                📧 {filteredData.length} dados encontrados no total
               </div>
                           </div>
 
@@ -2715,20 +2717,47 @@ export default function Dashboard() {
             </div>
               </>
             ) : (
-              <div className={`text-center py-12 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>Nenhum dado encontrado para análise</p>
-                <p className="text-sm mt-2">Total de dados disponíveis: {data.length} dias</p>
-                <button
-                  onClick={() => setDateRange('latest')}
-                  className={`mt-4 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isDarkMode 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'bg-blue-500 text-white hover:bg-blue-600'
-                  }`}
-                >
-                  Voltar para Último Registro
-                </button>
+              // Mensagem de bloqueio para aba Análise
+              <div className={`flex flex-col items-center justify-center py-16 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                <div className={`p-4 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} mb-6`}>
+                  <Lock className="w-12 h-12" />
+                </div>
+                <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  🔒 Acesso Restrito
+                </h3>
+                <p className={`text-center max-w-md mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Para acessar a aba <strong>Análise</strong>, você precisa fazer login e carregar seus dados de energia.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  {/* Botão de Login */}
+                  <button
+                    onClick={() => setShowLogin(true)}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      isDarkMode 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                    }`}
+                  >
+                    🔑 Fazer Login
+                  </button>
+                  
+                  {/* Botão de Teste */}
+                  <button
+                    onClick={loadTestData}
+                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                      isDarkMode 
+                        ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                        : 'bg-purple-500 text-white hover:bg-purple-600'
+                    }`}
+                  >
+                    🧪 Carregar Dados de Teste
+                  </button>
+                </div>
+                
+                <p className={`text-sm mt-6 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  💡 Dica: Use o botão "Carregar Dados de Teste" para testar todas as funcionalidades
+                </p>
               </div>
             )}
           </div>
