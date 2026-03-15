@@ -2090,7 +2090,6 @@ export default function Dashboard() {
                                   color: isDarkMode ? '#F3F4F6' : '#111827'
                                 }}
                                 formatter={(value: any) => [`${value}%`, 'Eficiência']}
-                                labelFormatter={(label) => `<span style="color: ${isDarkMode ? '#ffffff' : '#000000'}">Período: ${label}</span>`}
                               />
                               <Legend />
                               <Line 
