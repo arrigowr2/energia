@@ -446,15 +446,8 @@ export default function Dashboard() {
     // Usar comparação de strings ao invés de Date para evitar timezone
     const sortedData = [...data].sort((a, b) => a.date.localeCompare(b.date));
     
-    // Determinar limite de barras baseado no tamanho da tela
-    let maxBars = 30; // Desktop
-    if (isMobile) {
-      maxBars = 7; // Mobile - mas com scroll horizontal para ver mais
-    } else if (window.innerWidth < 1024) {
-      maxBars = 15; // Tablet
-    }
-    
-    return sortedData.slice(0, maxBars);
+    // Remover limite de barras - mostrar todos os dados com scroll horizontal
+    return sortedData;
   };
   
   // Função para agrupar dados por semana
@@ -1168,6 +1161,7 @@ export default function Dashboard() {
                 setCustomDate(e.target.value);
                 setDateRange('custom');
               }}
+              placeholder="Data"
               className="px-3 py-1.5 rounded-lg text-sm bg-gray-700 text-white border-none outline-none"
             />
 
@@ -1657,7 +1651,16 @@ export default function Dashboard() {
                       Evolução da Geração
                     </h4>
                     <div className="relative group">
-                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <HelpCircle 
+                        className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (tooltip) {
+                            tooltip.classList.toggle('hidden');
+                          }
+                        }}
+                      />
                       <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
@@ -1874,7 +1877,16 @@ export default function Dashboard() {
                       Taxa de Aproveitamento
                     </h4>
                     <div className="relative group">
-                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <HelpCircle 
+                        className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (tooltip) {
+                            tooltip.classList.toggle('hidden');
+                          }
+                        }}
+                      />
                       <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
@@ -1998,7 +2010,16 @@ export default function Dashboard() {
                       Autossuficiência Energética
                     </h4>
                     <div className="relative group">
-                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <HelpCircle 
+                        className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (tooltip) {
+                            tooltip.classList.toggle('hidden');
+                          }
+                        }}
+                      />
                       <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
@@ -2214,7 +2235,16 @@ export default function Dashboard() {
                       Padrão Semanal
                     </h4>
                     <div className="relative group">
-                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <HelpCircle 
+                        className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (tooltip) {
+                            tooltip.classList.toggle('hidden');
+                          }
+                        }}
+                      />
                       <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
@@ -2355,7 +2385,16 @@ export default function Dashboard() {
                       Projeção para Próximos 7 Dias
                     </h4>
                     <div className="relative group">
-                      <HelpCircle className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} />
+                      <HelpCircle 
+                        className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} cursor-help`} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (tooltip) {
+                            tooltip.classList.toggle('hidden');
+                          }
+                        }}
+                      />
                       <div className={`absolute right-0 top-6 w-64 p-3 rounded-lg shadow-lg border z-10 hidden group-hover:block ${
                         isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
                       }`}>
