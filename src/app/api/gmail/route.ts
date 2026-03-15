@@ -77,88 +77,146 @@ export async function POST(request: NextRequest) {
     let processedCount = 0;
     let successCount = 0;
 
-    // Processar cada e-mail
-    for (const message of allMessages) {
-      try {
-        const fullMessage = await gmail.users.messages.get({
-          userId: 'me',
-          id: message.id!,
-          format: 'full'
-        });
+    // OTIMIZAÇÃO: Processamento em batch com paralelismo controlado
+    const batchSize = 10; // Processar 10 mensagens em paralelo
+    const maxConcurrentBatches = 3; // Máximo de 3 batches simultâneos
+    
+    console.log(`🚀 Iniciando processamento otimizado: ${allMessages.length} e-mails em batches de ${batchSize}`);
+    
+    // Função com timeout para evitar requisições muito longas
+    const fetchWithTimeout = async (promise: Promise<any>, timeoutMs: number = 10000) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+        )
+      ]);
+    };
+    
+    // Processar em batches
+    for (let i = 0; i < allMessages.length; i += batchSize * maxConcurrentBatches) {
+      const batchPromises = [];
+      
+      // Criar múltiplos batches para processamento paralelo
+      for (let batchIndex = 0; batchIndex < maxConcurrentBatches; batchIndex++) {
+        const startIdx = i + (batchIndex * batchSize);
+        const endIdx = Math.min(startIdx + batchSize, allMessages.length);
+        
+        if (startIdx >= allMessages.length) break;
+        
+        const batch = allMessages.slice(startIdx, endIdx);
+        
+        const batchPromise = (async () => {
+          const batchResults = [];
+          
+          for (const message of batch) {
+            try {
+              const fullMessage = await fetchWithTimeout(
+                gmail.users.messages.get({
+                  userId: 'me',
+                  id: message.id!,
+                  format: 'full'
+                }),
+                10000 // 10 segundos timeout por mensagem
+              );
 
-        // Extrair conteúdo do e-mail
-        let content = '';
-        if (fullMessage.data.payload?.parts) {
-          // E-mail multipart
-          for (const part of fullMessage.data.payload.parts) {
-            if (part.mimeType === 'text/plain' && part.body?.data) {
-              content = Buffer.from(part.body.data, 'base64').toString('utf-8');
-              break;
+              // Extrair conteúdo do e-mail
+              let content = '';
+              if (fullMessage.data.payload?.parts) {
+                // E-mail multipart
+                for (const part of fullMessage.data.payload.parts) {
+                  if (part.mimeType === 'text/plain' && part.body?.data) {
+                    content = Buffer.from(part.body.data, 'base64').toString('utf-8');
+                    break;
+                  }
+                }
+              } else if (fullMessage.data.payload?.body?.data) {
+                // E-mail simples
+                content = Buffer.from(fullMessage.data.payload.body.data, 'base64').toString('utf-8');
+              }
+
+              // Tentar decodificar se tiver caracteres estranhos
+              try {
+                if (content.includes('') || content.includes('?')) {
+                  const isoBuffer = Buffer.from(fullMessage.data.payload?.body?.data || '', 'base64');
+                  const isoContent = isoBuffer.toString('latin1');
+                  content = Buffer.from(isoContent, 'latin1').toString('utf-8');
+                }
+              } catch (decodeError) {
+                console.log('Erro na decodificação:', decodeError);
+              }
+
+              // Extrair data do e-mail e ajustar para dia anterior
+              const dateHeader = fullMessage.data.payload?.headers?.find(h => h.name === 'Date')?.value || '';
+              const emailDate = new Date(dateHeader);
+              
+              // Subtrair 1 dia da data, tratando casos de fim de ano
+              const previousDay = new Date(emailDate);
+              const originalDay = previousDay.getDate();
+              const originalMonth = previousDay.getMonth();
+              const originalYear = previousDay.getFullYear();
+              
+              previousDay.setDate(previousDay.getDate() - 1);
+              
+              // Verificar se realmente cruzou o ano
+              if (originalMonth === 0 && originalDay === 1) {
+                previousDay.setFullYear(originalYear - 1);
+                previousDay.setMonth(11);
+                previousDay.setDate(31);
+              }
+              
+              const date = previousDay.toISOString().split('T')[0];
+
+              // Parse do conteúdo
+              const parsedData = parseEmailContent(content);
+              
+              if (parsedData) {
+                batchResults.push({
+                  date,
+                  ...parsedData
+                });
+                successCount++;
+              }
+              
+              processedCount++;
+              
+              // Progress log a cada 50 mensagens processadas
+              if (processedCount % 50 === 0) {
+                console.log(`📊 Progresso: ${processedCount}/${allMessages.length} (${Math.round(processedCount/allMessages.length*100)}%) - Success: ${successCount}`);
+              }
+              
+            } catch (error) {
+              console.error(`Erro ao processar e-mail ${message.id}:`, error);
+              processedCount++;
             }
           }
-        } else if (fullMessage.data.payload?.body?.data) {
-          // E-mail simples
-          content = Buffer.from(fullMessage.data.payload.body.data, 'base64').toString('utf-8');
-        }
-
-        // Tentar decodificar se tiver caracteres estranhos
-        try {
-          // Se já estiver UTF-8, mantém
-          if (content.includes('�') || content.includes('?')) {
-            // Tenta decodificar como ISO-8859-1 depois converter para UTF-8
-            const isoBuffer = Buffer.from(fullMessage.data.payload?.body?.data || '', 'base64');
-            const isoContent = isoBuffer.toString('latin1');
-            content = Buffer.from(isoContent, 'latin1').toString('utf-8');
-          }
-        } catch (decodeError) {
-          console.log('Erro na decodificação:', decodeError);
-        }
-
-        // Extrair data do e-mail e ajustar para dia anterior
-        const dateHeader = fullMessage.data.payload?.headers?.find(h => h.name === 'Date')?.value || '';
-        const emailDate = new Date(dateHeader);
+          
+          return batchResults;
+        })();
         
-        // Subtrair 1 dia da data, tratando casos de fim de ano
-        const previousDay = new Date(emailDate);
-        const originalDay = previousDay.getDate();
-        const originalMonth = previousDay.getMonth();
-        const originalYear = previousDay.getFullYear();
+        batchPromises.push(batchPromise);
+      }
+      
+      // Executar batches em paralelo
+      try {
+        const batchResults = await Promise.all(batchPromises);
         
-        previousDay.setDate(previousDay.getDate() - 1);
+        // Adicionar resultados aos dados finais
+        batchResults.forEach(results => {
+          emailsData.push(...results);
+        });
         
-        // Verificar se realmente cruzou o ano (só se o dia original era 1º de janeiro)
-        if (originalMonth === 0 && originalDay === 1) {
-          // E-mail era 01/01, então o dia anterior é 31/12 do ano anterior
-          previousDay.setFullYear(originalYear - 1);
-          previousDay.setMonth(11); // Dezembro (0-11)
-          previousDay.setDate(31); // 31 de dezembro
+        // Pequeno delay para não sobrecarregar a API do Gmail
+        if (i + (batchSize * maxConcurrentBatches) < allMessages.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 segundo entre grupos de batches
         }
         
-        const date = previousDay.toISOString().split('T')[0];
-        
-        // Log para depuração
-        console.log(`📅 Data e-mail: ${emailDate.toISOString().split('T')[0]} → Data ajustada: ${date}`);
-
-        // Parse do conteúdo
-        const parsedData = parseEmailContent(content);
-        
-        processedCount++;
-        
-        if (parsedData) {
-          emailsData.push({
-            date,
-            ...parsedData
-          });
-          successCount++;
-          console.log(`✅ E-mail processado: ${date} - ${JSON.stringify(parsedData)}`);
-        } else {
-          console.log(`❌ E-mail sem dados válidos: ${date}`);
-          console.log(`Conteúdo: ${content.substring(0, 200)}...`);
-        }
       } catch (error) {
-        console.error(`Erro ao processar e-mail ${message.id}:`, error);
+        console.error('Erro em batch group:', error);
       }
     }
+    
+    console.log(`✅ Processamento concluído: ${processedCount} processados, ${successCount} com sucesso, ${emailsData.length} dados válidos`);
 
     return NextResponse.json({
       message: `Encontrados ${allMessages.length} e-mails. Processados ${processedCount} e-mails, ${successCount} com dados válidos (busca: ${searchType})`,

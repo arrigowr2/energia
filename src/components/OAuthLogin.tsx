@@ -21,6 +21,8 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState('');
 
   useEffect(() => {
     console.log('🔐 OAuthLogin useEffect executado');
@@ -56,10 +58,19 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
     setIsLoading(true);
     setError('');
     setSuccess('');
+    setProgress(0);
+    setProgressMessage('Iniciando busca de e-mails...');
+    
+    // Configurar timeout para progress updates
+    const progressInterval = setInterval(() => {
+      // Simular progress updates baseados no tempo
+      setProgress(prev => Math.min(prev + Math.random() * 5, 95));
+    }, 2000);
     
     try {
       console.log('🚀 Iniciando fetch para /api/gmail');
-      alert('🚀 Buscando e-mails de kp-net@kp-net.com... Verifique o console F12');
+      setProgressMessage('Conectando ao Gmail...');
+      
       const response = await fetch('/api/gmail', {
         method: 'POST',
         headers: {
@@ -71,12 +82,17 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
       });
 
       console.log('📡 Resposta recebida:', response.status, response.statusText);
-      console.log('📋 Headers da resposta:', response.headers);
+      setProgressMessage('Processando e-mails encontrados...');
+      setProgress(70);
 
       const data = await response.json();
 
       if (response.ok) {
         setSuccess(`✅ ${data.message}`);
+        setProgress(100);
+        setProgressMessage('Processamento concluído!');
+        clearInterval(progressInterval);
+        
         console.log('📧 Resposta da API completa:', data);
         console.log('📊 Dados.data:', data.data);
         console.log('🔢 Tamanho de data.data:', data.data?.length);
@@ -98,16 +114,22 @@ export default function OAuthLogin({ onConfigured }: OAuthLoginProps) {
           console.log('📄 data:', data);
         }
       } else {
-        console.log('❌ Erro na resposta da API:', data);
-        setError(data.error || 'Erro ao buscar e-mails');
+        clearInterval(progressInterval);
+        setError(`❌ Erro: ${data.error || 'Erro desconhecido'}`);
+        setProgressMessage('Erro ao processar e-mails');
       }
-    } catch (err: any) {
-      console.log('❌ Erro no fetch:', err);
-      console.log('❌ Detalhes do erro:', err?.message || err);
-      setError('Erro de conexão com Gmail');
+    } catch (error: any) {
+      clearInterval(progressInterval);
+      console.error('❌ Erro ao buscar e-mails:', error);
+      setError(`❌ Erro de conexão: ${error.message}`);
+      setProgressMessage('Falha na conexão');
     } finally {
-      console.log('🏁 Finally do fetchEmails');
-      setIsLoading(false);
+      clearInterval(progressInterval);
+      setTimeout(() => {
+        setIsLoading(false);
+        setProgress(0);
+        setProgressMessage('');
+      }, 2000);
     }
   };
 
@@ -252,6 +274,30 @@ ${contentData.email.content}
 
   return (
     <div className="text-center">
+      {/* Progress Indicator */}
+      {isLoading && progress > 0 && (
+        <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="mb-2">
+            <div className="flex justify-between text-sm text-blue-600 dark:text-blue-400 mb-1">
+              <span>{progressMessage}</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+          <div className="text-xs text-blue-500 dark:text-blue-400">
+            {progress < 30 && '🔍 Buscando e-mails...'}
+            {progress >= 30 && progress < 70 && '📧 Baixando conteúdo...'}
+            {progress >= 70 && progress < 95 && '⚙️ Processando dados...'}
+            {progress >= 95 && '✨ Quase pronto...'}
+          </div>
+        </div>
+      )}
+      
       <button
         onClick={handleLogin}
         disabled={isLoading}
@@ -260,7 +306,7 @@ ${contentData.email.content}
         {isLoading ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Conectando...
+            {progress > 0 ? `Processando... ${Math.round(progress)}%` : 'Conectando...'}
           </>
         ) : (
           <>
