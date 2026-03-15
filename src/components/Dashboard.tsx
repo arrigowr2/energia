@@ -2439,6 +2439,7 @@ export default function Dashboard() {
                                 borderRadius: '8px',
                                 color: isDarkMode ? '#F3F4F6' : '#111827'
                               }}
+                              formatter={(value: any) => [`${value.toFixed(2)} kWh`, '']}
                             />
                             <Legend />
                             <Line type="monotone" dataKey="geracaoPrev" stroke="#10B981" strokeWidth={2} strokeDasharray="5 5" name="Geração Prevista" />
