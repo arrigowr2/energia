@@ -347,5 +347,16 @@ function parseEmailContent(content: string) {
   console.log(`📊 Parse final:`, data);
   console.log(`📄 Conteúdo do e-mail:`, content.substring(0, 500) + '...');
   
+  // Log detalhado para debugging
+  if (!foundAny) {
+    console.log(`❌ E-mail sem dados válidos - Conteúdo analisado:`, content.substring(0, 200));
+    console.log(`❌ Possíveis razões: 
+      1. Formato do e-mail diferente do esperado
+      2. Campos de energia em outro formato
+      3. E-mail sem dados de energia
+      4. Codificação de caracteres problemática
+    `);
+  }
+  
   return foundAny ? data : null;
 }

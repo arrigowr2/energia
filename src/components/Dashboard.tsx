@@ -180,35 +180,66 @@ export default function Dashboard() {
 
   // Carregar dados do localStorage apenas uma vez
   useEffect(() => {
-    if (hasLoadedData) {
-      console.log('⏭️ Dados já carregados, pulando...');
-      return;
-    }
-    
-    console.log('🔄 Carregando dados do localStorage...');
     const savedData = localStorage.getItem('energyData');
-    console.log('📦 Dados encontrados:', savedData);
+    const savedApiInfo = localStorage.getItem('apiInfo');
+    const oauthMode = localStorage.getItem('oauthMode');
     
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('📊 Dados parseados:', parsedData);
-        setData(parsedData);
-        setFilteredData(parsedData);
-        setHasLoadedData(true);
+        console.log('📊 Dados carregados do localStorage:', parsedData.length, 'registros');
+        
+        // Verificar se os dados são recentes (menos de 24 horas)
+        const dataTimestamp = localStorage.getItem('dataTimestamp');
+        const isRecent = dataTimestamp && (Date.now() - parseInt(dataTimestamp)) < 24 * 60 * 60 * 1000;
+        
+        if (isRecent) {
+          console.log('✅ Dados recentes encontrados, usando cache');
+          setData(parsedData);
+          setFilteredData(parsedData);
+          setHasLoadedData(true);
+          
+          // Carregar informações da API se disponíveis
+          if (savedApiInfo) {
+            try {
+              const parsedApiInfo = JSON.parse(savedApiInfo);
+              setApiInfo(parsedApiInfo);
+            } catch (e) {
+              console.log('⚠️ Erro ao carregar info da API:', e);
+            }
+          }
+          
+          // Extrair datas disponíveis
+          extractAvailableDates(parsedData);
+        } else {
+          console.log('⚠️ Dados expirados, precisam ser recarregados');
+          localStorage.removeItem('energyData');
+          localStorage.removeItem('dataTimestamp');
+          localStorage.removeItem('apiInfo');
+        }
       } catch (error) {
-        console.error('❌ Erro ao carregar dados salvos:', error);
+        console.error('❌ Erro ao carregar dados do localStorage:', error);
+        localStorage.removeItem('energyData');
       }
-    } else {
-      console.log('📭 Nenhum dado encontrado no localStorage');
     }
-  }, [status, hasLoadedData]);
+    
+    if (!oauthMode) {
+      setShowLogin(true);
+    }
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   // Salvar dados no localStorage quando mudar
   useEffect(() => {
     if (data.length > 0) {
       console.log('💾 Salvando dados no localStorage:', data.length, 'itens');
       localStorage.setItem('energyData', JSON.stringify(data));
+      localStorage.setItem('dataTimestamp', Date.now().toString());
     }
   }, [data]);
 
@@ -1743,12 +1774,16 @@ export default function Dashboard() {
                         // Mostrar dados diários do mês selecionado
                         const chartData = filteredData
                           .sort((a, b) => a.date.localeCompare(b.date)) // Ordenar por data crescente
-                          .map(item => ({
-                            month: new Date(item.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
-                            monthKey: item.date,
-                            geracao: item.energiaGerada,
-                            consumo: item.energiaConsumida
-                          }));
+                          .map(item => {
+                            // Corrigir timezone: usar UTC para evitar problemas com fuso horário
+                            const date = new Date(item.date + 'T00:00:00');
+                            return {
+                              month: date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', timeZone: 'UTC' }),
+                              monthKey: item.date,
+                              geracao: item.energiaGerada,
+                              consumo: item.energiaConsumida
+                            };
+                          });
                         
                         if (chartData.length === 0) {
                           return (
@@ -1840,12 +1875,18 @@ export default function Dashboard() {
                         monthlyData[monthKey].consumo += item.energiaConsumida;
                       });
                       
-                      const chartData = Object.values(monthlyData).map(item => ({
-                        month: formatMonthYear(item.month),
-                        monthKey: item.month, // Adicionar chave única para evitar duplicatas
-                        geracao: item.geracao,
-                        consumo: item.consumo
-                      }));
+                      // Ordenar meses corretamente (janeiro a dezembro)
+                      const sortedMonths = Object.keys(monthlyData).sort((a, b) => a.localeCompare(b));
+                      
+                      const chartData = sortedMonths.map(monthKey => {
+                        const item = monthlyData[monthKey];
+                        return {
+                          month: formatMonthYear(monthKey),
+                          monthKey: monthKey, // Adicionar chave única para evitar duplicatas
+                          geracao: item.geracao,
+                          consumo: item.consumo
+                        };
+                      });
                       
                       // Sempre mostrar o gráfico se houver dados mensais, mesmo que seja apenas 1 mês
                       // O problema pode ser que chartData.length === 0 mesmo com dados
@@ -2139,20 +2180,62 @@ export default function Dashboard() {
                     {(() => {
                       // Calcular eficiência para cada período
                       const calculateEfficiency = (data: any[]) => {
+                        // Para ano inteiro, agregar por mês primeiro
+                        if (dateRange === 'year') {
+                          const monthlyEfficiency: { [key: string]: any } = {};
+                          
+                          data.forEach(item => {
+                            const monthKey = item.date.substring(0, 7); // YYYY-MM
+                            if (!monthlyEfficiency[monthKey]) {
+                              monthlyEfficiency[monthKey] = { gerada: 0, consumida: 0, count: 0 };
+                            }
+                            monthlyEfficiency[monthKey].gerada += Number(item.energiaGerada) || 0;
+                            monthlyEfficiency[monthKey].consumida += Number(item.energiaConsumida) || 0;
+                            monthlyEfficiency[monthKey].count++;
+                          });
+                          
+                          // Ordenar meses corretamente e calcular eficiência
+                          const sortedMonths = Object.keys(monthlyEfficiency).sort((a, b) => a.localeCompare(b));
+                          
+                          return sortedMonths.map(monthKey => {
+                            const monthData = monthlyEfficiency[monthKey];
+                            const gerada = monthData.gerada;
+                            const consumida = monthData.consumida;
+                            
+                            let efficiency = 0;
+                            if (consumida > 0 && !isNaN(gerada) && !isNaN(consumida)) {
+                              efficiency = Math.min((gerada / consumida) * 100, 200);
+                            } else if (consumida === 0 && gerada > 0) {
+                              efficiency = 200;
+                            }
+                            
+                            efficiency = Number(efficiency.toFixed(1));
+                            if (isNaN(efficiency) || !isFinite(efficiency)) {
+                              efficiency = 0;
+                            }
+                            
+                            return {
+                              period: formatMonthYear(monthKey),
+                              periodKey: monthKey,
+                              eficiencia: efficiency,
+                              gerada,
+                              consumida
+                            };
+                          });
+                        }
+                        
+                        // Para outros filtros, manter lógica original
                         return data.map(item => {
                           const gerada = Number(item.energiaGerada) || 0;
                           const consumida = Number(item.energiaConsumida) || 0;
                           
-                          // Garantir que não tenhamos valores NaN ou undefined
                           let efficiency = 0;
                           if (consumida > 0 && !isNaN(gerada) && !isNaN(consumida)) {
                             efficiency = Math.min((gerada / consumida) * 100, 200);
                           } else if (consumida === 0 && gerada > 0) {
-                            // Se não consumiu nada mas gerou energia, é 200% (excedente máximo)
                             efficiency = 200;
                           }
                           
-                          // Garantir que efficiency seja um número válido
                           efficiency = Number(efficiency.toFixed(1));
                           if (isNaN(efficiency) || !isFinite(efficiency)) {
                             efficiency = 0;
@@ -2161,7 +2244,7 @@ export default function Dashboard() {
                           return {
                             period: dateRange === 'selected-month' || dateRange === 'month' || dateRange === 'week' || dateRange === 'latest'
                               ? `${item.date.substring(8, 10)}/${item.date.substring(5, 7).replace('01', 'jan').replace('02', 'fev').replace('03', 'mar').replace('04', 'abr').replace('05', 'mai').replace('06', 'jun').replace('07', 'jul').replace('08', 'ago').replace('09', 'set').replace('10', 'out').replace('11', 'nov').replace('12', 'dez')}`
-                              : formatMonthYear(item.date.substring(0, 7)), // Apenas para filtro 'year'
+                              : formatMonthYear(item.date.substring(0, 7)),
                             periodKey: item.date,
                             eficiencia: efficiency,
                             gerada,
@@ -2170,7 +2253,7 @@ export default function Dashboard() {
                         });
                       };
                       
-                      const chartData = calculateEfficiency(filteredData).sort((a, b) => a.period.localeCompare(b.period));
+                      const chartData = calculateEfficiency(filteredData);
                       
                       if (chartData.length === 0) {
                         return (
