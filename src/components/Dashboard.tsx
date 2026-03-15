@@ -1154,41 +1154,15 @@ export default function Dashboard() {
 
             
             {/* Date picker */}
-            <div className="relative">
-              <input
-                type="text"
-                value={customDate ? new Date(customDate).toLocaleDateString('pt-BR') : ''}
-                onChange={(e) => {
-                  // Se o usuário apagar, limpa a data
-                  if (!e.target.value) {
-                    setCustomDate('');
-                    setDateRange('custom');
-                    return;
-                  }
-                  // Converte dd/mm/aaaa para yyyy-mm-dd
-                  const parts = e.target.value.split('/');
-                  if (parts.length === 3) {
-                    const [day, month, year] = parts;
-                    const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                    setCustomDate(isoDate);
-                    setDateRange('custom');
-                  }
-                }}
-                placeholder="Data"
-                onFocus={(e) => {
-                  // Muda para type=date quando focado
-                  e.target.type = 'date';
-                  if (!customDate) {
-                    e.target.value = '';
-                  }
-                }}
-                onBlur={(e) => {
-                  // Volta para type=text quando perde foco
-                  e.target.type = 'text';
-                }}
-                className="px-3 py-1.5 rounded-lg text-sm bg-gray-700 text-white border-none outline-none w-32"
-              />
-            </div>
+            <input
+              type="date"
+              value={customDate}
+              onChange={(e) => {
+                setCustomDate(e.target.value);
+                setDateRange('custom');
+              }}
+              className="px-3 py-1.5 rounded-lg text-sm bg-gray-700 text-white border-none outline-none"
+            />
 
             {/* Botões de ação */}
             <div className="flex gap-2 items-center border-l border-gray-600 pl-2">
