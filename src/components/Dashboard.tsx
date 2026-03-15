@@ -1543,7 +1543,7 @@ export default function Dashboard() {
 
             {/* Cards Resumo */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border-2 border-gray-200 dark:border-gray-700`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-2xl">📈</span>
                   <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tendência</span>
@@ -1572,7 +1572,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border-2 border-gray-200 dark:border-gray-700`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-2xl">🏆</span>
                   <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Melhor Dia</span>
@@ -1597,7 +1597,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border-2 border-gray-200 dark:border-gray-700`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-2xl">⚡</span>
                   <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Autossuficiência</span>
@@ -1616,7 +1616,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border border-gray-200 dark:border-gray-700`}>
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border-2 border-gray-200 dark:border-gray-700`}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-2xl">🎯</span>
                   <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Previsão</span>
