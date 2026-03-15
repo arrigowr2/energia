@@ -1156,7 +1156,7 @@ export default function Dashboard() {
             {/* Date picker */}
             <input
               type="date"
-              value={customDate}
+              value={customDate || ''}
               onChange={(e) => {
                 setCustomDate(e.target.value);
                 setDateRange('custom');
@@ -2290,24 +2290,55 @@ export default function Dashboard() {
                       }
                       
                       return (
-                        <ResponsiveContainer width="100%" height={256}>
-                          <BarChart data={weekData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
-                            <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} angle={-45} textAnchor="end" height={60} />
-                            <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF',
-                                border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`,
-                                borderRadius: '8px',
-                                color: isDarkMode ? '#F3F4F6' : '#111827'
-                              }}
-                            />
-                            <Legend />
-                            <Bar dataKey="geracao" fill="#10B981" name="Geração Média" />
-                            <Bar dataKey="consumo" fill="#3B82F6" name="Consumo Médio" />
-                          </BarChart>
-                        </ResponsiveContainer>
+                        <div className="h-64">
+                          {/* Scroll horizontal para mobile quando tiver muitas barras */}
+                          {(() => {
+                            const needsScroll = isMobile && weekData.length > 7;
+                            const scrollWidth = weekData.length * (isMobile ? 80 : 100);
+                            
+                            return needsScroll ? (
+                              <div className="overflow-x-auto overflow-y-hidden">
+                                <ResponsiveContainer width={Math.max(400, scrollWidth)} height={256}>
+                                  <BarChart data={weekData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                                    <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} angle={-45} textAnchor="end" height={60} />
+                                    <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                                    <Tooltip 
+                                      contentStyle={{ 
+                                        backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', 
+                                        border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, 
+                                        borderRadius: '8px',
+                                        color: isDarkMode ? '#F3F4F6' : '#111827'
+                                      }}
+                                    />
+                                    <Legend />
+                                    <Bar dataKey="geracao" fill="#10b981" name="Geração Média" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                    <Bar dataKey="consumo" fill="#3b82f6" name="Consumo Médio" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                  </BarChart>
+                                </ResponsiveContainer>
+                              </div>
+                            ) : (
+                              <ResponsiveContainer width="100%" height={256}>
+                                <BarChart data={weekData}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#4B5563' : '#E5E7EB'} />
+                                  <XAxis dataKey="day" tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} angle={-45} textAnchor="end" height={60} />
+                                  <YAxis tick={{ fill: isDarkMode ? '#9CA3AF' : '#6B7280' }} />
+                                  <Tooltip 
+                                    contentStyle={{ 
+                                      backgroundColor: isDarkMode ? '#1F2937' : '#FFFFFF', 
+                                      border: `1px solid ${isDarkMode ? '#4B5563' : '#E5E7EB'}`, 
+                                      borderRadius: '8px',
+                                      color: isDarkMode ? '#F3F4F6' : '#111827'
+                                    }}
+                                  />
+                                  <Legend />
+                                  <Bar dataKey="geracao" fill="#10b981" name="Geração Média" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                  <Bar dataKey="consumo" fill="#3b82f6" name="Consumo Médio" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            );
+                          })()}
+                        </div>
                       );
                     })()}
                   </div>
