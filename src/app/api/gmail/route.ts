@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const emailsData = [];
+    const emailsData: any[] = [];
     let processedCount = 0;
     let successCount = 0;
 
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
               }
 
               // Extrair data do e-mail e ajustar para dia anterior
-              const dateHeader = fullMessage.data.payload?.headers?.find(h => h.name === 'Date')?.value || '';
+              const dateHeader = fullMessage.data.payload?.headers?.find((h: any) => h.name === 'Date')?.value || '';
               const emailDate = new Date(dateHeader);
               
               // Subtrair 1 dia da data, tratando casos de fim de ano
