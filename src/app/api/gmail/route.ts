@@ -349,12 +349,36 @@ function parseEmailContent(content: string) {
   
   // Log detalhado para debugging
   if (!foundAny) {
-    console.log(`❌ E-mail sem dados válidos - Conteúdo analisado:`, content.substring(0, 200));
+    console.log(`❌ E-mail sem dados válidos - Conteúdo analisado:`, content.substring(0, 500));
+    console.log(`❌ Tamanho total do conteúdo:`, content.length, 'caracteres');
+    
+    // Verificar se contém termos relacionados a energia
+    const hasEnergyTerms = /kWh|消費|買電|売電|発電|energia|consumo|gerada|comprada|vendida/i.test(content);
+    console.log(`❌ Contém termos de energia:`, hasEnergyTerms ? 'SIM' : 'NÃO');
+    
+    // Verificar se contém números
+    const hasNumbers = /\d+\.?\d*/.test(content);
+    console.log(`❌ Contém números:`, hasNumbers ? 'SIM' : 'NÃO');
+    
+    // Verificar padrões específicos
+    const patterns = [
+      { name: 'Kwh pattern', regex: /\d+\.?\d*\s*kWh?/i },
+      { name: 'Japanese characters', regex: /[\u3040-\u309F\u30A0-\u30FF]/ },
+      { name: 'Portuguese terms', regex: /energia|consumo|gerada|comprada|vendida/i }
+    ];
+    
+    console.log(`❌ Análise de padrões:`);
+    patterns.forEach(pattern => {
+      const match = content.match(pattern.regex);
+      console.log(`   - ${pattern.name}:`, match ? `SIM (${match.length} ocorrências)` : 'NÃO');
+    });
+    
     console.log(`❌ Possíveis razões: 
       1. Formato do e-mail diferente do esperado
       2. Campos de energia em outro formato
       3. E-mail sem dados de energia
       4. Codificação de caracteres problemática
+      5. E-mail de outro assunto (sem dados de energia)
     `);
   }
   
