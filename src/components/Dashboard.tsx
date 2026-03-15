@@ -1101,17 +1101,17 @@ export default function Dashboard() {
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     dateRange === 'latest' 
                       ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
-                  Último Registro
+                  Hoje
                 </button>
                 <button
                   onClick={() => setDateRange('week')}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     dateRange === 'week' 
                       ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
                   7 Dias
@@ -1121,47 +1121,41 @@ export default function Dashboard() {
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                     dateRange === 'month' 
                       ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
                   30 Dias
                 </button>
                 
-                {/* Selects de Mês e Ano sempre visíveis */}
-                <div className="flex gap-2 items-center">
-                  <select
-                    value={selectedMonth}
-                    onChange={(e) => {
-                      setSelectedMonth(e.target.value);
-                      // Forçar re-renderização dos gráficos
-                      setDateRange('selected-month');
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                  >
-                    <option value="">Mês</option>
-                    {availableMonths.map(month => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={selectedYear}
-                    onChange={(e) => {
-                      setSelectedYear(e.target.value);
-                      // Forçar re-renderização dos gráficos
-                      setDateRange('year');
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                  >
-                    <option value="">Ano</option>
-                    {availableYears.map(year => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Dropdown Mês */}
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
+                    setDateRange('selected-month');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
+                >
+                  <option value="">Mês</option>
+                  {availableMonths.map(month => (
+                    <option key={month.value} value={month.value}>{month.label}</option>
+                  ))}
+                </select>
+                
+                {/* Dropdown Ano */}
+                <select
+                  value={selectedYear}
+                  onChange={(e) => {
+                    setSelectedYear(e.target.value);
+                    setDateRange('year');
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-gray-700 text-gray-300 hover:bg-gray-600 border-none outline-none`}
+                >
+                  <option value="">Ano</option>
+                  {availableYears.map(year => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
               </div>
             )}
 
@@ -1545,75 +1539,7 @@ export default function Dashboard() {
               <div className={`text-sm mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 📧 1461 e-mails encontrados no total
               </div>
-              <div className="flex gap-1 sm:gap-2">
-                <button
-                  onClick={() => setDateRange('latest')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    dateRange === 'latest' 
-                      ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Último Registro
-                </button>
-                <button
-                  onClick={() => setDateRange('week')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    dateRange === 'week' 
-                      ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  7 Dias
-                </button>
-                <button
-                  onClick={() => setDateRange('month')}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    dateRange === 'month' 
-                      ? 'bg-blue-600 text-white' 
-                      : isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  30 Dias
-                </button>
-              </div>
-              
-              {/* Selects de Mês e Ano sempre visíveis */}
-              <div className="flex gap-2 items-center">
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => {
-                    setSelectedMonth(e.target.value);
-                    // Forçar re-renderização dos gráficos
-                    setDateRange('selected-month');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                >
-                  <option value="">Mês</option>
-                  {availableMonths.map(month => (
-                    <option key={month.value} value={month.value}>
-                      {month.label}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => {
-                    setSelectedYear(e.target.value);
-                    // Forçar re-renderização dos gráficos
-                    setDateRange('year');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                >
-                  <option value="">Ano</option>
-                  {availableYears.map(year => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                          </div>
 
             {/* Cards Resumo */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
