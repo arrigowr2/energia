@@ -1470,13 +1470,13 @@ export default function Dashboard() {
               <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 Insights inteligentes sobre seu sistema de energia
               </p>
+              <div className={`text-sm mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                📧 1461 e-mails encontrados no total
+              </div>
             </div>
 
             {/* Controles de Filtro para Análise */}
             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className={`text-sm mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                📧 1461 e-mails encontrados no total
-              </div>
               <div className="flex flex-wrap gap-2 items-center justify-between">
                 <div className="flex flex-wrap gap-2">
                   <button
@@ -1522,6 +1522,7 @@ export default function Dashboard() {
                     }}
                     className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   >
+                    <option value="">Mês</option>
                     {availableMonths.map(month => (
                       <option key={month.value} value={month.value}>
                         {month.label}
@@ -1537,6 +1538,7 @@ export default function Dashboard() {
                     }}
                     className={`px-3 py-1.5 rounded-lg text-sm border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   >
+                    <option value="">Ano</option>
                     {availableYears.map(year => (
                       <option key={year} value={year}>
                         {year}
