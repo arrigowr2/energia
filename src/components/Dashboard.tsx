@@ -16,7 +16,8 @@ import {
   TestTube,
   X,
   HelpCircle,
-  Lock
+  Lock,
+  AlertCircle
 } from 'lucide-react';
 import {
   BarChart,
@@ -1521,27 +1522,55 @@ export default function Dashboard() {
         {activeTab === 'dashboard' && filteredData.length === 0 && (
           <div className={`flex flex-col items-center justify-center py-16 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             <div className={`p-4 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} mb-6`}>
-              <Lock className="w-12 h-12" />
+              {status === 'authenticated' ? (
+                <AlertCircle className="w-12 h-12" />
+              ) : (
+                <Lock className="w-12 h-12" />
+              )}
             </div>
             <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-              🔒 Dados Necessários
+              {status === 'authenticated' ? (
+                <>📭 Sem Dados Necessários</>
+              ) : (
+                <>🔒 Dados Necessários</>
+              )}
             </h3>
             <p className={`text-center max-w-md mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              Para visualizar os dados do <strong>Dashboard</strong>, você precisa fazer login e carregar suas informações de energia.
+              {status === 'authenticated' ? (
+                <>Para visualizar os dados do <strong>Dashboard</strong>, você precisa fazer login de um e-mail que contenha os dados referente a informações de energia.</>
+              ) : (
+                <>Para visualizar os dados do <strong>Dashboard</strong>, você precisa fazer login e carregar suas informações de energia.</>
+              )}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              {/* Botão de Login */}
-              <button
-                onClick={() => setShowLogin(true)}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  isDarkMode 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-blue-500 text-white hover:bg-blue-600'
-                }`}
-              >
-                🔑 Fazer Login
-              </button>
+              {status === 'authenticated' ? (
+                /* Botão de Sair para usuário logado sem dados */
+                <button
+                  onClick={() => {
+                    signOut({ callbackUrl: '/' });
+                  }}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    isDarkMode 
+                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                      : 'bg-red-500 text-white hover:bg-red-600'
+                  }`}
+                >
+                  🚪 Sair
+                </button>
+              ) : (
+                /* Botão de Login para usuário não logado */
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    isDarkMode 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-blue-500 text-white hover:bg-blue-600'
+                  }`}
+                >
+                  🔑 Fazer Login
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -2749,27 +2778,55 @@ export default function Dashboard() {
               // Mensagem de bloqueio para aba Análise
               <div className={`flex flex-col items-center justify-center py-16 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 <div className={`p-4 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} mb-6`}>
-                  <Lock className="w-12 h-12" />
+                  {status === 'authenticated' ? (
+                    <AlertCircle className="w-12 h-12" />
+                  ) : (
+                    <Lock className="w-12 h-12" />
+                  )}
                 </div>
                 <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  🔒 Acesso Restrito
+                  {status === 'authenticated' ? (
+                    <>📭 Sem Dados Necessários</>
+                  ) : (
+                    <>🔒 Acesso Restrito</>
+                  )}
                 </h3>
                 <p className={`text-center max-w-md mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Para acessar a aba <strong>Análise</strong>, você precisa fazer login e carregar seus dados de energia.
+                  {status === 'authenticated' ? (
+                    <>Para acessar a aba <strong>Análise</strong>, você precisa fazer login de um e-mail que contenha os dados referente a informações de energia.</>
+                  ) : (
+                    <>Para acessar a aba <strong>Análise</strong>, você precisa fazer login e carregar seus dados de energia.</>
+                  )}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
-                  {/* Botão de Login */}
-                  <button
-                    onClick={() => setShowLogin(true)}
-                    className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                      isDarkMode 
-                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                        : 'bg-blue-500 text-white hover:bg-blue-600'
-                    }`}
-                  >
-                    🔑 Fazer Login
-                  </button>
+                  {status === 'authenticated' ? (
+                    /* Botão de Sair para usuário logado sem dados */
+                    <button
+                      onClick={() => {
+                        signOut({ callbackUrl: '/' });
+                      }}
+                      className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                        isDarkMode 
+                          ? 'bg-red-600 text-white hover:bg-red-700' 
+                          : 'bg-red-500 text-white hover:bg-red-600'
+                      }`}
+                    >
+                      🚪 Sair
+                    </button>
+                  ) : (
+                    /* Botão de Login para usuário não logado */
+                    <button
+                      onClick={() => setShowLogin(true)}
+                      className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                        isDarkMode 
+                          ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                          : 'bg-blue-500 text-white hover:bg-blue-600'
+                      }`}
+                    >
+                      🔑 Fazer Login
+                    </button>
+                  )}
                 </div>
               </div>
             )}
